@@ -1,0 +1,27 @@
+## --- Carpetas de salida (la que configuramos en settings.json) ---
+build/
+out/
+
+## --- Archivos temporales comunes de LaTeX ---
+*.aux
+*.log
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.out
+*.nav
+*.snm
+*.bbl
+*.blg
+*.thm
+*.pre
+
+## --- Archivos temporales de VS Code ---
+.vscode/
+.history/
+*.code-workspace
+
+## --- Archivos del sistema ---
+.DS_Store
+Thumbs.db

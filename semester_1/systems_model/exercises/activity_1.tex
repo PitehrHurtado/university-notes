@@ -1,0 +1,179 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{tikz}
+\usepackage[normalem]{ulem}
+\usepackage[left=1cm, right=2cm, top=2cm, bottom=2cm]{geometry}
+\usepackage[framemethod=TikZ]{mdframed}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit}
+
+\newmdenv[
+  linecolor=black,
+  outerlinewidth=1pt,
+  roundcorner=5pt,
+  innertopmargin=10pt,
+  innerbottommargin=10pt,
+  backgroundcolor=gray!5
+]{actividadbox}
+
+\tikzset{
+    blackbox/.style={
+        rectangle, 
+        draw, 
+        fill=white, 
+        minimum width=3.5cm, 
+        minimum height=2cm, 
+        ultra thick, 
+        align=center, % Mantenemos el centro
+        inner sep=5pt  % Añade un margen interno para que el texto no toque los bordes
+    },
+    arrow/.style={-Stealth, thick}
+}
+
+\begin{document}
+
+\begin{actividadbox}
+    \textbf{Actividad:} \sout{Determine} Distinga límites, entorno, entradas y salidas de los siguientes sistemas:
+    \begin{enumerate}
+        \item La sala de clases IBC 6-29
+        \item El televisor de su casa
+        \item Una gallina
+        \item La cárcel de Valparaíso
+        \item La PUCV
+        \item Esta clase
+    \end{enumerate}
+\end{actividadbox}
+
+\section*{Resolución:}
+
+\subsection*{a. Sistema: Sala de clases IBC 6-29}
+
+Podemos distinguir un sistema de Sala de Clases IBC 6-29 como el lugar físico que alberga la interacción entre estudiantes y profesores, donde se imparten conocimientos y se generan aprendizajes.
+\vspace{1cm}
+
+\begin{tikzpicture}[node distance=2cm]
+    % Caja Negra
+    \node[blackbox] (system) {SALA IBC 6-29 \\ \small(Límite: Paredes y Puerta)};
+    
+    % Entorno
+    \node[draw, dashed, inner sep=1cm, fit=(system), label=above left:Entorno: Salas de clases adyacentes] (env) {};
+
+    % Entradas (Inputs) - Corregidas para que apunten HACIA la caja
+    \draw[arrow] ([xshift=-2cm, yshift=0.5cm]system.west) node[left, align=right] {Estudiantes/Profesores} -- ([yshift=0.5cm]system.west);
+    \draw[arrow] ([xshift=-2cm, yshift=-0.5cm]system.west) node[left] {Información/Guías} -- ([yshift=-0.5cm]system.west);
+
+    % Salidas (Outputs)
+    \draw[arrow] (system.east) -- ++(2,0) node[right, align=left] {Estudiantes/Profesores};
+\end{tikzpicture}
+
+\subsection*{b. Sistema: Televisor de su casa}
+
+Podemos distinguir un sistema de Televisor como un dispositivo electrónico 
+que recibe señales de televisión y energía para producir imágenes y sonidos, 
+permitiendo la visualización de contenido multimedia.
+\vspace{1cm}
+
+\begin{tikzpicture}[node distance=2cm]
+    % Caja Negra
+    \node[blackbox] (televisor) {TELEVISOR \\ \small(Límite: Carcasa)};
+    
+    % Entorno
+    \node[draw, dashed, inner sep=1cm, fit=(televisor), label=above left:Entorno: Sala de estar] (env) {};
+
+    % Entradas (Inputs) - Corregidas para que apunten HACIA la caja
+    \draw[arrow] ([xshift=-2cm, yshift=0.5cm]televisor.west) node[left, align=right] {Señal de TV / Energía} -- ([yshift=0.5cm]televisor.west);
+    \draw[arrow] ([xshift=-2cm, yshift=-0.5cm]televisor.west) node[left] {Señal de Control Remoto} -- ([yshift=-0.5cm]televisor.west);
+
+    % Salidas (Outputs)
+    \draw[arrow] (televisor.east) -- ++(2,0) node[right, align=left] {Imagen / Sonido};
+\end{tikzpicture}
+
+\subsection*{c. Sistema: Una gallina}
+
+Podemos distinguir un sistema de una gallina como un organismo vivo que 
+interactúa con su entorno para sobrevivir, crecer y reproducirse, 
+produciendo huevos y otros subproductos.
+\vspace{1cm}
+
+\begin{tikzpicture}[node distance=2cm]
+    % Caja Negra
+    \node[blackbox] (gallina) {GALLINA \\ \small(Límite: Piel/Plumas)};
+    
+    % Entorno
+    \node[draw, dashed, inner sep=1cm, fit=(gallina), label=above left:Entorno: Galpón / Campo] (env) {};
+
+    % Entradas (Inputs) - Corregidas para que apunten HACIA la caja
+    \draw[arrow] ([xshift=-2cm, yshift=0.5cm]gallina.west) node[left, align=right] {Maíz / Agua} -- ([yshift=0.5cm]gallina.west);
+    \draw[arrow] ([xshift=-2cm, yshift=-0.5cm]gallina.west) node[left] {Oxígeno / Luz Solar} -- ([yshift=-0.5cm]gallina.west);
+
+    % Salidas (Outputs)
+    \draw[arrow] (gallina.east) -- ++(2,0) node[right, align=left] {Huevos / Subproductos};
+\end{tikzpicture}
+
+\subsection*{d. Sistema: La cárcel de Valparaíso}
+
+Podemos distinguir un sistema de la cárcel de Valparaíso como un lugar físico 
+que alberga la interacción entre internos y personal penitenciario, 
+donde se imparten normas y se generan comportamientos.
+\vspace{1cm}
+
+\begin{tikzpicture}[node distance=2cm]
+    % Caja Negra
+    \node[blackbox] (carcel) {CÁRCEL DE VALPARAÍSO \\ \small(Límite: Muros y Rejas)};
+    
+    % Entorno
+    \node[draw, dashed, inner sep=1cm, fit=(carcel), label=above left:Entorno: Ciudad / Comunidad] (env) {};
+
+    % Entradas (Inputs) - Corregidas para que apunten HACIA la caja
+    \draw[arrow] ([xshift=-2cm, yshift=0.5cm]carcel.west) node[left, align=right] {Internos / Personal} -- ([yshift=0.5cm]carcel.west);
+    \draw[arrow] ([xshift=-2cm, yshift=-0.5cm]carcel.west) node[left] {Recursos / Información} -- ([yshift=-0.5cm]carcel.west);
+
+    % Salidas (Outputs)
+    \draw[arrow] (carcel.east) -- ++(2,0) node[right, align=left] {Comportamientos \\ / Normas};
+
+\end{tikzpicture}
+
+\subsection*{e. Sistema: La PUCV}
+
+Podemos distinguir un sistema de la PUCV como una institución educativa que 
+interactúa con su entorno para formar profesionales, generar conocimiento y 
+contribuir al desarrollo social.
+\vspace{1cm}
+
+\begin{tikzpicture}[node distance=2cm]
+    % Caja Negra
+    \node[blackbox] (pucv) {PUCV \\ \small(Límite: Campus / Infraestructura)};
+    
+    % Entorno
+    \node[draw, dashed, inner sep=1cm, fit=(pucv), label=above left:Entorno: Comunidad / Sociedad] (env) {};
+
+    % Entradas (Inputs) - Corregidas para que apunten HACIA la caja
+    \draw[arrow] ([xshift=-2cm, yshift=0.5cm]pucv.west) node[left, align=right] {Estudiantes / Profesores} -- ([yshift=0.5cm]pucv.west);
+    \draw[arrow] ([xshift=-2cm, yshift=-0.5cm]pucv.west) node[left] {Recursos / Información} -- ([yshift=-0.5cm]pucv.west);
+
+    % Salidas (Outputs)
+    \draw[arrow] (pucv.east) -- ++(2,0) node[right, align=left] {Graduados\\ / Conocimiento};
+\end{tikzpicture}
+
+\subsection*{f. Sistema: Esta Clase}
+
+Podemos distinguir un sistema de esta clase como un grupo de estudiantes y profesores que 
+interactúan en un entorno educativo para aprender, enseñar y desarrollar habilidades.
+\vspace{1cm}
+
+\begin{tikzpicture}[node distance=2cm]
+    % Caja Negra
+    \node[blackbox] (clase) {CLASE \\ \small(Límite: Aula / Plataforma Educativa)};
+    
+    % Entorno
+    \node[draw, dashed, inner sep=1cm, fit=(clase), label=above left:Entorno: Comunidad / Sociedad] (env) {};
+
+    % Entradas (Inputs) - Corregidas para que apunten HACIA la caja
+    \draw[arrow] ([xshift=-2cm, yshift=0.5cm]clase.west) node[left, align=right] {Estudiantes / Profesores} -- ([yshift=0.5cm]clase.west);
+    \draw[arrow] ([xshift=-2cm, yshift=-0.5cm]clase.west) node[left] {Recursos / Información} -- ([yshift=-0.5cm]clase.west);
+
+    % Salidas (Outputs)
+    \draw[arrow] (clase.east) -- ++(2,0) node[right, align=left] {Aprendizaje \\/ Desarrollo de Habilidades};
+\end{tikzpicture}
+
+\end{document}
