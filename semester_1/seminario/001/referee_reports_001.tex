@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{titling}
+\newcommand{\subtitle}[1]{%
+  \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip0.5em}%
+}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ left=30mm,
+ right=20mm,
+ top=25mm,
+ bottom=25mm,
+ }
+
+\title{Title}
+\subtitle{(Professor)}
+\author{Author}
+\date{Date}
+
+\begin{document}
+
+\maketitle
+
+\section*{Presentation summary}
+En esta sección va un resumen de la charla presentada por el profesor. Para citar un artículo tienen que agregar el texto extraído del bib en el archivo \textbf{mybib.bib} y citarlo como se muestra a continuación \cite{Tahamtan2016}. La citación es automática, si quieren hacer múltiples citas pueden agregar las referencias separadas con una coma \cite{Tahamtan2016, Kurtz2005}. Aunque no es necesario podrían agregar ecuaciones, para esto pueden usar el comando \textbf{equation} como se muestra a continuación en (\ref{Ecuacion1}). Notar que las ecuaciones se pueden referenciar dentro del texto utilizando el comando \textbf{ref} y agregando la etiqueta en la ecuación mediante el comando \textbf{label}.
+
+\begin{equation}\label{Ecuacion1}
+    E = mc^2.
+\end{equation}
+
+De la misma forma pueden citar las tablas utilizando el mismo comando anterior, la Tabla \ref{Mitabla} es un ejemplo de cómo hacer una tabla random.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{cc}
+    \hline
+        Esto es & una tabla \\
+    \hline
+        Continuación & \dots \\
+        Continuación & \dots \\
+        \hline
+    \end{tabular}
+    \caption{Texto que va bajo la tabla}
+    \label{Mitabla}
+\end{table}
+
+Finalmente podemos citar las secciones, en la sección \ref{Fortalezas} veremos las fortalezas de la investigación. En la sección \ref{Debilidades} mencionamos algunas debilidades encontradas de la investigación. La sección de preguntas no está enumerada, esto lo podemos hacer agregando un {*} para que en el texto no se agregue un número.
+
+\section{Strengths}\label{Fortalezas}
+
+Acá tienen que agregar las fortalezas de la investigación.
+
+\section{Weakness}\label{Debilidades}
+
+Acá agregan debilidades o comentarios respecto a la investigación.
+
+\section*{Questions}
+
+Acá preguntas que se podrían abordar en otras investigaciones o cuestiones respecto a la metodología o resultados.
+
+\bibliographystyle{plain}
+\bibliography{mybib.bib}
+
+\end{document}
