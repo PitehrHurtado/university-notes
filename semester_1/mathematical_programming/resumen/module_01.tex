@@ -1,0 +1,1111 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumerate} 
+\geometry{a4paper, margin=2.5cm}
+
+\title{\textbf{Módulo 1 - EII-808 Programación matemática}}
+\author{1 marmosaurio}
+\date{2026}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Introducción}
+	Este documento consolida la teoría fundamental y la práctica del modelado matemático para el primer módulo de la asignatura EII-808. Abarca desde la abstracción de arquetipos de restricciones hasta la demostración de convexidad, resolución mediante las condiciones de Karush-Kuhn-Tucker (KKT) y el análisis de sensibilidad post-óptimo.
+	
+	\subsection*{Metodología}
+	\begin{enumerate}
+		\item Formulación del modelo
+		\begin{enumerate}
+			\item Conjuntos
+			\item Parámetros
+			\item Variables
+			\item Función Objetivo
+			\item Restricciones
+			\item Dominios
+			\item Análisis Dimensional
+		\end{enumerate}
+		\item Verificación del espacio convexo
+		\item Resolución con Condiciones KKT
+		\begin{enumerate}
+			\item Rescribir el Modelo
+			\item Construir la Función Lagrangiana
+			\item Definir las Condiciones KKT
+			\begin{enumerate}
+				\item Estacionariedad
+				\item Factibilidad Primal
+				\item Factibilidad Dual
+				\item Holgura Complementaria
+			\end{enumerate}
+			\item Prueba de Casos
+		\end{enumerate}
+		\item Anáñisis de sensibilidad
+	\end{enumerate}
+	
+	\newpage
+	
+	% --- 1. FORMULACIÓN DEL MODELO ---
+	\section{Formulación del Modelo (Arquetipos Clásicos)}
+	
+	Esta guía considera 10 casos de arquetipos comunes en el modelamiento avanzado de problemas de programación lineal. Se sigue un marco de 7 pasos para el modelo base de cada arquetipo, y añade una sección de \textbf{Variantes y Extensiones Comunes} para abordar las restricciones específicas que le dan realismo a los modelos algebraicos.
+	
+	% --- FAMILIA 1 ---
+	\subsection{Familia de Mezcla o ``Blending''}
+	Se caracterizan por combinar ingredientes para cumplir con umbrales mínimos o máximos de ciertas propiedades.
+	
+	\textbf{Enunciado Base:} Determinar la cantidad a mezclar de distintos ingredientes para satisfacer un perfil de nutrientes al menor costo.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$I$: Conjunto de ingredientes disponibles, indexado por $i$.\\
+		$K$: Conjunto de nutrientes o propiedades a controlar, indexado por $k$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$c_i$: Costo unitario del ingrediente $i$ [\text{\$/kg}].\\
+		$a_{ki}$: Cantidad del nutriente $k$ aportada por 1 kg del ingrediente $i$ [\text{mg/kg}].\\
+		$b_k$: Requerimiento mínimo del nutriente $k$ en la mezcla [\text{mg}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$x_i$: Cantidad del ingrediente $i$ a incluir en la mezcla final [\text{kg}].
+		\item \textbf{Función Objetivo:} Minimizar el costo total.
+		\item \textbf{Restricciones:} Aporte $\geq$ Requerimiento.
+		\item \textbf{Dominios:} $x_i \geq 0$.
+		
+		\begin{center}
+			\textbf{Modelo Matemático Base}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{i \in I} c_i x_i \\
+				\text{s.t.} \quad & \sum_{i \in I} a_{ki} x_i \geq b_k & \forall k \in K \\
+				& x_i \geq 0 & \forall i \in I
+			\end{aligned}$$
+		\end{center}
+		
+		\item \textbf{Análisis Dimensional:} $\sum [\text{mg/kg}] \cdot [\text{kg}] = [\text{mg}]$. Se compara con $[\text{mg}]$. Correcto.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Restricciones de Proporcionalidad:} Fijan ratios entre ingredientes. Si el ingrediente 1 debe ser al menos el doble del ingrediente 2: $x_1 \geq 2x_2 \implies x_1 - 2x_2 \geq 0$.
+		\item \textit{Porcentajes Máximos en la Mezcla:} Si el ingrediente $j$ no puede superar el 30\% del peso total de la mezcla: $x_j \leq 0.30 \sum_{i \in I} x_i \implies x_j - 0.30 \sum_{i \in I} x_i \leq 0$.
+		\item \textit{Balance de Masa Exacto:} Si la mezcla debe pesar exactamente un lote $W$: $\sum_{i \in I} x_i = W$.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 2 ---
+	\subsection{Familia de Asignación y Transporte}
+	Problemas de flujo estático en grafos bipartitos.
+	
+	\textbf{Enunciado Base:} Satisfacer la demanda de múltiples destinos desde distintos orígenes minimizando costos de envío.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$I$: Conjunto de nodos origen, indexado por $i$.\\
+		$J$: Conjunto de nodos destino, indexado por $j$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$c_{ij}$: Costo de transportar una unidad desde el origen $i$ al destino $j$ [\text{\$/unidad}].\\
+		$S_i$: Capacidad máxima de oferta del origen $i$ [\text{unidades}].\\
+		$D_j$: Demanda exacta del destino $j$ [\text{unidades}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$x_{ij}$: Cantidad de unidades a enviar desde el nodo $i$ al nodo $j$ [\text{unidades}].
+		\item \textbf{Función Objetivo:} Minimizar el costo de transporte.
+		\item \textbf{Restricciones:} Lo enviado no supera oferta; lo recibido iguala demanda.
+		\item \textbf{Dominios:} $x_{ij} \geq 0$ (o $\mathbb{Z}^+$).
+		
+		\begin{center}
+			\textbf{Modelo Matemático Base}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{i \in I} \sum_{j \in J} c_{ij} x_{ij} \\
+				\text{s.t.} \quad & \sum_{j \in J} x_{ij} \leq S_i & \forall i \in I \\
+				& \sum_{i \in I} x_{ij} = D_j & \forall j \in J \\
+				& x_{ij} \geq 0 & \forall i \in I, \forall j \in J
+			\end{aligned}$$
+		\end{center}
+		
+		\item \textbf{Análisis Dimensional:} Suma de $[\text{unidades}] = [\text{unidades}]$. Correcto.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Problema de Asignación Pura (1 a 1):} Cuando $S_i = 1$ y $D_j = 1$, el problema de transporte se convierte en asignación (ej. asignar 1 trabajador a 1 máquina). Las variables se vuelven binarias $x_{ij} \in \{0,1\}$ y las restricciones son igualdades estrictas: $\sum_{j} x_{ij} = 1$ y $\sum_{i} x_{ij} = 1$.
+		\item \textit{Rutas Prohibidas:} Si no existe conexión entre el origen $A$ y el destino $B$, se elimina la variable $x_{AB}$ de la sumatoria, o se fija a cero ($x_{AB} = 0$), o se le asigna un costo penalizado gigante ($c_{AB} = M$).
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 3 ---
+	\subsection{Familia de Cobertura de Conjuntos (Set Covering)}
+	Usada cuando un requerimiento debe ser cubierto por al menos un subconjunto de opciones binarias.
+	
+	\textbf{Enunciado Base:} Determinar qué instalaciones abrir para cubrir la demanda de todas las zonas al menor costo.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$I$: Conjunto de zonas a cubrir, indexado por $i$.\\
+		$J$: Conjunto de instalaciones candidatas, indexado por $j$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$c_j$: Costo fijo de abrir la instalación $j$ [\text{\$}].\\
+		$A_{ij}$: Parámetro lógico; $1$ si la instalación $j$ cubre la zona $i$, $0$ si no [\text{adimensional}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$y_j$: $1$ si se abre la instalación $j$, $0$ en caso contrario.
+		\item \textbf{Función Objetivo:} Minimizar costo fijo total.
+		\item \textbf{Restricciones:} Cada zona $i$ atendida por $\geq 1$ instalación.
+		\item \textbf{Dominios:} $y_j \in \{0, 1\}$.
+		
+		\begin{center}
+			\textbf{Modelo Matemático Base}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{j \in J} c_j y_j \\
+				\text{s.t.} \quad & \sum_{j \in J} A_{ij} y_j \geq 1 & \forall i \in I \\
+				& y_j \in \{0, 1\} & \forall j \in J
+			\end{aligned}$$
+		\end{center}
+		
+		\item \textbf{Análisis Dimensional:} $[\text{Adimensional}] \geq 1$ $[\text{Condición}]$. Correcto.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Set Partitioning (Partición Exacta):} Si una zona debe ser cubierta por \textbf{exactamente una} instalación (para evitar solapamientos o duplicidad de esfuerzos), la inecuación cambia a igualdad: $\sum_{j} A_{ij} y_j = 1$.
+		\item \textit{Set Packing (Empaquetamiento Lógico):} Si las opciones son incompatibles entre sí y una zona puede ser cubierta por \textbf{máximo una} instalación: $\sum_{j} A_{ij} y_j \leq 1$.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 4 ---
+	\subsection{Familia de Empaquetamiento (Knapsack / Bin Packing)}
+	Decisiones lógicas de inclusión de elementos discretos sujetos a una capacidad rígida. Contraparte directa de Set Covering.
+	
+	\textbf{Enunciado Base:} Seleccionar un subconjunto de elementos valiosos para cargar en un contenedor sin superar su capacidad máxima de peso.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$I$: Conjunto de elementos candidatos a ser empacados, indexado por $i$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$v_i$: Beneficio o valor del elemento $i$ [\text{\$}].\\
+		$w_i$: Peso o consumo de recurso del elemento $i$ [\text{kg}].\\
+		$W$: Capacidad máxima del contenedor [\text{kg}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$x_i$: $1$ si se incluye el elemento $i$ en el contenedor, $0$ en caso contrario [\text{binaria}].
+		\item \textbf{Función Objetivo:} Maximizar valor empacado.
+		\item \textbf{Restricciones:} Consumo de recursos $\leq$ Capacidad.
+		\item \textbf{Dominios:} $x_i \in \{0, 1\}$.
+		
+		\begin{center}
+			\textbf{Modelo Matemático Base}
+			$$\begin{aligned}
+				\text{Max } Z = & \sum_{i \in I} v_i x_i \\
+				\text{s.t.} \quad & \sum_{i \in I} w_i x_i \leq W \\
+				& x_i \in \{0, 1\} & \forall i \in I
+			\end{aligned}$$
+		\end{center}
+		
+		\item \textbf{Análisis Dimensional:} $\sum [\text{kg}] \cdot [\text{booleano}] \leq [\text{kg}]$. Correcto.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Elementos Mutuamente Excluyentes:} Si eliges el elemento $A$, no puedes elegir el $B$ (conflicto): $x_A + x_B \leq 1$.
+		\item \textit{Dependencia (Correquisitos):} Solo puedes llevar el elemento $A$ si también llevas el $B$ (ej. una máquina y su batería): $x_A \leq x_B \implies x_A - x_B \leq 0$.
+		\item \textit{Múltiples Mochilas (Bin Packing):} Si tienes $J$ contenedores, las variables cambian a $x_{ij}$ (asignar elemento $i$ a mochila $j$) e introduces $y_j$ (se usa la mochila $j$). Restricción de capacidad: $\sum_i w_i x_{ij} \leq W_j y_j \quad \forall j$.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 5 ---
+	\subsection{Familia de Flujo en Redes y Balance Multi-período}
+	Estructura temporal. La restricción central dicta que la materia no se crea ni se destruye.
+	
+	\textbf{Enunciado Base:} Determinar la producción e inventario a lo largo del tiempo para satisfacer demanda dinámica.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$T$: Conjunto de períodos de planificación, indexado por $t$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$D_t$: Demanda en el período $t$ [\text{unidades}].\\
+		$c_t$: Costo de producir en $t$ [\text{\$/unidad}].\\
+		$h_t$: Costo de almacenar al final de $t$ [\text{\$/unidad}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$x_t$: Unidades producidas durante $t$ [\text{unidades}].\\
+		$I_t$: Nivel de inventario al final de $t$ [\text{unidades}]. (Asumiendo $I_0 = 0$).
+		\item \textbf{Función Objetivo:} Minimizar costos de producción e inventario.
+		\item \textbf{Restricciones:} $I_{\text{actual}} = I_{\text{anterior}} + \text{Producción} - \text{Demanda}$.
+		\item \textbf{Dominios:} $x_t, I_t \geq 0$.
+		
+		\begin{center}
+			\textbf{Modelo Matemático Base}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{t \in T} (c_t x_t + h_t I_t) \\
+				\text{s.t.} \quad & I_t - I_{t-1} - x_t = -D_t & \forall t \in T \\
+				& x_t, I_t \geq 0 & \forall t \in T
+			\end{aligned}$$
+		\end{center}
+		
+		\item \textbf{Análisis Dimensional:} $[\text{unidades}] - [\text{unidades}] = [\text{unidades}]$. Correcto.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Escasez Permitida (Backlogging):} Si se permite no cumplir la demanda de inmediato pero pagar una penalización, se divide la variable de estado en $I_t^+$ (inventario físico positivo) e $I_t^-$ (déficit o deuda de unidades). El balance queda: $(I_t^+ - I_t^-) = (I_{t-1}^+ - I_{t-1}^-) + x_t - D_t$.
+		\item \textit{Perecibilidad / Pérdidas:} Si el inventario pierde un 5\% de su volumen por evaporación cada mes, el inventario que pasa al siguiente mes se atenúa: $I_t = 0.95 I_{t-1} + x_t - D_t$.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 6 ---
+	\subsection{Familia de Transbordo y Redes (Matriz de Incidencia)}
+	Es la generalización del problema de transporte. Los nodos pueden enviar, recibir y transferir flujo simultáneamente a lo largo de enlaces (arcos) con capacidad limitada.
+	
+	\textbf{Enunciado Base:} Mover flujo a través de una red interconectada satisfaciendo ofertas y demandas de los nodos, sin exceder la capacidad física de las tuberías/arcos.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$N$: Conjunto de todos los nodos de la red, indexado por $i$ o $j$.\\
+		$A$: Conjunto de arcos dirigidos $(i,j)$ que existen en la red.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$c_{ij}$: Costo de transporte a través del arco $(i,j)$ [\text{\$/unidad}].\\
+		$u_{ij}$: Capacidad máxima de flujo permitida por el arco $(i,j)$ [\text{unidades}].\\
+		$b_i$: Flujo neto del nodo $i$ [\text{unidades}]. Si $b_i > 0$ es oferta, si $b_i < 0$ es demanda, si $b_i = 0$ es transbordo.
+		
+		\item \textbf{Variables de Decisión:}\\
+		$x_{ij}$: Cantidad de flujo enviado a través del arco dirigido $(i,j)$ [\text{unidades}].
+		\item \textbf{Función Objetivo:} Minimizar costo de enrutamiento.
+		\item \textbf{Restricciones:} Flujo Saliente - Flujo Entrante = Flujo Neto.
+		\item \textbf{Dominios:} $0 \leq x_{ij} \leq u_{ij}$.
+		
+		\begin{center}
+			\textbf{Modelo Matemático Base}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
+				\text{s.t.} \quad & \sum_{\{j \mid (i,j) \in A\}} x_{ij} - \sum_{\{k \mid (k,i) \in A\}} x_{ki} = b_i & \forall i \in N \\
+				& 0 \leq x_{ij} \leq u_{ij} & \forall (i,j) \in A
+			\end{aligned}$$
+		\end{center}
+		
+		\item \textbf{Análisis Dimensional:} Balance nodal es dimensionalmente puro en las unidades del flujo.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{La Matriz de Incidencia Nodo-Arco ($\mathbf{E}$):} Matemáticamente, el balance de red se define con una matriz $\mathbf{E}$ donde las filas son nodos y las columnas arcos. Si el arco $e$ sale del nodo $i$, $E_{ie} = +1$. Si entra, $E_{ie} = -1$. Si no lo toca, $0$. La restricción se escribe compactamente como: $\mathbf{E x} = \mathbf{b}$. Esta matriz es Totalmente Unimodular (TUM), lo que garantiza soluciones enteras.
+		\item \textit{Redes con Ganancia/Pérdida (Rutas con peaje o merma):} Si a lo largo de la tubería se pierde un factor $\alpha$ del flujo, el balance del nodo $j$ recibe solo $(1-\alpha)x_{ij}$. Ya no aplica la propiedad TUM.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 7 ---
+	\subsection{Familia de Restricciones Lógicas y Cargos Fijos (Big-M)}
+	Vincula variables continuas con decisiones binarias (activación/desactivación).
+	
+	\textbf{Enunciado Base:} Solo se puede producir un artículo si se paga previamente el costo fijo de encender su línea de producción.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$P$: Conjunto de productos, indexado por $p$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$f_p$: Costo fijo de setup para el producto $p$ [\text{\$}].\\
+		$c_p$: Costo variable de producción de $p$ [\text{\$/unidad}].\\
+		$M_p$: Constante suficientemente grande (Big-M) que represente la capacidad máxima lógica de $p$ [\text{unidades}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$x_p$: Cantidad producida del artículo $p$ [\text{unidades}].\\
+		$y_p$: $1$ si se produce $p$ ($x_p > 0$), $0$ si no.
+		\item \textbf{Función Objetivo:} Minimizar costo total (fijo + variable).
+		\item \textbf{Restricciones:} $x_p$ está ligada lógicamente a la activación $y_p$.
+		\item \textbf{Dominios:} $x_p \geq 0$, $y_p \in \{0, 1\}$.
+		
+		\begin{center}
+			\textbf{Modelo Matemático Base}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{p \in P} (f_p y_p + c_p x_p) \\
+				\text{s.t.} \quad & x_p \leq M_p y_p & \forall p \in P \\
+				& x_p \geq 0, \quad y_p \in \{0, 1\} & \forall p \in P
+			\end{aligned}$$
+		\end{center}
+		
+		\item \textbf{Análisis Dimensional:} $[\text{unidades}] \leq [\text{unidades}] \cdot [\text{adimensional}]$. Correcto.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Lotes Mínimos de Producción (Semi-continuidad):} Si la máquina se enciende ($y_p=1$), debe producir al menos un lote mínimo $L_p$: $L_p y_p \leq x_p \leq M_p y_p$.
+		\item \textit{Restricciones Disyuntivas (Either-Or):} Si debe cumplirse la restricción $A \le 0$ \textbf{o} la restricción $B \le 0$, se usa una binaria $z$: \\
+		Ecuación A: $A \leq M z$ \\
+		Ecuación B: $B \leq M (1-z)$. \\
+		Si $z=0$, $A$ es estricta y $B$ se relaja (se inactiva por $M$). Si $z=1$, ocurre lo inverso.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 8 ---
+	\subsection{Familia de Eliminación de Subtours (Rutas / MTZ)}
+	Evita ciclos aislados en problemas de ruteo vehicular (VRP) o agente viajero (TSP).
+	
+	\textbf{Enunciado Base:} Un vehículo debe visitar varios nodos exactamente una vez y volver al origen, sin formar pequeños ciclos aislados.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$V$: Conjunto de todos los nodos (ciudades), indexado por $i, j$.\\
+		$V'$: Conjunto de nodos destino (excluyendo el nodo origen $1$), donde $i, j \in \{2, \dots, |V|\}$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$c_{ij}$: Distancia o costo de ir del nodo $i$ al $j$ [\text{km}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$x_{ij}$: $1$ si el vehículo viaja directamente de $i$ a $j$, $0$ en caso contrario.\\
+		$u_i$: Variable auxiliar que rastrea el orden de visita del nodo $i$ [\text{posición/orden}].
+		\item \textbf{Función Objetivo:} Minimizar distancia recorrida.
+		\item \textbf{Restricciones:} Conservación de ruta (1 entrada, 1 salida) y ecuaciones MTZ.
+		\item \textbf{Dominios:} $x_{ij} \in \{0, 1\}, u_i \geq 0$.
+		
+		\begin{center}
+			\textbf{Modelo Matemático Base}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{i \in V} \sum_{j \in V} c_{ij} x_{ij} \\
+				\text{s.t.} \quad & \sum_{j \in V} x_{ij} = 1 & \forall i \in V \\
+				& \sum_{i \in V} x_{ij} = 1 & \forall j \in V \\
+				& u_i - u_j + |V| x_{ij} \leq |V| - 1 & \forall i, j \in V', i \neq j
+			\end{aligned}$$
+		\end{center}
+		
+		\item \textbf{Análisis Dimensional:} La ecuación MTZ suma y resta órdenes numéricos puros para romper la simetría de los ciclos.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Ruteo con Capacidad (CVRP):} Si el vehículo tiene una capacidad de carga $Q$ y deja una demanda $d_j$ en cada nodo, la variable auxiliar $u_i$ deja de ser solo el "orden" y pasa a ser "la carga acumulada en el vehículo tras visitar $i$". La restricción MTZ evoluciona a: $u_i - u_j + Q x_{ij} \leq Q - d_j \quad \forall i, j \in V'$.
+		\item \textit{Ventanas de Tiempo (VRPTW):} Se añade una variable continua $T_i$ (instante en que se visita el nodo $i$) acotada por ventanas $[a_i, b_i]$. La restricción MTZ mide el paso del tiempo y servicio: $T_i + \text{servicio}_i + \text{viaje}_{ij} - M(1-x_{ij}) \leq T_j$.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 9 ---
+	\subsection{Familia de Localización de Instalaciones (P-Medianas / Facility Location)}
+	Combina decisiones de diseño de red (dónde abrir) con decisiones logísticas (quién atiende a quién).
+	
+	\textbf{Enunciado Base:} Determinar dónde ubicar exactamente $P$ instalaciones para atender a un conjunto de clientes minimizando la distancia total de viaje.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$I$: Conjunto de clientes o nodos de demanda, indexado por $i$.\\
+		$J$: Conjunto de posibles localizaciones para las instalaciones, indexado por $j$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$d_{ij}$: Distancia o costo de atender al cliente $i$ desde la instalación $j$ [\text{km} o \text{\$}].\\
+		$P$: Número exacto de instalaciones a abrir [\text{instalaciones}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$y_j$: $1$ si se abre una instalación en la locación $j$, $0$ si no [\text{binaria}].\\
+		$x_{ij}$: $1$ si el cliente $i$ es atendido por la instalación $j$, $0$ si no [\text{binaria} o \text{continua} si no hay capacidad].
+		
+		\item \textbf{Función Objetivo:}\\
+		Minimizar la distancia/costo total de atención.
+		
+		\item \textbf{Restricciones:}\\
+		Cada cliente es atendido. Solo se atiende desde instalaciones abiertas. Se abren exactamente $P$ instalaciones.
+		
+		\item \textbf{Dominios de las Variables:}\\
+		$y_j \in \{0, 1\}$, $x_{ij} \geq 0$ (o binarias).
+		
+		\vspace{0.5cm}
+		\begin{center}
+			\textbf{Modelo Matemático Completo}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{i \in I} \sum_{j \in J} d_{ij} x_{ij} \\
+				\text{s.t.} \quad & \sum_{j \in J} x_{ij} = 1 & \forall i \in I \quad \text{(Asignación Única)} \\
+				& x_{ij} \leq y_j & \forall i \in I, \forall j \in J \quad \text{(Lógica de Apertura)} \\
+				& \sum_{j \in J} y_j = P & \text{(Cantidad a Abrir)} \\
+				& y_j \in \{0, 1\}, x_{ij} \geq 0 & \forall i \in I, \forall j \in J
+			\end{aligned}$$
+		\end{center}
+		\vspace{0.5cm}
+		
+		\item \textbf{Análisis Dimensional:}\\
+		\textit{Lógica de Apertura:} $[\text{proporción de cliente asignado}] \leq [\text{estado binario de apertura}]$. Correcto. Impide asignar si $y_j = 0$.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Localización Capacitada:} Si la instalación $j$ tiene una capacidad máxima de atención $C_j$ y cada cliente tiene una demanda $D_i$, la restricción lógica cambia a Big-M usando la capacidad: $\sum_{i} D_i x_{ij} \leq C_j y_j$.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- FAMILIA 10 ---
+	\subsection{Familia de Generación de Patrones (Cutting Stock)}
+	Evita la explosión combinatoria al modelar los ``patrones posibles'' en lugar de modelar los elementos individualmente.
+	
+	\textbf{Enunciado Base:} Minimizar el número de materias primas estándar utilizadas para cortar y satisfacer una demanda de piezas de diferentes tamaños.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos (Índices):}\\
+		$I$: Conjunto de tipos de piezas demandadas (ej. vigas de 2m, 4m), indexado por $i$.\\
+		$J$: Conjunto de todos los \textit{patrones de corte factibles}, indexado por $j$.
+		
+		\item \textbf{Parámetros (Datos):}\\
+		$a_{ij}$: Número de piezas del tipo $i$ que se obtienen al usar un patrón de corte $j$ [\text{piezas/patrón}].\\
+		$D_i$: Demanda total requerida de la pieza tipo $i$ [\text{piezas}].
+		
+		\item \textbf{Variables de Decisión:}\\
+		$x_j$: Cantidad de materias primas (ej. maderos, rollos) a cortar utilizando el patrón $j$ [\text{unidades/patrones}].
+		
+		\item \textbf{Función Objetivo:}\\
+		Minimizar el total de materia prima utilizada (lo que equivale a minimizar el desperdicio).
+		
+		\item \textbf{Restricciones:}\\
+		Satisfacer la demanda de cada tipo de pieza sumando el aporte de todos los patrones elegidos.
+		
+		\item \textbf{Dominios de las Variables:}\\
+		Variables enteras no negativas (no se pueden cortar medios maderos).
+		
+		\vspace{0.5cm}
+		\begin{center}
+			\textbf{Modelo Matemático Completo}
+			$$\begin{aligned}
+				\text{Min } Z = & \sum_{j \in J} x_j \\
+				\text{s.t.} \quad & \sum_{j \in J} a_{ij} x_j \geq D_i & \forall i \in I \\
+				& x_j \in \mathbb{Z}^+ & \forall j \in J
+			\end{aligned}$$
+		\end{center}
+		\vspace{0.5cm}
+		
+		\item \textbf{Análisis Dimensional:}\\
+		\textit{Demanda:} $\sum [\text{piezas/patrón}] \cdot [\text{patrones}] = [\text{piezas}]$. Se compara con $D_i$ en $[\text{piezas}]$. Correcto.
+	\end{enumerate}
+	
+	\textbf{Variantes y Extensiones Comunes:}
+	\begin{itemize}
+		\item \textit{Costos por Patrón:} Si algunos patrones generan más desgaste en la maquinaria, la función objetivo se pondera: $\text{Min } \sum c_j x_j$.
+		\item \textit{Generación de Columnas:} En la práctica industrial, no se precalculan todos los patrones (que pueden ser millones). Se usa el modelo Dual para encontrar y añadir nuevos patrones a la matriz $a_{ij}$ sobre la marcha.
+	\end{itemize}
+	
+	
+	\newpage
+	
+	% --- 2. TEORÍA DE CONVEXIDAD ---
+	\section{Teoría de la Verificación del Espacio Convexo}
+	Antes de aplicar las condiciones KKT, es matemáticamente necesario garantizar que el problema se desarrolla en un espacio convexo. Si la región factible es convexa y la función objetivo también lo es, cualquier óptimo local garantizado por KKT será, por definición, un óptimo global.
+	
+	\subsection{Definición de Convexidad}
+	Un conjunto $S$ es convexo si, para cualquier par de puntos $\mathbf{x}_1, \mathbf{x}_2 \in S$, el segmento de recta que los une también pertenece a $S$. Matemáticamente, para cualquier $\lambda \in [0, 1]$:
+	$$\lambda \mathbf{x}_1 + (1 - \lambda) \mathbf{x}_2 \in S$$
+	
+	\subsection{Verificación en Programación Lineal (LP)}
+	En modelos puramente lineales, la región factible se define por inecuaciones del tipo $a_i \mathbf{x} \leq b_i$.
+	\begin{itemize}
+		\item Cada inecuación lineal define un \textbf{semi-espacio cerrado}, el cual es intrínsecamente un conjunto convexo.
+		\item Un teorema fundamental de la geometría establece que \textbf{la intersección de cualquier número de conjuntos convexos es un conjunto convexo}.
+		\item Por lo tanto, el poliedro formado por las restricciones de un problema de programación lineal es siempre un espacio convexo.
+	\end{itemize}
+	
+	\subsection{Verificación Avanzada: La Matriz Hessiana}
+	Para restricciones no lineales $g_i(\mathbf{x}) \leq 0$, debemos demostrar que la función $g_i(\mathbf{x})$ es convexa. Una función dos veces diferenciable es convexa si su \textbf{Matriz Hessiana} ($H$) es Semidefinida Positiva (PSD) en todo su dominio.
+	
+	La Matriz Hessiana se compone de las segundas derivadas parciales:
+	$$H = \nabla^2 g_i(\mathbf{x}) = \begin{bmatrix}
+		\frac{\partial^2 g_i}{\partial x_1^2} & \dots & \frac{\partial^2 g_i}{\partial x_1 \partial x_n} \\
+		\vdots & \ddots & \vdots \\
+		\frac{\partial^2 g_i}{\partial x_n \partial x_1} & \dots & \frac{\partial^2 g_i}{\partial x_n^2}
+	\end{bmatrix}$$
+	
+	Para demostrar que $H$ es PSD, utilizamos la ecuación característica para encontrar sus \textbf{Eigenvalores} ($\lambda$):
+	$$\det(H - \lambda I) = 0$$
+	Si todos los eigenvalores cumplen con $\lambda \geq 0$, la matriz es PSD, la función es convexa y la restricción forma un espacio convexo. \textit{Nota: En funciones lineales, $H$ es una matriz nula, por lo que sus eigenvalores son $0$, cumpliendo la condición $\lambda \geq 0$ de manera trivial.}
+	
+	\newpage
+	
+	% --- 3. RESOLUCIÓN CON KKT ---
+	\section{Resolución con Condiciones KKT}
+	Las condiciones de Karush-Kuhn-Tucker (KKT) son las condiciones necesarias (y suficientes si el problema es convexo) de primer orden para encontrar el óptimo de un problema de optimización no lineal (y lineal).
+	
+	\subsection*{a) Rescribir el Modelo (Forma Estándar de Bertsimas)}
+	Para aplicar KKT sistemáticamente, el problema debe estandarizarse a un formato de minimización con restricciones de "menor o igual a cero".
+	$$\begin{aligned}
+		\min \quad & f(\mathbf{x}) \\
+		\text{s.a.} \quad & g_i(\mathbf{x}) \leq 0 \quad \forall i = 1, \dots, m
+	\end{aligned}$$
+	\textit{Si el problema es de maximización, se multiplica la función objetivo por $-1$. Si una restricción es $\geq$, se multiplica por $-1$.}
+	
+	\subsection*{b) Construir la Función Lagrangiana}
+	La función Lagrangiana combina la función objetivo y las restricciones mediante los multiplicadores de Lagrange ($\mu_i$):
+	$$\mathcal{L}(\mathbf{x}, \boldsymbol{\mu}) = f(\mathbf{x}) + \sum_{i=1}^{m} \mu_i g_i(\mathbf{x})$$
+	
+	\subsection*{c) Definir las Condiciones KKT}
+	Para que un punto $\mathbf{x}^*$ sea óptimo, debe satisfacer simultáneamente cuatro condiciones:
+	
+	\begin{enumerate}[i)]
+		\item \textbf{Estacionariedad:} El gradiente de la función Lagrangiana respecto a $\mathbf{x}$ debe ser cero.
+		$$\nabla f(\mathbf{x}) + \sum_{i=1}^{m} \mu_i \nabla g_i(\mathbf{x}) = 0$$
+		
+		\item \textbf{Factibilidad Primal:} El punto debe cumplir con todas las restricciones originales.
+		$$g_i(\mathbf{x}) \leq 0 \quad \forall i$$
+		
+		\item \textbf{Factibilidad Dual:} Los multiplicadores asociados a restricciones de desigualdad deben ser no negativos.
+		$$\mu_i \geq 0 \quad \forall i$$
+		
+		\item \textbf{Holgura Complementaria:} Una restricción y su multiplicador no pueden ser simultáneamente distintos de cero. O la restricción está activa ($g_i(\mathbf{x}) = 0$) o su multiplicador es nulo ($\mu_i = 0$).
+		$$\mu_i \cdot g_i(\mathbf{x}) = 0 \quad \forall i$$
+	\end{enumerate}
+	
+	\subsection*{d) Recomendaciones para la Prueba de Casos}
+	Dado que el sistema KKT incluye la ecuación no lineal de holgura complementaria, la resolución analítica exige probar diferentes combinaciones (casos) asumiendo qué restricciones están activas ($\mu_i > 0$) o inactivas ($\mu_i = 0$).
+	
+	\textbf{El Método de Depuración Anti-Trampas:}
+	\begin{itemize}
+		\item \textbf{Paso 1:} Asume un caso (ej. restricción 1 y 2 están activas, por ende $g_1 = 0$ y $g_2 = 0$).
+		\item \textbf{Paso 2:} Resuelve el sistema algebraico para encontrar las coordenadas del punto $(x_1, x_2, \dots)$.
+		\item \textbf{Paso 3 (CRÍTICO):} Antes de buscar los multiplicadores $\mu_i$, \textbf{verifica inmediatamente la Factibilidad Primal} evaluando el punto en las restricciones inactivas. Si viola al menos una restricción, descarta el caso.
+		\item \textbf{Paso 4:} Si el punto es factible, usa las ecuaciones de estacionariedad para calcular los multiplicadores $\mu_i$.
+		\item \textbf{Paso 5:} Verifica la \textbf{Factibilidad Dual} ($\mu_i \geq 0$). Si se cumple, has encontrado el óptimo global. Si el sistema colapsa (ej. $\mu_1 + \mu_2 = -8$), el problema puede ser no acotado (unbounded).
+	\end{itemize}
+	
+	\newpage
+	
+	% --- 4. TEORÍA DE SENSIBILIDAD ---
+	\section{Teoría de Sensibilidad Post-Óptimo y Dualidad Económica}
+	El análisis de sensibilidad evalúa cómo cambian la solución óptima y el valor de la función objetivo ante variaciones en los parámetros del modelo. Más allá del álgebra, proporciona la brújula económica para la toma de decisiones.
+	
+	\subsection{El ``Espejo'' Matricial (Relación Primal-Dual)}
+	Para entender cómo rotan los parámetros, colocamos los modelos uno al lado del otro en su notación matricial. Observa cómo la matriz $\mathbf{A}$ se transpone y cómo los vectores $\mathbf{b}$ y $\mathbf{c}$ intercambian lugares.
+	
+	
+	\begin{minipage}[t]{0.45\textwidth}
+		\textbf{Primal (Maximizando Beneficios)}\\
+		Produce $\mathbf{x}$ usando recursos limitados $\mathbf{b}$.
+		$$\max Z = \mathbf{c}^T \mathbf{x}$$
+		$$\text{s.a.} \quad \mathbf{A} \mathbf{x} \leq \mathbf{b}$$
+		$$\mathbf{x} \geq \mathbf{0}$$
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\textbf{Dual (Minimizando Valor)}\\
+		Compra recursos a precio $\mathbf{y}$, pagando al menos lo que producen ($\mathbf{c}$).
+		$$\min W = \mathbf{b}^T \mathbf{y}$$
+		$$\text{s.a.} \quad \mathbf{A}^T \mathbf{y} \geq \mathbf{c}$$
+		$$\mathbf{y} \geq \mathbf{0}$$
+	\end{minipage}
+	
+	\vspace{0.5cm}
+	\textit{Nota visual:} Las filas de $\mathbf{A}$ (restricciones primales de recursos) se convierten en las columnas de $\mathbf{A}^T$ (variables duales o precios sombra de esos recursos).
+	
+	\subsubsection{Reglas de transformación}
+	\begin{table}[h]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabular}{|l|c|l|}
+			\hline
+			\textbf{Modelo Primal (Maximización)} & $\leftrightarrow$ & \textbf{Modelo Dual (Minimización)} \\ \hline
+			Maximizar $\mathbf{c}^T \mathbf{x}$ & $\leftrightarrow$ & Minimizar $\mathbf{b}^T \mathbf{y}$ \\ \hline
+			\multicolumn{3}{|c|}{\textbf{De Restricciones Primales a Variables Duales}} \\ \hline
+			$i$-ésima restricción es $\leq$ & $\rightarrow$ & $y_i \geq 0$ \\ \hline
+			$i$-ésima restricción es $=$ & $\rightarrow$ & $y_i \in \mathbb{R}$ (Libre / Irrestricta) \\ \hline
+			$i$-ésima restricción es $\geq$ & $\rightarrow$ & $y_i \leq 0$ \\ \hline
+			\multicolumn{3}{|c|}{\textbf{De Variables Primales a Restricciones Duales}} \\ \hline
+			$x_j \geq 0$ & $\rightarrow$ & $j$-ésima restricción es $\geq$ \\ \hline
+			$x_j \in \mathbb{R}$ (Libre / Irrestricta) & $\rightarrow$ & $j$-ésima restricción es $=$ \\ \hline
+			$x_j \leq 0$ & $\rightarrow$ & $j$-ésima restricción es $\leq$ \\ \hline
+		\end{tabular}
+		\caption{Reglas de transformación estándar entre modelos Primal y Dual.}
+		\label{tab:primal_dual}
+	\end{table}
+	
+	\newpage
+	
+	\subsection{Definiciones Matemáticas y Económicas}
+	Todo modelo de desigualdad se puede convertir en igualdad añadiendo variables de holgura. Estas variables tienen un significado económico profundo dictado por la teoría de la dualidad.
+	
+	\begin{enumerate}[a)]
+		\item \textbf{Holgura Primal ($s_i$ - Recursos Ociosos):} 
+		Dada una restricción primal de capacidad $\sum a_{ij} x_j \leq b_i$, su holgura es $s_i = b_i - \sum a_{ij} x_j$. Si $s_i > 0$, la restricción está inactiva (sobra recurso). Económicamente, adquirir más de este recurso no mejora la función objetivo.
+		
+		\item \textbf{Holgura Dual ($e_j$ - Costo Reducido):}
+		En el modelo dual, las restricciones son $\sum a_{ij} y_i \geq c_j$. Su holgura es $e_j = \sum a_{ij} y_i - c_j$. Esta variable $e_j$ es el \textbf{Costo Reducido}. Representa el costo de oportunidad o la ``penalización'' marginal por forzar a la base una actividad $x_j$ que actualmente no es rentable.
+			
+		\item \textbf{Teorema de Holgura Complementaria:}
+		Dicta que el producto de una variable óptima por la holgura de su restricción cruzada debe ser cero.
+		$$y_i^* \cdot s_i^* = 0 \quad \text{y} \quad x_j^* \cdot e_j^* = 0$$
+		O el recurso se agota ($s_i = 0$) y tiene valor ($y_i > 0$), o sobra recurso ($s_i > 0$) y su valor marginal es nulo ($y_i = 0$).
+		
+		\item \textbf{Variaciones en los Parámetros (Análisis de Sensibilidad):}
+		\begin{itemize}
+			\item \textit{Rango de Optimalidad ($C_j$):} Rango en el cual el coeficiente de rentabilidad $c_j$ puede variar sin que cambie el vértice óptimo actual ($\mathbf{x}^*$).
+			\item \textit{Rango de Factibilidad ($B_i$):} Rango en el cual el recurso $b_i$ puede variar manteniendo el mismo Precio Sombra ($y_i^*$) constante, garantizando que la base actual siga siendo factible.
+		\end{itemize}
+	\end{enumerate}
+	
+	\subsection{Brechas de Dualidad (Duality Gaps)}
+	La relación entre la función objetivo del Primal ($Z$) y la del Dual ($W$) se mide mediante brechas.
+	
+	
+	\begin{itemize}
+		\item \textbf{Dualidad Débil:} Para cualquier solución factible, el valor del Primal siempre está acotado por el Dual ($ \mathbf{c}^T \mathbf{x} \leq \mathbf{b}^T \mathbf{y} $). La diferencia es la \textbf{Brecha de Dualidad Primal-Dual}.
+		\item \textbf{Dualidad Fuerte:} En el óptimo global, las fronteras colisionan perfectamente. La brecha desaparece: $Z^* = W^* \implies \mathbf{c}^T \mathbf{x}^* = \mathbf{b}^T \mathbf{y}^*$.
+		\item \textbf{MIP Gap (Brecha Entera):} En modelos MILP, es la diferencia porcentual entre la mejor solución entera encontrada y el límite teórico de la relajación continua. Un MIP Gap de $0\%$ garantiza el óptimo global.
+	\end{itemize}
+	
+	\newpage
+
+	% --- 5. EJEMPLOS PRÁCTICOS DE APLICACIÓN ---
+	\section{Ejemplos Prácticos de Aplicación}
+	
+	% --- EJEMPLO 1 ---
+	\subsection{Ejemplo 1: Producción F. CAVENAGHI Inc. (Resolución Integral)}
+	
+	\textbf{Enunciado:} La empresa F. CAVENAGHI Inc. fabrica mesas y sillas. Cada mesa genera un beneficio neto de 30 Bs y cada silla de 20 Bs. El proceso requiere horas en dos departamentos: Carpintería (máximo 80h/sem) y Acabado (máximo 100h/sem). Una mesa requiere 1h de carpintería y 2h de acabado; una silla requiere 1h de carpintería y 1h de acabado. Adicionalmente, por acuerdos comerciales, no se pueden fabricar más de 40 mesas a la semana.
+	
+	\subsubsection*{1. Formulación del Modelo}
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos:}\\
+		$I$: Conjunto de productos a fabricar, $i \in \{1 \text{ (Mesas)}, 2 \text{ (Sillas)}\}$.\\
+		$J$: Conjunto de departamentos productivos, $j \in \{1 \text{ (Carpintería)}, 2 \text{ (Acabado)}\}$.
+		
+		\item \textbf{Parámetros:}\\
+		$b_j$: Capacidad máxima de horas del departamento $j$ [h]. ($b_1=80, b_2=100$).\\
+		$a_{ji}$: Requerimiento de horas del departamento $j$ para el producto $i$ [h/ud].\\
+		$c_i$: Beneficio unitario del producto $i$ [Bs/ud]. ($c_1=30, c_2=20$).\\
+		$L$: Límite máximo de demanda para mesas [uds]. ($L=40$).
+		
+		\item \textbf{Variables:}\\
+		$x_i$: Cantidad de unidades del producto $i$ a fabricar por semana.
+		
+		\item \textbf{Función Objetivo:}\\
+		Maximizar el beneficio total semanal:
+		$$ \text{Max } Z = 30x_1 + 20x_2 $$
+		
+		\item \textbf{Restricciones:}\\
+		Capacidad de Carpintería: $$ x_1 + x_2 \leq 80 $$
+		Capacidad de Acabado: $$ 2x_1 + x_2 \leq 100 $$
+		Límite de Mercado: $$ x_1 \leq 40 $$
+		
+		\item \textbf{Dominios:}\\
+		$$ x_1 \geq 0, \quad x_2 \geq 0 $$
+		
+		\item \textbf{Análisis Dimensional:}\\
+		F.O.: $[\text{Bs/ud}] \times [\text{ud}] = [\text{Bs}]$. \\
+		Restricciones: $[\text{h/ud}] \times [\text{ud}] = [\text{h}]$. Se compara con límite $b_j$ en $[\text{h}]$. Todo consistente.
+	\end{enumerate}
+	
+	\subsubsection*{2. Verificación del Espacio Convexo}
+	Al ser un modelo de Programación Lineal (LP), la matriz Hessiana de cada restricción es nula ($H=\mathbf{0}$), cumpliendo la condición de ser semidefinida positiva. Cada restricción lineal define un semi-espacio cerrado convexo. La intersección de estos conforma una región factible que es un poliedro estrictamente convexo.
+	
+	\subsubsection*{3. Resolución con Condiciones KKT}
+	\begin{enumerate}[a)]
+		\item \textbf{Rescribir el Modelo (Estandarización $\min$ y $\leq 0$):}\\
+		$$ \min f(x) = -30x_1 - 20x_2 $$
+		$$ g_1(x) = x_1 + x_2 - 80 \leq 0 $$
+		$$ g_2(x) = 2x_1 + x_2 - 100 \leq 0 $$
+		$$ g_3(x) = x_1 - 40 \leq 0 $$
+		$$ g_4(x) = -x_1 \leq 0, \quad g_5(x) = -x_2 \leq 0 $$
+		
+		\item \textbf{Construir la Función Lagrangiana:}\\
+		$$ \mathcal{L} = -30x_1 - 20x_2 + \mu_1(x_1 + x_2 - 80) + \mu_2(2x_1 + x_2 - 100) + \mu_3(x_1 - 40) - \mu_4 x_1 - \mu_5 x_2 $$
+		
+		\item \textbf{Definir las Condiciones KKT:}
+		\begin{enumerate}[i)]
+			\item \textit{Estacionariedad:}\\
+			$\frac{\partial \mathcal{L}}{\partial x_1} = -30 + \mu_1 + 2\mu_2 + \mu_3 - \mu_4 = 0$\\
+			$\frac{\partial \mathcal{L}}{\partial x_2} = -20 + \mu_1 + \mu_2 - \mu_5 = 0$
+			\item \textit{Factibilidad Primal:}\\
+			$g_1(x) \leq 0, \quad g_2(x) \leq 0, \quad g_3(x) \leq 0, \quad g_4(x) \leq 0, \quad g_5(x) \leq 0$
+			\item \textit{Factibilidad Dual:}\\
+			$\mu_1, \mu_2, \mu_3, \mu_4, \mu_5 \geq 0$
+			\item \textit{Holgura Complementaria:}\\
+			$\mu_1(x_1 + x_2 - 80) = 0, \quad \mu_2(2x_1 + x_2 - 100) = 0, \quad \mu_3(x_1 - 40) = 0$\\
+			$\mu_4(-x_1) = 0, \quad \mu_5(-x_2) = 0$
+		\end{enumerate}
+		
+		\item \textbf{Prueba de Casos:}\\
+		Asumimos que Carpintería ($g_1$) y Acabado ($g_2$) están \textbf{activas} (limitando la producción).
+		$$ x_1 + x_2 = 80 \quad \text{y} \quad 2x_1 + x_2 = 100 \implies x_1^* = 20, \quad x_2^* = 60 $$
+		\textit{Verificación Primal:} El límite de mesas es $x_1 \leq 40$, como $20 \leq 40$, el punto es factible ($g_3$ inactiva).\\
+		\textit{Holgura Complementaria:} Como $g_3, g_4, g_5 < 0$, entonces $\mu_3 = \mu_4 = \mu_5 = 0$.\\
+		\textit{Cálculo de Multiplicadores:} Sustituyendo en la Estacionariedad:
+		$$ -20 + \mu_1 + \mu_2 = 0 \implies \mu_1 = 20 - \mu_2 $$
+		$$ -30 + (20 - \mu_2) + 2\mu_2 = 0 \implies \mu_2^* = 10, \quad \mu_1^* = 10 $$
+		\textit{Verificación Dual:} $\mu_1, \mu_2 \geq 0$. Cumplen. El punto $(20, 60)$ es el óptimo global con $Z^* = 1800$.
+	\end{enumerate}
+	
+	\subsubsection*{4. Análisis de Sensibilidad}
+	\begin{itemize}
+		\item \textbf{Precio Sombra de Carpintería ($\mu_1 = 10$):} Cada hora adicional disponible de carpintería incrementa el beneficio en 10 Bs.
+		\item \textbf{Precio Sombra de Acabado ($\mu_2 = 10$):} El departamento de acabado es igualmente crítico; cada hora extra aporta 10 Bs adicionales.
+		\item \textbf{Holgura Primal de Mesas ($s_3 = 20$):} Existe una capacidad ociosa de 20 unidades respecto al límite de 40 mesas. Ampliar artificialmente la cuota de mercado de mesas no genera beneficios adicionales ($\mu_3 = 0$), pues la fábrica no tiene horas para producirlas.
+	\end{itemize}
+	
+	\newpage
+	
+	% --- EJEMPLO 2 ---
+	\subsection{Ejemplo 2: Operación Aérea (Relaciones Lógicas)}
+	
+	\textbf{Enunciado:} Una aerolínea programa vuelos para aviones A1 (ganancia \$30k) y A2 (ganancia \$20k). Los vuelos de A1 deben ser al menos iguales a los de A2. El aeropuerto limita los vuelos de A1 a un máximo de 120. La flota total debe realizar entre 60 y 200 vuelos.
+	
+	\subsubsection*{1. Formulación del Modelo}
+	\begin{enumerate}[a)]
+		\item \textbf{Conjuntos:}\\
+		$J$: Conjunto de modelos de aviones, $j \in \{1 \text{ (A1)}, 2 \text{ (A2)}\}$.
+		
+		\item \textbf{Parámetros:}\\
+		$p_j$: Ganancia por vuelo del avión $j$ [\$k/vuelo]. ($p_1=30, p_2=20$).\\
+		$U_1$: Límite superior de vuelos para el avión A1. ($U_1=120$).\\
+		$Q_{min}, Q_{max}$: Rango permitido de vuelos totales. ($60$ y $200$).
+		
+		\item \textbf{Variables:}\\
+		$x_j$: Cantidad de vuelos programados para el avión tipo $j$.
+		
+		\item \textbf{Función Objetivo:}\\
+		Maximizar la ganancia total de la operación:
+		$$ \text{Max } Z = 30x_1 + 20x_2 $$
+		
+		\item \textbf{Restricciones:}\\
+		Proporcionalidad (A1 $\geq$ A2): $$ -x_1 + x_2 \leq 0 $$
+		Capacidad Operativa A1: $$ x_1 \leq 120 $$
+		Mínimo de Vuelos Totales: $$ -x_1 - x_2 \leq -60 $$
+		Máximo de Vuelos Totales: $$ x_1 + x_2 \leq 200 $$
+		
+		\item \textbf{Dominios:}\\
+		$$ x_1 \geq 0, \quad x_2 \geq 0 $$
+		
+		\item \textbf{Análisis Dimensional:}\\
+		Las restricciones operan bajo la suma pura de unidades de vuelos $[\text{vuelos}] \pm [\text{vuelos}] = [\text{vuelos}]$. Geometría congruente.
+	\end{enumerate}
+	
+	\subsubsection*{2. Verificación del Espacio Convexo}
+	Las restricciones son desigualdades lineales puras. El recinto formado por la intersección de estos 6 semi-espacios conforma un poliedro convexo. Se garantiza que un óptimo local KKT es el óptimo global.
+	
+	\subsubsection*{3. Resolución con Condiciones KKT}
+	\begin{enumerate}[a)]
+		\item \textbf{Rescribir el Modelo:}\\
+		$$ \min f(x) = -30x_1 - 20x_2 $$
+		$$ g_1(x) = -x_1 + x_2 \leq 0 $$
+		$$ g_2(x) = x_1 - 120 \leq 0 $$
+		$$ g_3(x) = -x_1 - x_2 + 60 \leq 0 $$
+		$$ g_4(x) = x_1 + x_2 - 200 \leq 0 $$
+		$$ g_5(x) = -x_1 \leq 0, \quad g_6(x) = -x_2 \leq 0 $$
+		
+		\item \textbf{Construir la Función Lagrangiana:}\\
+		$$ \mathcal{L} = -30x_1 - 20x_2 + \mu_1(-x_1+x_2) + \mu_2(x_1-120) + \mu_3(-x_1-x_2+60) + \mu_4(x_1+x_2-200) - \mu_5 x_1 - \mu_6 x_2 $$
+		
+		\item \textbf{Definir las Condiciones KKT:}\\
+		\begin{enumerate}[i)]
+			\item \textit{Estacionariedad:}\\
+			$\frac{\partial \mathcal{L}}{\partial x_1} = -30 - \mu_1 + \mu_2 - \mu_3 + \mu_4 - \mu_5 = 0$\\
+			$\frac{\partial \mathcal{L}}{\partial x_2} = -20 + \mu_1 - \mu_3 + \mu_4 - \mu_6 = 0$
+			\item \textit{Factibilidad Primal:}\\
+			$g_1(x) \dots g_6(x) \leq 0$
+			\item \textit{Factibilidad Dual:}\\
+			$\mu_1 \dots \mu_6 \geq 0$
+			\item \textit{Holgura Complementaria:}\\
+			$\mu_i \cdot g_i(x) = 0 \quad \forall i \in \{1 \dots 6\}$
+		\end{enumerate}
+		
+		\item \textbf{Prueba de Casos:}\\
+		Asumimos que el límite del A1 ($g_2$) y el máximo de vuelos ($g_4$) están \textbf{activas}.
+		$$ x_1 = 120 \quad \text{y} \quad 120 + x_2 = 200 \implies x_2^* = 80 $$
+		\textit{Verificación Primal:} $-120 + 80 = -40 \leq 0$ ($g_1$ inactiva). $-120 - 80 + 60 = -140 \leq 0$ ($g_3$ inactiva). El punto es factible.\\
+		\textit{Holgura Complementaria:} Como solo $g_2$ y $g_4$ son iguales a cero, entonces $\mu_1 = \mu_3 = \mu_5 = \mu_6 = 0$.\\
+		\textit{Cálculo de Multiplicadores:}
+		$$ -20 + \mu_4 = 0 \implies \mu_4^* = 20 $$
+		$$ -30 + \mu_2 + 20 = 0 \implies \mu_2^* = 10 $$
+		\textit{Verificación Dual:} $\mu_2, \mu_4 \geq 0$. Cumplen. El óptimo es $(120, 80)$ con $Z^* = 5200$.
+	\end{enumerate}
+	
+	\subsubsection*{4. Análisis de Sensibilidad}
+	\begin{itemize}
+		\item \textbf{Precio Sombra Límite Vuelos Totales ($\mu_4 = 20$):} Si el aeropuerto permitiera 1 vuelo total extra ($201$), la ganancia subiría en \$20k (ingresando un vuelo adicional del modelo A2).
+		\item \textbf{Precio Sombra Límite A1 ($\mu_2 = 10$):} Si el límite de A1 subiera a $121$, la aerolínea cambiaría un vuelo de A2 por uno de A1 dentro de su cuota de 200. La ganancia marginal es exactamente la diferencia de rentabilidad: $30k - 20k = 10k$.
+		\item \textbf{Holguras Lógicas:} Las restricciones de "mínimo de vuelos" y "A1 $\geq$ A2" tienen holgura primal. No afectan la rentabilidad en este nivel óptimo, por ende, su costo marginal asociado (precio sombra) es 0.
+	\end{itemize}
+	
+	\newpage
+
+	% --- EJEMPLO 3 ---
+	\subsection{Ejemplo 3: OOZMA KAPPA S.R.L. (Metodología 7 Pasos)}
+	
+	\textbf{Enunciado:} La fábrica de aceros OOZMA KAPPA S.R.L produce 3 tamaños de tubos: A, B y C que son vendidos respectivamente en 10, 12 y 9 € por metro. Durante el proceso de fabricación se requieren para cada metro del tubo A 0.55 minutos de tiempo en la máquina de modelado, mientras que los registros para cada metro de los tubos B y C son 0.45 y 0.65 minutos respectivamente. Para finalizar el proceso de producción, se establece el requerimiento de 1 litro de pintura de galvanizado para cada metro de cualquier tipo de tubo. 
+	
+	Los costos de fabricación de cada metro de los tubos A, B y C se registran en 3, 4 y 4 € respectivamente. La compañía ha recibido pedidos de Singapur que totalizan 2000 metros de tubo A, 4000 de B y 5000 de C. Se disponen solamente de 40 h semanales de trabajo (asumiendo un mes de 4 semanas, es decir, 9600 minutos mensuales) en la máquina de modelado y en inventario se disponen de 8500 litros de pintura de galvanizado. 
+	
+	Se analiza la alternativa de comprar tubos a proveedores de Japón a un costo de entrega de 6 € por metro del tubo A, 6 para B y 7 para C, sabiendo que solamente se tiene un presupuesto de 800,000 € para estas compras. Formule el modelo para maximizar las ganancias.
+	
+	\subsubsection*{1. Conjuntos (Índices)}
+	\begin{itemize}
+		\item $I$: Conjunto de tipos de tubos, $i \in \{A, B, C\}$.
+	\end{itemize}
+	
+	\subsubsection*{2. Parámetros (Datos)}
+	\begin{itemize}
+		\item $p_i$: Precio de venta por metro del tubo $i$ [€].
+		\item $m_i$: Minutos de máquina de modelado por metro de tubo $i$ [min].
+		\item $g_i$: Litros de pintura de galvanizado por metro de tubo $i$ [L].
+		\item $cv_i$: Costo de fabricación interna por metro de tubo $i$ [€].
+		\item $cp_i$: Costo de compra a Japón por metro de tubo $i$ [€].
+		\item $D_i$: Demanda total mensual del tubo $i$ [metros].
+		\item $T$: Tiempo total de máquina disponible [min].
+		\item $G$: Inventario total de pintura disponible [L].
+		\item $B$: Presupuesto máximo para compras externas [€].
+	\end{itemize}
+	
+	\subsubsection*{3. Variables de Decisión}
+	\begin{itemize}
+		\item $x_i$: Metros de tubo $i$ a fabricar internamente.
+		\item $y_i$: Metros de tubo $i$ a comprar al proveedor de Japón.
+	\end{itemize}
+	
+	\subsubsection*{4. Función Objetivo}
+	Maximizar la utilidad total (Ingresos por ventas menos costos de fabricación y compra):
+	$$ \text{Max } Z = \sum_{i \in I} (p_i - cv_i) x_i + \sum_{i \in I} (p_i - cp_i) y_i $$
+	
+	\subsubsection*{5. Restricciones}
+	\begin{itemize}
+		\item \textbf{Tiempo Máquina:} El tiempo consumido en fabricar no debe superar la disponibilidad.
+		$$ \sum_{i \in I} m_i x_i \leq T $$
+		
+		\item \textbf{Inventario Pintura:} El galvanizado utilizado no debe superar las existencias.
+		$$ \sum_{i \in I} g_i x_i \leq G $$
+		
+		\item \textbf{Presupuesto Compra:} El costo de importar de Japón no debe superar el presupuesto.
+		$$ \sum_{i \in I} cp_i y_i \leq B $$
+		
+		\item \textbf{Cumplimiento de Demanda:} Lo fabricado internamente más lo comprado debe igualar la demanda exacta para cada tubo.
+		$$ x_i + y_i = D_i \quad \forall i \in I $$
+	\end{itemize}
+	
+	\subsubsection*{6. Dominios}
+	$$ x_i \geq 0, \quad y_i \geq 0 \quad \forall i \in I $$
+	
+	\subsubsection*{7. Análisis Dimensional y Matriz Extendida}
+	Las restricciones de capacidad de recursos operan bajo suma de productos consistentes (ej. $[\text{min/m}] \times [\text{m}] = [\text{min}]$). 
+	
+	\vspace{0.5cm}
+	\begin{center}
+		\textbf{Modelo Matemático Completo (Instanciado)}
+		$$\begin{aligned}
+			\text{Max } Z = & 7x_A + 8x_B + 5x_C + 4y_A + 6y_B + 2y_C \\
+			\text{s.a.} \quad & 0.55x_A + 0.45x_B + 0.65x_C \leq 9600 & \text{(Tiempo Máquina)} \\
+			& x_A + x_B + x_C \leq 8500 & \text{(Pintura)} \\
+			& 6y_A + 6y_B + 7y_C \leq 800000 & \text{(Presupuesto Japón)} \\
+			& x_A + y_A = 2000 & \text{(Demanda A)} \\
+			& x_B + y_B = 4000 & \text{(Demanda B)} \\
+			& x_C + y_C = 5000 & \text{(Demanda C)} \\
+			& x_A, x_B, x_C, y_A, y_B, y_C \geq 0 &
+		\end{aligned}$$
+	\end{center}
+	
+	\textbf{Representación Matricial (Instancia $\mathbf{A x} \geq \mathbf{b}$):}
+	Al normalizar las igualdades y disponer el vector de variables $\mathbf{x}_{tot} = [x_A, x_B, x_C, y_A, y_B, y_C]^T$, la matriz tecnológica extendida se visualiza así:
+	
+	$$
+	\begin{bmatrix}
+		-0.55 & -0.45 & -0.65 & 0 & 0 & 0 \\
+		-1 & -1 & -1 & 0 & 0 & 0 \\
+		0 & 0 & 0 & -6 & -6 & -7 \\
+		1 & 0 & 0 & 1 & 0 & 0 \\
+		0 & 1 & 0 & 0 & 1 & 0 \\
+		0 & 0 & 1 & 0 & 0 & 1
+	\end{bmatrix}
+	\begin{bmatrix} 
+		x_A \\ x_B \\ x_C \\ y_A \\ y_B \\ y_C 
+	\end{bmatrix}
+	\geq 
+	\begin{bmatrix} 
+		-9600 \\ -8500 \\ -800000 \\ 2000 \\ 4000 \\ 5000 
+	\end{bmatrix}
+	$$
+	
+	\newpage
+	
+	% --- EJEMPLO 4 ---
+	\subsection{Ejemplo 4: Dieta de Dick y Jane (Metodología 7 Pasos)}
+	
+	\textbf{Enunciado:} Minimizar el costo de 6 alimentos sujetos a calorías, grasas, vitamina C, proteínas, y proporciones obligatorias.
+	
+	\subsubsection*{1. Conjuntos (Índices)}
+	\begin{itemize}
+		\item $I$: Conjunto de alimentos disponibles, indexado por $i \in \{1 \text{ (Pan)}, 2 \text{ (Maní)}, 3 \text{ (Mermelada)}, 4 \text{ (Galletas)}, 5 \text{ (Leche)}, 6 \text{ (Jugo)}\}$.
+	\end{itemize}
+	
+	\subsubsection*{2. Parámetros (Datos)}
+	\begin{itemize}
+		\item $c_i$: Costo del alimento $i$ [\$].
+		\item $g_i$: Calorías de grasa del alimento $i$ [cal].
+		\item $t_i$: Calorías totales del alimento $i$ [cal].
+		\item $v_i$: Miligramos de Vitamina C del alimento $i$ [mg].
+		\item $p_i$: Gramos de proteína del alimento $i$ [g].
+	\end{itemize}
+	
+	\subsubsection*{3. Variables de Decisión}
+	\begin{itemize}
+		\item $x_i$: Cantidad de porciones del alimento $i$ a servir en la dieta diaria.
+	\end{itemize}
+	
+	\subsubsection*{4. Función Objetivo}
+	Minimizar el costo total de los alimentos seleccionados:
+	$$ \text{Min } Z = \sum_{i \in I} c_i x_i $$
+	
+	\subsubsection*{5. Restricciones}
+	\begin{itemize}
+		\item \textbf{Mínimo de Calorías:}
+		$$ \sum_{i \in I} t_i x_i \geq 400 $$
+		
+		\item \textbf{Máximo de Calorías:}
+		$$ \sum_{i \in I} t_i x_i \leq 600 $$
+		
+		\item \textbf{Límite de Grasa (Máximo 30\% del total de calorías):}
+		$$ \sum_{i \in I} g_i x_i \leq 0.30 \left( \sum_{i \in I} t_i x_i \right) $$
+		
+		\item \textbf{Requerimiento de Vitamina C:}
+		$$ \sum_{i \in I} v_i x_i \geq 60 $$
+		
+		\item \textbf{Requerimiento de Proteína:}
+		$$ \sum_{i \in I} p_i x_i \geq 12 $$
+		
+		\item \textbf{Condición Estricta (Porciones exactas de Pan):}
+		$$ x_1 = 2 $$
+		
+		\item \textbf{Proporción Sándwich (Doble de maní que mermelada):}
+		$$ x_2 \geq 2 x_3 $$
+		
+		\item \textbf{Líquido Mínimo (Al menos 1 taza entre leche y jugo):}
+		$$ x_5 + x_6 \geq 1 $$
+	\end{itemize}
+	
+	\subsubsection*{6. Dominios}
+	$$ x_i \geq 0 \quad \forall i \in I $$
+	
+	\subsubsection*{7. Análisis Dimensional y Matriz Extendida}
+	Al reordenar algebraicamente la inecuación de grasa a una forma estándar ($\sum (0.30 t_i - g_i) x_i \geq 0$), los coeficientes se calculan restando la grasa a las calorías ponderadas (ej. para el Pan: $0.30(70) - 10 = 11$).
+	
+	\textbf{Representación Matricial (Instancia $\mathbf{A x} \ge \mathbf{b}$):}
+	$$
+	\begin{bmatrix}
+		70 & 100 & 50 & 60 & 150 & 100 \\
+		-70 & -100 & -50 & -60 & -150 & -100 \\
+		11 & -45 & 15 & -2 & -25 & 30 \\
+		0 & 0 & 3 & 0 & 2 & 120 \\
+		3 & 4 & 0 & 1 & 8 & 1 \\
+		1 & 0 & 0 & 0 & 0 & 0 \\
+		-1 & 0 & 0 & 0 & 0 & 0 \\
+		0 & 1 & -2 & 0 & 0 & 0 \\
+		0 & 0 & 0 & 0 & 1 & 1
+	\end{bmatrix}
+	\begin{bmatrix} 
+		x_1 \\ x_2 \\ x_3 \\ x_4 \\ x_5 \\ x_6 
+	\end{bmatrix}
+	\geq 
+	\begin{bmatrix} 
+		400 \\ -600 \\ 0 \\ 60 \\ 12 \\ 2 \\ -2 \\ 0 \\ 1 
+	\end{bmatrix}
+	$$
+	
+	\vspace{0.5cm}
+	\begin{center}
+		\textbf{Modelo Matemático Completo (Instanciado)}
+		$$\begin{aligned}
+			\text{Min } Z = & 5x_1 + 4x_2 + 7x_3 + 8x_4 + 15x_5 + 35x_6 \\
+			\text{s.a.} \quad & 70x_1 + 100x_2 + 50x_3 + 60x_4 + 150x_5 + 100x_6 \geq 400 \\
+			& 70x_1 + 100x_2 + 50x_3 + 60x_4 + 150x_5 + 100x_6 \leq 600 \\
+			& 10x_1 + 75x_2 + 0x_3 + 20x_4 + 70x_5 + 0x_6 \leq 0.30(70x_1 + 100x_2 + 50x_3 + 60x_4 + 150x_5 + 100x_6) \\
+			& 3x_3 + 2x_5 + 120x_6 \geq 60 \\
+			& 3x_1 + 4x_2 + 1x_4 + 8x_5 + 1x_6 \geq 12 \\
+			& x_1 = 2 \\
+			& x_2 - 2x_3 \geq 0 \\
+			& x_5 + x_6 \geq 1 \\
+			& x_1, x_2, x_3, x_4, x_5, x_6 \geq 0
+		\end{aligned}$$
+	\end{center}
+	
+	\newpage
+	
+	% --- EJEMPLO 5 ---
+	\subsection{Ejemplo 5: Sistema de Regadío (Metodología 7 Pasos)}
+	
+	\textbf{Enunciado:} Minimizar el costo de transporte de agua respetando el balance de nodos en una red agrícola y la capacidad física de las cañerías.
+	
+	\subsubsection*{1. Conjuntos (Índices)}
+	\begin{itemize}
+		\item $N$: Conjunto de todos los nodos de la red, indexado por $i$ o $j$.
+		\item $A$: Conjunto de arcos dirigidos $(i,j)$ que representan conexiones de cañerías.
+	\end{itemize}
+	
+	\subsubsection*{2. Parámetros (Datos)}
+	\begin{itemize}
+		\item $c_{ij}$: Costo de transporte por metro cúbico a través del arco $(i, j)$ [\$/$\text{m}^3$].
+		\item $u_{ij}$: Capacidad máxima de transporte del arco $(i, j)$ [$\text{m}^3$/hr].
+		\item $b_i$: Flujo neto disponible en el nodo $i$ [$\text{m}^3$/hr]. Valores positivos ($+$) indican oferta y valores negativos ($-$) indican demanda.
+	\end{itemize}
+	
+	\subsubsection*{3. Variables de Decisión}
+	\begin{itemize}
+		\item $x_{ij}$: Cantidad de agua a transportar a través del arco dirigido $(i, j)$ [$\text{m}^3$/hr].
+	\end{itemize}
+	
+	\subsubsection*{4. Función Objetivo}
+	Minimizar los costos logísticos de enrutamiento del agua:
+	$$ \text{Min } Z = \sum_{(i,j) \in A} c_{ij} x_{ij} $$
+	
+	\subsubsection*{5. Restricciones}
+	\begin{itemize}
+		\item \textbf{Balance Nodal Estricto:} Lo que sale del nodo $i$ menos lo que entra al nodo $i$ debe igualar su suministro o demanda neta.
+		$$ \sum_{j \mid (i,j) \in A} x_{ij} - \sum_{k \mid (k,i) \in A} x_{ki} = b_i \quad \forall i \in N $$
+		
+		\item \textbf{Capacidades Físicas (Cota superior):} El caudal no puede rebasar el límite de la tubería.
+		$$ x_{ij} \leq u_{ij} \quad \forall (i,j) \in A $$
+	\end{itemize}
+	
+	\subsubsection*{6. Dominios}
+	$$ x_{ij} \geq 0 \quad \forall (i,j) \in A $$
+	
+	\subsubsection*{7. Análisis Dimensional y Matriz Extendida}
+	Ecuación de balance: $[\text{m}^3\text{/hr}] - [\text{m}^3\text{/hr}] = [\text{m}^3\text{/hr}]$. Las unidades nodales corresponden exactamente con los flujos de la red.
+	
+	\textbf{Representación Matricial (Matriz de Incidencia $\mathbf{M}$):}
+	Para la red completa de 10 arcos y 5 nodos, donde el vector de variables es $\mathbf{x} = [x_{AB}, x_{AC}, x_{BA}, x_{BC}, x_{BD}, x_{BE}, x_{CB}, x_{CD}, x_{DC}, x_{ED}]^T$, la ecuación de conservación de flujo $\mathbf{M x} = \mathbf{b}$ toma esta forma exacta:
+	
+	$$ 
+	\begin{bmatrix}
+		1 & 1 & -1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		-1 & 0 & 1 & 1 & 1 & 1 & -1 & 0 & 0 & 0 \\
+		0 & -1 & 0 & -1 & 0 & 0 & 1 & 1 & -1 & 0 \\
+		0 & 0 & 0 & 0 & -1 & 0 & 0 & -1 & 1 & -1 \\
+		0 & 0 & 0 & 0 & 0 & -1 & 0 & 0 & 0 & 1
+	\end{bmatrix} 
+	\begin{bmatrix} 
+		x_{AB} \\ x_{AC} \\ x_{BA} \\ x_{BC} \\ x_{BD} \\ x_{BE} \\ x_{CB} \\ x_{CD} \\ x_{DC} \\ x_{ED} 
+	\end{bmatrix} 
+	= 
+	\begin{bmatrix} 
+		4 \\ 6 \\ -1 \\ -4 \\ -5 
+	\end{bmatrix} 
+	$$
+	
+	\vspace{0.5cm}
+	\begin{center}
+		\textbf{Modelo Matemático Completo (Instanciado)}
+		$$\begin{aligned}
+			\text{Min } Z = & 7x_{AB} + 5x_{AC} + 7x_{BA} + 8x_{BC} + 2x_{BD} + 4x_{BE} + 8x_{CB} + 2x_{CD} + 2x_{DC} + 10x_{ED} \\
+			\text{s.a.} \quad & x_{AB} + x_{AC} - x_{BA} = 4 & \text{(Balance A)} \\
+			& x_{BA} + x_{BC} + x_{BD} + x_{BE} - x_{AB} - x_{CB} = 6 & \text{(Balance B)} \\
+			& x_{CB} + x_{CD} - x_{AC} - x_{BC} - x_{DC} = -1 & \text{(Balance C)} \\
+			& x_{DC} - x_{BD} - x_{CD} - x_{ED} = -4 & \text{(Balance D)} \\
+			& x_{ED} - x_{BE} = -5 & \text{(Balance E)} \\
+			& x_{ij} \leq 15 \quad \forall (i,j) \in A & \text{(Capacidad Cañerías)} \\
+			& x_{ij} \geq 0 \quad \forall (i,j) \in A & 
+		\end{aligned}$$
+	\end{center}
+	
+	
+\end{document}
