@@ -1,0 +1,983 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper, top=1.8cm, bottom=2cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+% sansmath not needed
+
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+
+% ─── Colors ───────────────────────────────────────────────────────
+\definecolor{codegreen}{rgb}{0.0,0.48,0.18}
+\definecolor{codegray}{rgb}{0.50,0.50,0.50}
+\definecolor{codepurple}{rgb}{0.38,0.0,0.58}
+\definecolor{codeblue}{rgb}{0.0,0.28,0.68}
+\definecolor{codeorange}{rgb}{0.70,0.35,0.0}
+\definecolor{backcolour}{rgb}{0.965,0.965,0.975}
+\definecolor{mathbg}{rgb}{0.92,0.95,1.0}
+\definecolor{notebg}{rgb}{1.0,0.97,0.87}
+\definecolor{sectionbg}{rgb}{0.16,0.26,0.52}
+\definecolor{subsecbg}{rgb}{0.38,0.50,0.75}
+\definecolor{bordergray}{rgb}{0.68,0.68,0.74}
+\definecolor{noteborder}{rgb}{0.80,0.65,0.25}
+
+% ─── Listings ─────────────────────────────────────────────────────
+\lstdefinestyle{gurobipy}{
+  language=Python,
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{codegray}\itshape,
+  keywordstyle=\color{codepurple}\bfseries,
+  stringstyle=\color{codegreen},
+  basicstyle=\ttfamily\small,
+  breakatwhitespace=false,
+  breaklines=true,
+  keepspaces=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2,
+  frame=none,
+  xleftmargin=4pt,
+  xrightmargin=4pt,
+  aboveskip=0pt,
+  belowskip=0pt,
+  morekeywords={
+    GRB, quicksum, addVar, addVars, addConstr, addConstrs,
+    addRange, addQConstr,
+    addGenConstrIndicator, addGenConstrAbs,
+    addGenConstrMax, addGenConstrMin,
+    addSOS, setObjectiveN, setObjective, setParam,
+    optimize, update, Model, tupledict, multidict,
+    LinExpr, QuadExpr, GurobiError,
+    INFINITY, BINARY, CONTINUOUS, INTEGER,
+    MINIMIZE, MAXIMIZE, OPTIMAL,
+  },
+}
+
+% ─── tcolorbox ────────────────────────────────────────────────────
+\tcbset{
+  mathbox/.style={
+    colback=mathbg,
+    colframe=codeblue!35,
+    boxrule=0.5pt,
+    arc=3pt,
+    left=6pt, right=6pt, top=5pt, bottom=5pt,
+  },
+  notebox/.style={
+    colback=notebg,
+    colframe=noteborder,
+    boxrule=0.4pt,
+    arc=3pt,
+    left=5pt, right=5pt, top=4pt, bottom=4pt,
+    fontupper=\footnotesize\itshape,
+  },
+}
+
+% ─── Lengths ──────────────────────────────────────────────────────
+\newlength{\mathcolw}
+\setlength{\mathcolw}{0.295\textwidth}
+\newlength{\codecolw}
+\setlength{\codecolw}{0.665\textwidth}
+
+% ─── Helpers ──────────────────────────────────────────────────────
+\newcommand{\secheader}[2]{%
+  \vspace{10pt}%
+  \needspace{6cm}%
+  \noindent%
+  \begin{tcolorbox}[
+    colback=sectionbg, colupper=white,
+    colframe=sectionbg, sharp corners,
+    left=8pt, right=8pt, top=5pt, bottom=5pt,
+    fontupper=\large\bfseries\sffamily,
+  ]
+  Secci\'on #1:\enspace #2
+  \end{tcolorbox}%
+  \vspace{2pt}%
+}
+
+\newcommand{\entryheader}[1]{%
+  \needspace{5cm}%
+  \vspace{6pt}%
+  \noindent%
+  \begin{tcolorbox}[
+    colback=subsecbg!18,
+    colframe=subsecbg!45,
+    sharp corners, boxrule=0.4pt,
+    left=5pt, right=5pt, top=2pt, bottom=2pt,
+    fontupper=\small\bfseries\sffamily,
+  ]
+  #1
+  \end{tcolorbox}%
+  \vspace{2pt}%
+}
+
+% shorthand for inline code
+\newcommand{\py}[1]{\texttt{\small #1}}
+
+% ─── Header / Footer ──────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{{\small\sffamily\textcolor{sectionbg}{\textbf{Gurobipy} --- Programaci\'on Matem\'atica en Python}}}
+\fancyhead[R]{{\small\sffamily\textcolor{codegray}{Gu\'ia v1.0}}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{14pt}
+
+\hypersetup{colorlinks=true, linkcolor=sectionbg, urlcolor=codeblue}
+
+% ══════════════════════════════════════════════════════════════════
+\begin{document}
+% ══════════════════════════════════════════════════════════════════
+
+% ─── Title ────────────────────────────────────────────────────────
+\begin{tcolorbox}[
+        colback=sectionbg, colupper=white,
+        colframe=sectionbg, sharp corners,
+        left=10pt, right=10pt, top=8pt, bottom=8pt,
+    ]
+    {\LARGE\bfseries\sffamily Hands-on Gurobipy}\\[4pt]
+    {\normalsize\sffamily Autor: unknown
+        \hfill\textcolor{white!70!sectionbg}{\today}}
+\end{tcolorbox}
+
+\vspace{4pt}
+\noindent{\footnotesize\textit{%
+        Convenciones:\enspace
+        $I, J, K$ conjuntos de \'indices;\enspace
+        $i, j, k$ \'indices;\enspace
+        $a, b, c$ par\'ametros;\enspace
+        $M$ constante Big-M;\enspace
+        \py{m} $=$ instancia de \py{gb.Model()};\enspace
+        \py{x, y, z} variables gurobipy.%
+    }}
+\vspace{4pt}
+
+% ══════════════════════════════════════════════════════════════════
+\secheader{1}{Setup del modelo}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader{1.1\quad Crear modelo e importar librer\'ias}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\min\; f(x)$\\[4pt]
+        modelo vac\'io,\\ sin variables\\ ni restricciones
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+import gurobipy as gb
+from gurobipy import GRB, quicksum
+
+m = gb.Model("mi_modelo")     # instancia de modelo
+# Opcional para controlar la salida y el tiempo de optimizacion
+m.setParam("OutputFlag", 0)   # silenciar salida en consola
+m.setParam("TimeLimit", 300)  # limite de tiempo en segundos
+    \end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{1.2\quad Variable continua con cotas}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $x \in [lb,\; ub] \subset \mathbb{R}$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Sin \py{ub}, la variable es ilimitada superiormente (\py{GRB.INFINITY}). \py{name} aparece en logs y en archivos \py{.lp} para debug.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+x = m.addVar(
+    vtype=GRB.CONTINUOUS,
+    lb=0,    # cota inferior (default: 0)
+    ub=100,  # cota superior (default: GRB.INFINITY)
+    name="x"
+)
+    \end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{1.3\quad Variable entera}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $z \in \mathbb{Z}_{\geq 0}$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Se puede combinar con \py{ub} para limitar el rango entero, ejemplo \py{ub=50}.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+z = m.addVar(
+    vtype=GRB.INTEGER,
+    lb=0,               # cota inferior (default: 0)
+    ub=GRB.INFINITY,    # opcional, es el default para enteras
+    name="z"
+)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{1.4\quad Variable binaria (caso particular de entera con $lb=0$ y $ub=1$)}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $y \in \{0,\; 1\}$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Es equivalente a declarar la variable como entera y limitar su rango a $[0,1]$.\\
+        Si se declara como binaria, no es necesario declarar cotas.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+y = m.addVar(vtype=GRB.BINARY, name="y")
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{1.5\quad Variables indexadas --- Loops anidados}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $x_{ij} \in [0,1]$\\[4pt]
+        $\forall\; i \in I,\; j \in J$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        El doble loop es la forma m\'as directa de crear variables indexadas. Sin embargo, para modelos con muchos \'indices, el c\'odigo se vuelve verboso y propenso a errores.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+I = ["A", "B", "C"]
+J = [1, 2, 3]
+X = {}                  # diccionario vacio para guardar las variables
+for i in I:             # para cada i en I
+    for j in J:         # para cada j en J
+        X[i, j] = m.addVar(
+            vtype=GRB.CONTINUOUS,
+            lb=0, ub=1,
+            name=f"X_{i}_{j}"
+        )
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{1.6\quad Variables indexadas --- dict comprehension}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $x_{ij} \in [0,1]$\\[4pt]
+        $\forall\; i \in I,\; j \in J$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Clave tupla: \py{X["A",1]} $\equiv$ \py{X[("A",1)]}. El dict comprehension es una forma compacta de crear variables indexadas sin escribir bucles anidados. Ideal para modelos con muchos índices.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+I = ["A", "B", "C"]
+J = [1, 2, 3]
+
+X = {
+    (i, j): m.addVar(vtype=GRB.CONTINUOUS,
+                     lb=0, ub=1,
+                     name=f"X_{i}_{j}")
+    for i in I
+    for j in J
+}
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{1.7\quad Variables indexadas --- \py{addVars} y \py{multidict}}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $x_{ij},\; c_{ij},\; u_{ij}$\\[4pt]
+        desde datos estructurados
+    \end{tcolorbox}
+    \vspace{1pt}
+    \begin{tcolorbox}[notebox]
+        \py{multidict} devuelve claves + dicts en una sola l\'inea, es decir, \py{arcs} $=$ lista de claves.
+    \end{tcolorbox}
+    \vspace{1pt}
+    \begin{tcolorbox}[notebox]
+        \py{addVars} devuelve \py{tupledict} con m\'etodo \py{.sum("A","*")} para sumas parciales sin escribir \py{quicksum}.\\
+        Por cada valor en \py{arcs}, se crea una variable con el mismo nombre, ejemplo \py{x["A","B"]}.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+arcs, cost, cap = gb.multidict({
+    ("A","B"): [2.5, 10],
+    ("A","C"): [1.8,  5],
+    ("B","C"): [3.0,  8],
+})
+
+# addVars devuelve tupledict
+x = m.addVars(arcs, vtype=GRB.CONTINUOUS,
+              lb=0, name="x")
+
+# suma parcial sobre todo j con origen "A"
+expr = x.sum("A", "*")
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+% ══════════════════════════════════════════════════════════════════
+\secheader{2}{Restricciones b\'asicas}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader{2.1\quad Igualdad}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{i \in I} x_i = b$
+    \end{tcolorbox}
+    \begin{tcolorbox}[notebox]
+        La igualdad se modela con \py{==} en \py{addConstr}.\\
+        En modelos grandes, es recomendable usar \py{quicksum} para construir la expresi\'on lineal de manera eficiente.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+b = 1.0
+m.addConstr(
+    quicksum(x[i] for i in I) == b,
+    name="igualdad"
+)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{2.2\quad Desigualdad $\leq$ con suma ponderada por $a_i$}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{i \in I} a_i\, x_i \leq b$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+a = {"A": 3, "B": 2, "C": 5}
+b = 10
+
+m.addConstr(
+    quicksum(a[i] * x[i] for i in I) <= b,
+    name="capacidad"
+)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{2.3\quad Desigualdad $\geq$ --- con restriccion de elementos en $I$}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{i \in I \setminus \{B\}} x_i \geq 1$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+m.addConstr(
+    quicksum(x[i] for i in I if i != "B") >= 1,
+    name="cobertura"
+)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{2.4\quad Restricciones indexadas con elementos excluidos de $I$ --- Loops}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{\substack{j \in J \\ i \neq j}} x_{ij} \leq u_i, \quad \forall i \in I$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+u = {"A": 2, "B": 3, "C": 1}
+for i in I:
+    m.addConstr(
+        quicksum(X[i, j] for j in J if j != i) <= u[i],
+        name=f"capacity_{i}"
+    )
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{2.5\quad Restricciones indexadas --- Vectorizadas con \py{addConstrs} y \py{quicksum}}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{\substack{j \in J \\ i \neq j}} x_{ij} \leq u_i, \quad \forall i \in I$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        \py{addConstrs} permite crear múltiples restricciones de manera vectorizada, evitando bucles explícitos.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+u = {"A": 2, "B": 3, "C": 1}\
+m.addConstrs(
+    (quicksum(X[i, j] for j in J if j != i) <= u[i]
+     for i in I),
+    name="capacity"
+)  # crea: capacity[A], capacity[B], capacity[C]
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{2.6\quad Rango (restricci\'on doble)}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $L \leq \displaystyle\sum_{i \in I} x_i \leq U$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        \py{addRange} crea 1 fila interna. Dos \py{addConstr} crean 2 filas pero son m\'as legibles en el log.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+expr = quicksum(x[i] for i in I)
+
+# opcion 1: una sola restriccion interna
+m.addRange(expr, 2, 5, name="rango")
+
+# opcion 2: equivalente, dos restricciones
+m.addConstr(expr >= 2, name="rango_lb")
+m.addConstr(expr <= 5, name="rango_ub")
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+% ══════════════════════════════════════════════════════════════════
+\secheader{3}{Sumas y \texttt{quicksum}}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader{3.1\quad \py{quicksum} vs \py{sum} de Python}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{i \in I} c_i\, x_i$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        \py{quicksum} construye la \py{LinExpr} sin objetos intermedios. Con $|I|=10^4$, \py{sum()} puede ser hasta $100\times$ m\'as lento porque crea expresiones temporales en cada \py{+}.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+c = {"A": 2.0, "B": 3.5, "C": 1.0}
+
+# CORRECTO: eficiente con gurobipy
+expr = quicksum(c[i] * x[i] for i in I)
+
+# EVITAR en modelos grandes (crea LinExpr temporales)
+expr_lenta = sum(c[i] * x[i] for i in I)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{3.2\quad Objetivo lineal}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\min_{x}\;\sum_{i \in I} c_i\, x_i$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+m.setObjective(
+    quicksum(c[i] * x[i] for i in I),
+    GRB.MINIMIZE   # o GRB.MAXIMIZE
+)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{3.3\quad Suma doble (multi-\'indice)}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{i \in I}\sum_{j \in J} c_{ij}\, x_{ij}$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        \py{cost[i,j]} $\equiv$ \py{cost[(i,j)]}.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+cost = {("A",1): 2.0, ("A",2): 1.5,
+        ("B",1): 3.0, ("B",2): 2.5}
+
+obj = quicksum(
+    cost[i, j] * X[i, j]
+    for i in I
+    for j in J
+)
+m.setObjective(obj, GRB.MINIMIZE)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{3.4\quad Objetivos con suma doble (multi-\'indice)}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{i \in I}\sum_{j \in J} c_{ij}\, x_{ij} + \sum_{i \in I} d_i\, y_i$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Se pueden combinar sumas de diferentes \'indices en un mismo objetivo. Solo es necesario construir la expresi\'on completa con \py{quicksum} antes de llamar a \py{setObjective}.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+cost = {("A",1): 2.0, ("A",2): 1.5,
+        ("B",1): 3.0, ("B",2): 2.5}
+d = {"A": 1.0, "B": 0.5, "C": 2.0}
+obj = quicksum(
+    cost[i, j] * X[i, j]
+    for i in I
+    for j in J
+) + quicksum(
+    d[i] * y[i]
+    for i in I
+)
+m.setObjective(obj, GRB.MINIMIZE)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+% ══════════════════════════════════════════════════════════════════
+\secheader{4}{Variables binarias y Big-M}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader{4.1\quad Activaci\'on: $y_i = 1 \Rightarrow x_i \leq M$ y $y_i = 0 \Rightarrow x_i = 0$}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $x_i \leq M \cdot y_i$\\[6pt]
+        $\forall\; i \in I$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        $M$ debe ser la cota superior \emph{ajustada} de $x_i$.\\
+        Ojo: un $M$ grande debilita la relajaci\'on LP y enlentece el Branch \& Bound.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+M = 100  # cota superior real de x[i]
+
+for i in I:
+    m.addConstr(
+        x[i] <= M * y[i],
+        name=f"bigM_{i}"
+    )
+# y[i]=0 -> x[i]=0 ;  y[i]=1 -> x[i] libre hasta M
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{4.2\quad Equivalencia: $y_i = 1 \Leftrightarrow x_i > 0$}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $x_i \leq M \cdot y_i$\\[2pt]
+        $x_i \geq \varepsilon \cdot y_i$\\[6pt]
+        $\forall\; i \in I$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        $\varepsilon$ es un umbral peque\~no ($10^{-3}$) que fuerza $y_i = 1$ cuando $x_i > 0$. Solo v\'alido si $x_i$ es continua.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+eps = 1e-3
+
+for i in I:
+    m.addConstr(x[i] <= M * y[i],
+                name=f"bigM_ub_{i}")
+    m.addConstr(x[i] >= eps * y[i],
+                name=f"bigM_lb_{i}")
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{4.3\quad \py{addGenConstrIndicator} --- implicaci\'on limpia}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $y_i = 1 \Rightarrow$\\[2pt]
+        $\quad\displaystyle\sum_{j \in J} x_{ij} \leq C_i$\\[6pt]
+        $\forall\; i \in I$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        M\'as legible que Big-M. Gurobi lo convierte internamente a Big-M durante el preproceso. No garantiza ventaja sobre un Big-M bien formulado.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+C = {"A": 5, "B": 3}
+
+for i in I:
+    m.addGenConstrIndicator(
+        y[i],   # binaria "switch"
+        True,   # valor del switch: True=1, False=0
+        quicksum(X[i, j] for j in J) <= C[i],
+        name=f"indicator_{i}"
+    )
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+% ══════════════════════════════════════════════════════════════════
+\secheader{5}{Restricciones multi-\'indice}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader{5.1\quad Para todo par $(i,\,j)$}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $x_{ij} \leq y_i$\\[6pt]
+        $\forall\; i \in I,\; j \in J$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+for i in I:
+    for j in J:
+        m.addConstr(
+            X[i, j] <= y[i],
+            name=f"link_{i}_{j}"
+        )
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{5.2\quad Suma por fila y por columna}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{j \in J} x_{ij} = 1 \quad \forall\, i$\\[6pt]
+        $\displaystyle\sum_{i \in I} x_{ij} \leq 1 \quad \forall\, j$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+# restriccion por fila (para cada i)
+for i in I:
+    m.addConstr(
+        quicksum(X[i, j] for j in J) == 1,
+        name=f"fila_{i}"
+    )
+
+# restriccion por columna (para cada j)
+for j in J:
+    m.addConstr(
+        quicksum(X[i, j] for i in I) <= 1,
+        name=f"col_{j}"
+    )
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{5.3\quad Doble suma con filtro}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{k \in K} f_{ikt}\, x_{ikt}$\\[4pt]
+        $\leq \displaystyle\sum_{\substack{q \in Q\\ c_{iq}>0}} c_{iq}\, z_{iqt}$\\[6pt]
+        $\forall\; i \in I,\; t \in T$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        El filtro \py{if cap[i,q] > 0} evita t\'erminos nulos que engordan el modelo sin aportar restricci\'on real.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+for t in T:
+    for i in I:
+        m.addConstr(
+            quicksum(
+                f[i, k, t] * X[i, k, t]
+                for k in K)
+            <=
+            quicksum(
+                cap[i, q] * Z[i, q, t]
+                for q in Q
+                if cap[i, q] > 0),  # filtrar ceros
+            name=f"cap_{i}_{t}"
+        )
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+% ══════════════════════════════════════════════════════════════════
+\secheader{6}{Restricciones de red}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader{6.1\quad Conservaci\'on de flujo}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{\substack{j:\,(i,j)\in A}} x_{ij}$\\[4pt]
+        $-\displaystyle\sum_{\substack{j:\,(j,i)\in A}} x_{ji} = b_i$\\[6pt]
+        $\forall\; i \in V$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        $b_i < 0$: fuente;\enspace $b_i > 0$: sumidero;\enspace $b_i = 0$: tr\'ansito. Los arcos se filtran din\'amicamente desde la lista \py{arcs}.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+nodes = ["s", "1", "2", "t"]
+arcs  = [("s","1"), ("s","2"),
+         ("1","t"), ("2","t")]
+b     = {"s": -1, "1": 0, "2": 0, "t": 1}
+
+x = {a: m.addVar(lb=0, name=f"x_{a}")
+     for a in arcs}
+
+for i in nodes:
+    salida  = quicksum(x[u,v] for (u,v) in arcs
+                       if u == i)
+    entrada = quicksum(x[u,v] for (u,v) in arcs
+                       if v == i)
+    m.addConstr(salida - entrada == b[i],
+                name=f"flujo_{i}")
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{6.2\quad Capacidad de arco con apertura binaria}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $0 \leq x_{ij} \leq u_{ij} \cdot y_{ij}$\\[6pt]
+        $\forall\; (i,j) \in A$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+u = {("s","1"): 10, ("s","2"): 5,
+     ("1","t"):  8, ("2","t"): 6}
+
+y = {a: m.addVar(vtype=GRB.BINARY,
+                 name=f"y_{a}")
+     for a in arcs}
+
+for a in arcs:
+    m.addConstr(x[a] <= u[a] * y[a],
+                name=f"cap_{a}")
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{6.3\quad Asignaci\'on: exactamente uno activo}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\displaystyle\sum_{i \in I} y_i = 1$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+m.addConstr(
+    quicksum(y[i] for i in I) == 1,
+    name="exactamente_uno"
+)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+% ══════════════════════════════════════════════════════════════════
+\secheader{7}{Linealizaci\'on de no-linealidades}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader{7.1\quad Valor absoluto: $t = |x|$}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $t \geq x$\\
+        $t \geq -x$\\
+        $t \geq 0$\\[4pt]
+        $\Leftrightarrow\; t = |x|$\\(si se minimiza $t$)
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Las dos formas son equivalentes. \py{addGenConstrAbs} es m\'as conciso; Gurobi lo convierte a las dos desigualdades durante el preproceso.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+x = m.addVar(lb=-GRB.INFINITY, name="x")
+t = m.addVar(lb=0, name="t_abs")
+
+# Forma manual (dos restricciones lineales)
+m.addConstr(t >= x,  name="abs_pos")
+m.addConstr(t >= -x, name="abs_neg")
+
+# Forma directa con restriccion generalizada
+m.addGenConstrAbs(t, x, name="abs_x")
+# minimizar t en objetivo -> t = |x|
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{7.2\quad M\'aximo: $t = \max_i x_i$}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $t = \displaystyle\max_{i \in I} x_i$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Solo cotas $t \geq x_i$ es suficiente si $t$ entra en el objetivo con coeficiente $> 0$ (minimizaci\'on). Para igualdad exacta en otros contextos usar \py{addGenConstrMax}.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+t_max = m.addVar(lb=-GRB.INFINITY, name="t_max")
+
+# Opcion 1: solo cotas inferiores (si minimizando t)
+for i in I:
+    m.addConstr(t_max >= x[i],
+                name=f"max_lb_{i}")
+
+# Opcion 2: igualdad exacta garantizada
+m.addGenConstrMax(
+    t_max,
+    [x[i] for i in I],
+    constant=-GRB.INFINITY,  # sin constante adicional
+    name="max_x"
+)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader{7.3\quad M\'inimo: $t = \min_i x_i$}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $t = \displaystyle\min_{i \in I} x_i$
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+t_min = m.addVar(lb=-GRB.INFINITY, name="t_min")
+
+m.addGenConstrMin(
+    t_min,
+    [x[i] for i in I],
+    constant=GRB.INFINITY,  # sin constante adicional
+    name="min_x"
+)
+\end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+% ══════════════════════════════════════════════════════════════════
+\secheader{8}{Avanzado}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader{8.1\quad Par\'ametros del solver y lectura de resultados}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        Configuraci\'on\\ del solver\\[4pt]
+        Lectura de\\resultados tras\\ \py{m.optimize()}
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+m.setParam("MIPGap",    0.01) # gap optimalidad 1%
+m.setParam("TimeLimit", 3600) # 1 hora maximo
+m.setParam("Threads",   4)    # hilos en paralelo
+m.setParam("MIPFocus",  1)    # buscar factible rapido
+m.setParam("Presolve",  2)    # presolve agresivo
+m.setParam("OutputFlag", 1)   # activar log en consola
+
+m.optimize()
+
+# Leer resultados
+if m.Status == GRB.OPTIMAL:
+    print(f"ObjVal:   {m.ObjVal:.4f}")
+    print(f"ObjBound: {m.ObjBound:.4f}")
+    print(f"MIPGap:   {100*m.MIPGap:.2f}%")
+    print(f"Runtime:  {m.Runtime:.1f}s")
+    sol = {i: x[i].X for i in I}  # .X = valor optimo
+\end{lstlisting}
+\end{minipage}
+
+\vspace{14pt}
+
+% ─── Footer note ──────────────────────────────────────────────────
+\begin{tcolorbox}[
+        colback=sectionbg!8, colframe=sectionbg!30,
+        sharp corners, boxrule=0.4pt,
+        left=8pt, right=8pt, top=4pt, bottom=4pt,
+    ]
+    \footnotesize
+    \textbf{Referencia:} Gurobi Optimizer Reference Manual v10.0\enspace
+\end{tcolorbox}
+
+\end{document}
