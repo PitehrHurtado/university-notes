@@ -1,0 +1,38 @@
+semester_1/stochastic_model/resumen/module_01.tex
+  s_45b8d1b485f8be::t_2ffa292285249d 1-954,956-959,961-982,984-1279,1281-1910
+  s_45b8d1b485f8be::t_0fbe6bf86e7148 955,960,983,1280
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "d2533eb522f58a1db2f80417290416f57fd125f2",
+  "prompts": {
+    "31c4f1d3a0a9e17d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b3e85fe-29af-428b-b577-3928938052c7",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitehrHurtado <pitehr.hurtado.c@mail.pucv.cl>",
+      "total_additions": 849,
+      "total_deletions": 0,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  },
+  "humans": {
+    "h_ff21bb9531b92c": {
+      "author": "PitehrHurtado"
+    }
+  },
+  "sessions": {
+    "s_45b8d1b485f8be": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fa372455-3ea9-40bd-9f41-dc1be2884b2e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "PitehrHurtado <pitehr.hurtado.c@mail.pucv.cl>"
+    }
+  }
+}
