@@ -1,0 +1,1910 @@
+% ─────────────────────────────────────────────────────────────────────────────
+%  Módulo 1 · Fundamentos de Probabilidad — Modelos Estocásticos (Doctorado)
+%  Autor: PitehrHurtado · 2026
+% ─────────────────────────────────────────────────────────────────────────────
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper, top=1.8cm, bottom=2.0cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, fit, backgrounds, decorations.pathreplacing}
+
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+\setlength{\headheight}{19pt}
+
+% ─── Numeración de ecuaciones por sección ────────────────────────────────────
+\numberwithin{equation}{section}
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{sectionbg}{rgb}{0.16,0.26,0.52}
+\definecolor{subsecbg}{rgb}{0.38,0.50,0.75}
+\definecolor{codeblue}{rgb}{0.0,0.28,0.68}
+\definecolor{notebg}{rgb}{1.0,0.97,0.87}
+\definecolor{noteborder}{rgb}{0.80,0.65,0.25}
+\definecolor{defbg}{rgb}{0.93,0.98,0.93}
+\definecolor{defborder}{rgb}{0.25,0.60,0.30}
+\definecolor{thmbg}{rgb}{0.92,0.95,1.0}
+\definecolor{thmborder}{rgb}{0.25,0.45,0.80}
+\definecolor{exbg}{rgb}{0.96,0.96,0.96}
+\definecolor{exborder}{rgb}{0.55,0.55,0.55}
+\definecolor{warnbg}{rgb}{1.0,0.94,0.93}
+\definecolor{warnborder}{rgb}{0.80,0.25,0.20}
+\definecolor{proofbg}{rgb}{0.98,0.97,1.0}
+\definecolor{proofborder}{rgb}{0.55,0.40,0.75}
+
+% ─── Hyperref ────────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=codeblue,
+  citecolor=codeblue,
+  urlcolor=codeblue,
+}
+
+% ─── Cabeceras ───────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\sffamily\color{sectionbg}Modelos Estoc\'asticos --- M\'odulo 1: Fundamentos de Probabilidad}
+\fancyhead[R]{\footnotesize\sffamily\color{sectionbg}Doctorado \textperiodcentered\ 2026}
+\fancyfoot[C]{\footnotesize\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{subsecbg}\leaders\hrule height \headrulewidth\hfill}}
+
+% ─── tcolorbox styles ────────────────────────────────────────────────────────
+\tcbset{
+  defbox/.style={
+    enhanced,
+    colback=defbg, colframe=defborder,
+    boxrule=0.6pt, arc=3pt,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily,
+    coltitle=white, colbacktitle=defborder,
+    titlerule=0pt,
+    colupper=black,
+  },
+  thmbox/.style={
+    enhanced,
+    colback=thmbg, colframe=thmborder,
+    boxrule=0.6pt, arc=3pt,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily,
+    coltitle=white, colbacktitle=thmborder,
+    titlerule=0pt,
+  },
+  exbox/.style={
+    enhanced,
+    colback=exbg, colframe=exborder,
+    boxrule=0.4pt, arc=3pt,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily,
+    coltitle=white, colbacktitle=exborder,
+    titlerule=0pt,
+  },
+  notebox/.style={
+    colback=notebg, colframe=noteborder,
+    boxrule=0.4pt, arc=3pt,
+    left=5pt, right=5pt, top=4pt, bottom=4pt,
+    fontupper=\footnotesize\itshape,
+  },
+  warnbox/.style={
+    colback=warnbg, colframe=warnborder,
+    boxrule=0.4pt, arc=3pt,
+    left=5pt, right=5pt, top=4pt, bottom=4pt,
+    fonttitle=\small\bfseries\sffamily\color{warnborder},
+    title={$\triangle$\ Atenci\'on},
+    fontupper=\small,
+  },
+  proofbox/.style={
+    colback=proofbg, colframe=proofborder!50,
+    boxrule=0.4pt, arc=3pt,
+    left=7pt, right=7pt, top=4pt, bottom=4pt,
+    fonttitle=\small\itshape\sffamily,
+    title={Demostraci\'on},
+    fontupper=\small,
+  },
+}
+
+% ─── Helpers ─────────────────────────────────────────────────────────────────
+\newcommand{\secheader}[2]{%
+  \refstepcounter{section}%
+  \addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}%
+  \vspace{10pt}\needspace{6cm}\noindent%
+  \begin{tcolorbox}[
+    colback=sectionbg, colupper=white, colframe=sectionbg,
+    sharp corners, left=8pt, right=8pt, top=5pt, bottom=5pt,
+    fontupper=\large\bfseries\sffamily,
+  ]
+  Secci\'on #1:\enspace #2
+  \end{tcolorbox}\vspace{2pt}%
+}
+
+\newcommand{\subsecheader}[1]{%
+  \needspace{4cm}\vspace{6pt}\noindent%
+  \addcontentsline{toc}{subsection}{#1}%
+  \begin{tcolorbox}[
+    colback=subsecbg!18, colframe=subsecbg!45,
+    sharp corners, boxrule=0.4pt,
+    left=5pt, right=5pt, top=2pt, bottom=2pt,
+    fontupper=\small\bfseries\sffamily,
+  ]
+  #1
+  \end{tcolorbox}\vspace{1pt}%
+}
+
+% ─── Macros matemáticos ──────────────────────────────────────────────────────
+\newcommand{\Prob}[1]{\mathbb{P}\!\left(#1\right)}
+\newcommand{\E}[1]{\mathbb{E}\!\left[#1\right]}
+\newcommand{\Var}[1]{\mathrm{Var}\!\left(#1\right)}
+\newcommand{\Cov}[2]{\mathrm{Cov}\!\left(#1,\,#2\right)}
+\newcommand{\sigalg}{\mathcal{F}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\Borel}{\mathcal{B}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Nset}{\mathbb{N}}
+\DeclareMathOperator{\supp}{supp}
+
+% ─── Contadores ──────────────────────────────────────────────────────────────
+\newcounter{defcount}[section]
+\renewcommand{\thedefcount}{\thesection.\arabic{defcount}}
+\newcounter{thmcount}[section]
+\renewcommand{\thethmcount}{\thesection.\arabic{thmcount}}
+\newcounter{excount}[section]
+\renewcommand{\theexcount}{\thesection.\arabic{excount}}
+
+% ─── Entornos ────────────────────────────────────────────────────────────────
+\newenvironment{definicion}[1]{%
+  \refstepcounter{defcount}%
+  \begin{tcolorbox}[defbox, title={Definici\'on \thedefcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{teorema}[1]{%
+  \refstepcounter{thmcount}%
+  \begin{tcolorbox}[thmbox, title={Teorema \thethmcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{proposicion}[1]{%
+  \refstepcounter{thmcount}%
+  \begin{tcolorbox}[thmbox, title={Proposici\'on \thethmcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{ejemplo}[1]{%
+  \refstepcounter{excount}%
+  \begin{tcolorbox}[exbox, title={Ejemplo \theexcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{nota}{\begin{tcolorbox}[notebox]}{\end{tcolorbox}}
+
+\newenvironment{cuidado}{\begin{tcolorbox}[warnbox]}{\end{tcolorbox}}
+
+\newenvironment{demostracion}{\begin{tcolorbox}[proofbox]}{\hfill$\square$\end{tcolorbox}}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────────────────────
+
+%  T I T U L O
+\begin{tcolorbox}[
+    colback=sectionbg, colupper=white, colframe=sectionbg,
+    sharp corners, left=12pt, right=12pt, top=10pt, bottom=10pt,
+  ]
+  {\Large\bfseries\sffamily M\'odulo 1 \textperiodcentered\ Fundamentos de Probabilidad}\\[4pt]
+  {\normalsize\sffamily Modelos Estoc\'asticos --- Doctorado en Ingenier\'ia Industrial}\\[2pt]
+  {\small\sffamily\color{white!80!sectionbg}
+    Espacio muestral \textperiodcentered\ Probabilidad \textperiodcentered\ Variables aleatorias \textperiodcentered\
+    Distribuciones \textperiodcentered\ Poisson}
+\end{tcolorbox}
+
+\vspace{4pt}
+\begin{nota}
+  Estas notas siguen el enfoque medida-te\'orico de Kolmogorov. Se asume familiaridad con
+  an\'alisis real (l\'imites, series, integrales de Lebesgue a nivel introductorio).
+  Notaci\'on: $\Omega$ espacio muestral, $\sigalg$ $\sigma$-\'algebra, $P$ medida de probabilidad,
+  $X$ variable aleatoria.
+\end{nota}
+
+\tableofcontents
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    colback=white, colframe=sectionbg,
+    boxrule=0.6pt, arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    fonttitle=\small\bfseries\sffamily,
+    title={Leyenda de colores},
+  ]
+  \small
+  Cada bloque de contenido se identifica visualmente por color, seg\'un su naturaleza:
+  \vspace{4pt}
+
+  \renewcommand{\arraystretch}{1.35}
+  \begin{tabular}{@{}p{0.7cm} l p{10.5cm}@{}}
+    \tikz\fill[defbg, draw=defborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Definici\'on}      & Concepto formal con nombre y notaci\'on. Marco verde claro.                            \\
+    \tikz\fill[thmbg, draw=thmborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Teorema/Proposici\'on} & Resultado demostrable a partir de las definiciones. Marco azul.                    \\
+    \tikz\fill[proofbg, draw=proofborder!50, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Demostraci\'on}    & Argumento que justifica un teorema/proposici\'on. Marco morado.                        \\
+    \tikz\fill[exbg, draw=exborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Ejemplo}           & Aplicaci\'on concreta o caso ilustrativo. Marco gris.                                  \\
+    \tikz\fill[notebg, draw=noteborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Nota}              & Observaci\'on, intuici\'on o comentario complementario. Marco \'ambar.                 \\
+    \tikz\fill[warnbg, draw=warnborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Atenci\'on}        & Advertencia sobre un error com\'un o sutileza. Marco rojo.                             \\
+    \tikz\fill[sectionbg] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Secci\'on}         & Encabezado principal del m\'odulo. Fondo azul oscuro.                                  \\
+    \tikz\fill[subsecbg!18, draw=subsecbg!45, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Subsecci\'on}      & Subdivisi\'on tem\'atica dentro de una secci\'on. Fondo azul claro.                    \\
+  \end{tabular}
+\end{tcolorbox}
+
+\newpage
+
+% =============================================================================
+\secheader{1}{Espacio de Probabilidad $(\Omega,\,\sigalg,\,P)$}
+
+\subsecheader{1.1 \textperiodcentered\ Experimento, espacio muestral y eventos}
+
+\begin{definicion}{Experimento aleatorio}
+  Un \textbf{experimento aleatorio} es todo procedimiento u observaci\'on cuyo resultado
+  no puede predecirse con certeza antes de realizarlo, pero que cumple:
+  \begin{enumerate}
+    \item El conjunto de resultados posibles es conocido \emph{a priori}.
+    \item Cada realizaci\'on (\emph{ensayo} o \emph{prueba}) produce exactamente un resultado.
+    \item Es \emph{repetible} bajo condiciones esencialmente id\'enticas, exhibiendo regularidad
+          estad\'istica en frecuencias relativas a largo plazo.
+  \end{enumerate}
+  Se contrasta con un \textbf{experimento determinista}, en el que las mismas condiciones
+  iniciales producen siempre el mismo resultado.
+\end{definicion}
+
+\begin{ejemplo}{Experimentos aleatorios t\'ipicos}
+  Lanzar una moneda, tirar un dado, medir el tiempo de espera de un cliente en una cola,
+  contar el n\'umero de llamadas a un call center en una hora, observar el precio de cierre
+  diario de una acci\'on.
+\end{ejemplo}
+
+\begin{definicion}{Espacio muestral}
+  El \textbf{espacio muestral} $\Omega$ asociado a un experimento aleatorio es el conjunto
+  de todos los resultados posibles de dicho experimento. Cada elemento $\omega \in \Omega$
+  se llama \emph{resultado} o \emph{punto muestral}.\\[4pt]
+  Un \textbf{evento} $A$ es cualquier subconjunto $A \subseteq \Omega$.
+\end{definicion}
+
+\begin{ejemplo}{Lanzamiento de dos dados}
+  $\Omega = \{(i,j) : i,j \in \{1,2,3,4,5,6\}\}$, $|\Omega|=36$.\\
+  Evento ``suma igual a 7'': $A = \{(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)\}$, $|A|=6$.\\
+  Por la regla cl\'asica: $P(A) = 6/36 = 1/6$.
+\end{ejemplo}
+
+\begin{definicion}{Operaciones entre eventos}
+  Sean $A, B \subseteq \Omega$ eventos. Se definen:
+  \begin{itemize}
+    \item \textbf{Uni\'on}: $A \cup B = \{\omega \in \Omega : \omega \in A \;\text{o}\; \omega \in B\}$
+          \hfill (ocurre $A$ o $B$, o ambos).
+    \item \textbf{Intersecci\'on}: $A \cap B = \{\omega \in \Omega : \omega \in A \;\text{y}\; \omega \in B\}$
+          \hfill (ocurren ambos).
+    \item \textbf{Complemento}: $A^c = \{\omega \in \Omega : \omega \notin A\}$
+          \hfill (no ocurre $A$).
+    \item \textbf{Diferencia}: $A \setminus B = A \cap B^c$
+          \hfill (ocurre $A$ pero no $B$).
+  \end{itemize}
+  $A$ y $B$ son \textbf{disjuntos} (mutuamente excluyentes) si $A \cap B = \emptyset$.\\[3pt]
+  \textbf{Leyes de De Morgan}: $(A\cup B)^c = A^c \cap B^c$, \quad $(A\cap B)^c = A^c \cup B^c$.
+\end{definicion}
+
+\vspace{4pt}
+\begin{center}
+  \begin{tikzpicture}[scale=0.9]
+    \draw[thick, rounded corners=4pt, fill=thmbg!60] (-4,-2.5) rectangle (4,2.5);
+    \node[above left, font=\small\bfseries, color=sectionbg] at (3.8,2.4) {$\Omega$};
+    \draw[fill=defbg, draw=defborder, thick] (-1.2,0) ellipse (1.6cm and 1.5cm);
+    \node[font=\small\bfseries, color=defborder] at (-2.0,0.3) {$A$};
+    \draw[fill=notebg, draw=noteborder, thick] (1.2,0) ellipse (1.6cm and 1.5cm);
+    \node[font=\small\bfseries, color=noteborder] at (2.0,0.3) {$B$};
+    \node[font=\tiny\bfseries] at (0,0) {$A\cap B$};
+    \node[font=\small, color=gray] at (-3.2, 2.0) {$A^c\cap B^c$};
+    \node[font=\small, color=gray] at (-2.5,-0.0) {$A\setminus B$};
+    \node[font=\small, color=gray] at (2.5, 0.0) {$B\setminus A$};
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape Diagrama de Venn: relaciones entre eventos $A$, $B$ dentro de $\Omega$.}
+\end{center}
+
+\begin{definicion}{Conjunto potencia}
+  El \textbf{conjunto potencia} de $\Omega$, denotado $2^\Omega$ o $\mathcal{P}(\Omega)$, es la
+  colecci\'on de todos los subconjuntos de $\Omega$:
+  \[
+    2^\Omega = \mathcal{P}(\Omega) = \{A : A \subseteq \Omega\}.
+  \]
+  En particular $\emptyset \in 2^\Omega$ y $\Omega \in 2^\Omega$.\\[3pt]
+  Si $\Omega$ es finito con $|\Omega| = n$, entonces $|2^\Omega| = 2^n$ (de ah\'i la notaci\'on).
+  El conjunto potencia es el universo m\'as grande posible de eventos sobre $\Omega$ y constituye
+  siempre una $\sigma$-\'algebra (la m\'as fina).
+\end{definicion}
+
+\subsecheader{1.2 \textperiodcentered\ Sigma-\'algebra}
+
+Una \textbf{$\sigma$-\'algebra} (o \emph{tribu}) es la estructura matem\'atica que selecciona
+\emph{cu\'ales} subconjuntos de $\Omega$ admiten asignaci\'on de probabilidad. Intuitivamente,
+es el \emph{cat\'alogo de eventos observables}: la colecci\'on de aquellos subconjuntos sobre
+los que la pregunta ``\textit{\textquestiondown cu\'al es la probabilidad de que ocurra?}''
+tiene respuesta bien definida.
+
+\begin{nota}
+  \textbf{\textquestiondown Por qu\'e no usar simplemente $2^\Omega$?} Cuando $\Omega$ es no numerable
+  (p.\,ej.\ $\Omega=\R$), no existe una medida de probabilidad consistente sobre \emph{todos} los
+  subconjuntos: existen conjuntos no medibles (conjuntos de Vitali, paradoja de Banach--Tarski).
+  La $\sigma$-\'algebra restringe el dominio a eventos para los cuales $P$ s\'i puede definirse
+  de forma coherente con los axiomas de Kolmogorov.\\[3pt]
+  Para $\Omega$ finito o numerable s\'i se usa $\sigalg = 2^\Omega$ sin problemas.
+\end{nota}
+
+Formalmente, una $\sigma$-\'algebra es una familia de subconjuntos cerrada bajo las operaciones
+b\'asicas (complemento y uniones \emph{numerables}), que adem\'as contiene al espacio total. El
+prefijo ``$\sigma$-'' enfatiza la cerradura bajo operaciones \emph{numerables} (no solo finitas):
+esto es lo que permite manejar l\'imites y series, esenciales en probabilidad.
+
+\begin{definicion}{$\sigma$-\'algebra}
+  Una familia $\sigalg \subseteq 2^\Omega$ es una \textbf{$\sigma$-\'algebra} si:
+  \begin{enumerate}
+    \item $\Omega \in \sigalg$
+    \item $A \in \sigalg \Rightarrow A^c \in \sigalg$ \hfill (cerrada bajo complemento)
+    \item $\{A_n\}_{n\geq 1} \subseteq \sigalg \Rightarrow \bigcup_{n=1}^{\infty} A_n \in \sigalg$
+          \hfill (cerrada bajo uniones numerables)
+  \end{enumerate}
+  Los elementos de $\sigalg$ se llaman \textbf{eventos medibles}.
+\end{definicion}
+
+\begin{nota}
+  Se derivan: $\emptyset \in \sigalg$; cerrada bajo intersecciones numerables; cerrada bajo
+  diferencias. La $\sigma$-\'algebra m\'as peque\~na es $\{\emptyset,\Omega\}$; la m\'as grande
+  es $2^\Omega$ (conjunto potencia).
+\end{nota}
+
+\subsecheader{1.3 \textperiodcentered\ Medida de probabilidad}
+
+\begin{definicion}{Medida de probabilidad (Kolmogorov, 1933)}
+  Una funci\'on $P : \sigalg \to [0,1]$ es una \textbf{medida de probabilidad} si:
+  \begin{align}
+     & \textbf{(K1)}\quad P(A) \geq 0 \quad \forall A \in \sigalg \tag{no negatividad}              \\
+     & \textbf{(K2)}\quad P(\Omega) = 1 \tag{normalizaci\'on}                                       \\
+     & \textbf{(K3)}\quad P\!\left(\bigsqcup_{n=1}^{\infty} A_n\right) = \sum_{n=1}^{\infty} P(A_n)
+    \quad \text{para } A_i \cap A_j = \emptyset \; \forall i\neq j \tag{$\sigma$-aditividad}
+  \end{align}
+  La terna $(\Omega, \sigalg, P)$ es el \textbf{espacio de probabilidad}.
+\end{definicion}
+
+\begin{nota}
+  \textbf{$\sigma$-aditividad vs.\ partici\'on.} La $\sigma$-aditividad (K3) aplica a
+  \emph{cualquier} colecci\'on disjunta $\{A_n\}$; su uni\'on no tiene por qu\'e ser $\Omega$.
+  Una \textbf{partici\'on} es un caso particular: una familia disjunta que adem\'as
+  \emph{cubre} todo $\Omega$, es decir, $\bigsqcup_n A_n = \Omega$. En ese caso,
+  $\sum_n P(A_n) = P(\Omega) = 1$.
+\end{nota}
+
+\vspace{2pt}
+\begin{center}
+  \begin{tikzpicture}[scale=0.85]
+    \begin{scope}[shift={(-4.5,0)}]
+      \draw[thick, rounded corners=4pt, fill=thmbg!40] (-2.5,-1.8) rectangle (2.5,1.8);
+      \node[font=\small\bfseries, color=sectionbg] at (-2.2,1.55) {$\Omega$};
+      \draw[fill=defbg, draw=defborder, thick] (-1.4,0.4) ellipse (0.7cm and 0.55cm);
+      \node[font=\small\bfseries, color=defborder] at (-1.4,0.4) {$A_1$};
+      \draw[fill=defbg, draw=defborder, thick] (0.2,-0.5) ellipse (0.7cm and 0.55cm);
+      \node[font=\small\bfseries, color=defborder] at (0.2,-0.5) {$A_2$};
+      \draw[fill=defbg, draw=defborder, thick] (1.5,0.6) ellipse (0.7cm and 0.55cm);
+      \node[font=\small\bfseries, color=defborder] at (1.5,0.6) {$A_3$};
+      \node[font=\footnotesize\itshape, color=gray] at (-1.7,-1.4) {resto: no cubierto};
+      \node[font=\small\bfseries, color=sectionbg] at (0,-2.4) {$\sigma$-aditividad};
+      \node[font=\footnotesize, color=black] at (0,-2.95)
+      {$P\!\left(\bigsqcup_n A_n\right)=\sum_n P(A_n)\leq 1$};
+    \end{scope}
+    \begin{scope}[shift={(4.5,0)}]
+      \draw[thick, rounded corners=4pt, fill=thmbg!40] (-2.5,-1.8) rectangle (2.5,1.8);
+      \node[font=\small\bfseries, color=sectionbg] at (-2.2,1.55) {$\Omega$};
+      \fill[defbg, draw=defborder, thick] (-2.5,-1.8) -- (-2.5,1.8) -- (-0.8,1.8) -- (-1.2,-1.8) -- cycle;
+      \fill[notebg, draw=noteborder, thick] (-0.8,1.8) -- (-1.2,-1.8) -- (0.5,-1.8) -- (0.3,1.8) -- cycle;
+      \fill[exbg, draw=exborder, thick] (0.3,1.8) -- (0.5,-1.8) -- (1.6,-1.8) -- (1.4,1.8) -- cycle;
+      \fill[proofbg, draw=proofborder!60, thick] (1.4,1.8) -- (1.6,-1.8) -- (2.5,-1.8) -- (2.5,1.8) -- cycle;
+      \node[font=\small\bfseries, color=defborder] at (-1.75,0) {$B_1$};
+      \node[font=\small\bfseries, color=noteborder] at (-0.4,0) {$B_2$};
+      \node[font=\small\bfseries, color=exborder] at (0.95,0) {$B_3$};
+      \node[font=\small\bfseries, color=proofborder] at (2.0,0) {$B_4$};
+      \node[font=\small\bfseries, color=sectionbg] at (0,-2.4) {Partici\'on};
+      \node[font=\footnotesize, color=black] at (0,-2.95)
+      {$\bigsqcup_n B_n=\Omega \;\Rightarrow\; \sum_n P(B_n)=1$};
+    \end{scope}
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape Izquierda: eventos disjuntos cuya uni\'on no llena $\Omega$ (basta para
+    aplicar K3). Derecha: partici\'on, donde los disjuntos cubren todo $\Omega$ y sus
+    probabilidades suman 1.}
+\end{center}
+
+\begin{proposicion}{Propiedades b\'asicas}
+  Para todo $A, B \in \sigalg$:
+  \begin{enumerate}
+    \item $P(\emptyset) = 0$
+    \item $P(A^c) = 1 - P(A)$
+    \item $A \subseteq B \Rightarrow P(A) \leq P(B)$
+    \item $P(A \cup B) = P(A) + P(B) - P(A \cap B)$ \quad (inclusi\'on y exclusi\'on)
+    \item $P(A) \in [0,1]$
+  \end{enumerate}
+\end{proposicion}
+
+\begin{nota}
+  \textbf{T\'ecnica clave.} Las cinco propiedades son consecuencias \emph{directas} de los
+  axiomas K1--K3. El truco recurrente es \emph{descomponer un evento en piezas disjuntas}
+  y aplicar la $\sigma$-aditividad (K3) sobre esa descomposici\'on.
+\end{nota}
+
+\begin{demostracion}
+  \textbf{(1)} $P(\emptyset)=0$. \quad
+  Escribir $\Omega = \Omega \sqcup \emptyset \sqcup \emptyset \sqcup \cdots$.
+  Por K3: $P(\Omega) = P(\Omega) + \sum_{n\geq 1} P(\emptyset)$.
+  Restando $P(\Omega)$ (finito por K2) y usando K1 ($P(\emptyset)\geq 0$): $P(\emptyset) = 0$.
+  \\[5pt]
+  \textbf{(2)} $P(A^c)=1-P(A)$. \quad
+  $\Omega = A \sqcup A^c$ (disjuntos), luego por K3: $1 = P(A)+P(A^c)$. Despejar.
+  \\[5pt]
+  \textbf{(3)} $A\subseteq B \Rightarrow P(A)\leq P(B)$. \quad
+  Si $A\subseteq B$, entonces $B = A \sqcup (B\setminus A)$ (disjuntos). Por K3:
+  $P(B) = P(A) + P(B\setminus A) \geq P(A)$, pues $P(B\setminus A)\geq 0$ por K1.
+  \\[5pt]
+  \textbf{(4)} $P(A\cup B) = P(A)+P(B)-P(A\cap B)$. \quad
+  Descomponer ambos lados en piezas disjuntas:
+  \begin{align*}
+    A\cup B & = A \sqcup (B\setminus A)         &  & \Rightarrow\; P(A\cup B) = P(A)+P(B\setminus A), \\
+    B       & = (A\cap B) \sqcup (B\setminus A) &  & \Rightarrow\; P(B\setminus A) = P(B)-P(A\cap B).
+  \end{align*}
+  Sustituyendo: $P(A\cup B) = P(A) + P(B) - P(A\cap B)$.
+  \\[5pt]
+  \textbf{(5)} $P(A)\in[0,1]$. \quad
+  $P(A)\geq 0$ por K1. Como $A\subseteq\Omega$, por (3) y K2: $P(A)\leq P(\Omega)=1$.
+\end{demostracion}
+
+\begin{teorema}{Principio de inclusi\'on y exclusi\'on}
+  Sea $\{A_1, \ldots, A_n\} \subseteq \sigalg$ una colecci\'on finita de eventos. Entonces:
+  \[
+    P\!\left(\bigcup_{i=1}^{n} A_i\right)
+    \;=\; \sum_{k=1}^{n} (-1)^{k+1}
+    \sum_{\substack{S\subseteq\{1,\ldots,n\}\\|S|=k}} P\!\left(\bigcap_{i\in S} A_i\right).
+  \]
+  Expandiendo los primeros t\'erminos:
+  \[
+    P\!\left(\bigcup_i A_i\right) = \sum_i P(A_i) \;-\; \sum_{i<j} P(A_i\cap A_j)
+    \;+\; \sum_{i<j<k} P(A_i\cap A_j\cap A_k) \;-\; \cdots
+    \;+\; (-1)^{n+1} P(A_1\cap\cdots\cap A_n).
+  \]
+\end{teorema}
+
+\begin{nota}
+  \textbf{Idea intuitiva.} Sumar $P(A_1)+\cdots+P(A_n)$ \emph{sobreestima} $P(\bigcup A_i)$
+  porque las intersecciones se cuentan varias veces. Restando los pares ($\sum P(A_i\cap A_j)$)
+  se compensa, pero ahora las triples quedan mal contadas; se vuelven a sumar, etc.
+  El signo alterna y los t\'erminos se cancelan exactamente.
+\end{nota}
+
+\begin{demostracion}
+  Inducci\'on sobre $n$.
+  \\[5pt]
+  \textbf{Caso base $n=2$.} Es la propiedad (4) ya demostrada:
+  $P(A_1\cup A_2) = P(A_1)+P(A_2)-P(A_1\cap A_2)$.
+  \\[5pt]
+  \textbf{Paso inductivo $(n-1)\Rightarrow n$.}
+  Sea $B = \bigcup_{i=1}^{n-1} A_i$ y supongamos la f\'ormula v\'alida para $n-1$ eventos.
+  Por el caso base aplicado a $B$ y $A_n$:
+  \begin{equation}
+    P(B \cup A_n) \;=\; P(B) \,+\, P(A_n) \,-\, P(B \cap A_n). \tag{$\star$}
+  \end{equation}
+  Por hip\'otesis de inducci\'on (HI):
+  \[
+    P(B) = \sum_{k=1}^{n-1} (-1)^{k+1}
+    \sum_{\substack{S\subseteq\{1,\ldots,n-1\}\\|S|=k}} P\!\left(\bigcap_{i\in S} A_i\right).
+  \]
+  Por distributividad: $B\cap A_n = \bigcup_{i=1}^{n-1}(A_i \cap A_n)$. Aplicando la HI
+  a los $n-1$ eventos $\{A_i \cap A_n\}_{i=1}^{n-1}$:
+  \[
+    P(B\cap A_n) = \sum_{k=1}^{n-1} (-1)^{k+1}
+    \sum_{\substack{S\subseteq\{1,\ldots,n-1\}\\|S|=k}}
+    P\!\left(A_n \cap \bigcap_{i\in S} A_i\right).
+  \]
+  Sustituyendo en $(\star)$ y reagrupando t\'erminos por el tama\~no $k$ del subconjunto
+  de \'indices, se obtiene la f\'ormula para $n$.
+\end{demostracion}
+
+\begin{nota}
+  \textbf{Desigualdades de Bonferroni.} Las sumas parciales del lado derecho alternan como
+  cotas: tomando solo el primer t\'ermino se obtiene la cota superior (subaditividad)
+  $P(\bigcup A_i)\leq \sum P(A_i)$; con dos t\'erminos se obtiene la cota inferior
+  $P(\bigcup A_i)\geq \sum P(A_i) - \sum_{i<j} P(A_i\cap A_j)$, y as\'i sucesivamente.
+\end{nota}
+
+\subsecheader{1.4 \textperiodcentered\ Recap de combinatoria}
+
+Cuando $\Omega$ es finito con resultados \emph{equiprobables}, la \textbf{regla cl\'asica} entrega:
+\[
+  P(A) = \frac{|A|}{|\Omega|}, \qquad A \subseteq \Omega.
+\]
+El c\'alculo de probabilidades se reduce entonces a \emph{contar}: cu\'antos resultados favorables
+y cu\'antos posibles.
+
+\begin{definicion}{Principio multiplicativo}
+  Si un procedimiento se realiza en $k$ etapas y la etapa $i$-\'esima admite $n_i$ resultados
+  posibles (independientes de las anteriores), el n\'umero total de resultados es:
+  \[
+    n_1 \cdot n_2 \cdots n_k = \prod_{i=1}^{k} n_i.
+  \]
+\end{definicion}
+
+\begin{ejemplo}{Placas patentes}
+  Una patente de 4 letras seguidas de 2 d\'igitos admite $26^4 \cdot 10^2 = 45{,}697{,}600$
+  combinaciones distintas (con repetici\'on permitida).
+\end{ejemplo}
+
+\begin{definicion}{Permutaciones y variaciones}
+  De un conjunto de $n$ elementos distintos:
+  \begin{itemize}
+    \item \textbf{Permutaci\'on de los $n$ elementos} (orden total):
+          $P_n = n! = n\cdot(n-1)\cdots 2\cdot 1$.
+    \item \textbf{Variaciones sin repetici\'on} (secuencias ordenadas de $k\leq n$):
+          \[
+            V(n,k) = \frac{n!}{(n-k)!} = n(n-1)(n-2)\cdots(n-k+1).
+          \]
+    \item \textbf{Variaciones con repetici\'on} (secuencias de longitud $k$, repetici\'on permitida):
+          $V_R(n,k) = n^k$.
+  \end{itemize}
+\end{definicion}
+
+\begin{definicion}{Combinaciones}
+  Subconjuntos de tama\~no $k$ tomados de un conjunto de $n$ elementos (\emph{el orden no importa}):
+  \[
+    \binom{n}{k} = \frac{n!}{k!\,(n-k)!}, \qquad 0 \leq k \leq n.
+  \]
+  \textbf{Propiedades}:
+  \begin{itemize}
+    \item Simetr\'ia: $\binom{n}{k} = \binom{n}{n-k}$.
+    \item Bordes: $\binom{n}{0} = \binom{n}{n} = 1$.
+    \item Regla de Pascal: $\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$.
+    \item Teorema del binomio: $(x+y)^n = \sum_{k=0}^{n}\binom{n}{k} x^k y^{n-k}$.
+  \end{itemize}
+  \textbf{Combinaciones con repetici\'on} (multiconjuntos de tama\~no $k$ con $n$ tipos disponibles):
+  \[
+    CR(n,k) = \binom{n+k-1}{k} \qquad (\textit{stars and bars}).
+  \]
+\end{definicion}
+
+\begin{nota}
+  \textbf{\textquestiondown Qu\'e f\'ormula usar?} Antes de calcular, identifica dos preguntas:
+  \begin{itemize}
+    \item \textbf{\textquestiondown Importa el orden?} S\'i $\to$ variaci\'on/permutaci\'on. \quad No $\to$ combinaci\'on.
+    \item \textbf{\textquestiondown Se permite repetir?} S\'i $\to$ con repetici\'on. \quad No $\to$ sin repetici\'on.
+  \end{itemize}
+\end{nota}
+
+\begin{center}
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}l c c l@{}}
+    \toprule
+    \textbf{Tipo}                  & \textbf{Orden} & \textbf{Repetici\'on} & \textbf{F\'ormula}      \\
+    \midrule
+    Permutaci\'on de $n$           & s\'i           & no                    & $n!$                    \\
+    Variaci\'on $V(n,k)$           & s\'i           & no                    & $\dfrac{n!}{(n-k)!}$    \\
+    Variaci\'on con repetici\'on   & s\'i           & s\'i                  & $n^k$                   \\
+    Combinaci\'on $\binom{n}{k}$   & no             & no                    & $\dfrac{n!}{k!\,(n-k)!}$ \\
+    Combinaci\'on con repetici\'on & no             & s\'i                  & $\binom{n+k-1}{k}$      \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\begin{ejemplo}{Aplicaci\'on: regla cl\'asica + combinatoria}
+  \textbf{Planteamiento.} De una baraja est\'andar de 52 cartas se reparte una mano
+  de 5 cartas al azar. \textquestiondown Cu\'al es la probabilidad de que la mano
+  contenga exactamente los 4 ases?
+  \\[5pt]
+  \textbf{(1) Definir el experimento y el espacio muestral.}
+  Cada ``mano'' es un subconjunto de $5$ cartas escogidas de $52$. Como la mano se
+  identifica solo por \emph{qu\'e} cartas contiene (el orden de reparto no influye en
+  las reglas del juego), trabajamos con \textbf{combinaciones}, no variaciones:
+  \[
+    |\Omega| = \binom{52}{5} = \frac{52!}{5!\,47!} = 2\,598\,960
+    \quad\text{(manos posibles, sin orden, sin repetici\'on).}
+  \]
+  Asumimos que el reparto es uniforme: cada una de esas $\binom{52}{5}$ manos tiene la
+  misma probabilidad. Aplica entonces la regla cl\'asica $P(A) = |A|/|\Omega|$.
+  \\[5pt]
+  \textbf{(2) Definir el evento.} Sea $A = \{$la mano contiene los 4 ases$\}$.
+  Una mano en $A$ se construye en dos pasos independientes:
+  \begin{itemize}
+    \item Elegir los $4$ ases: hay $\binom{4}{4}=1$ forma (los cuatro ases son obligatorios).
+    \item Elegir la $5^a$ carta entre las $48$ no-ases restantes: $\binom{48}{1}=48$ formas.
+  \end{itemize}
+  Por el principio multiplicativo:
+  \[
+    |A| = \binom{4}{4}\binom{48}{1} = 1 \cdot 48 = 48.
+  \]
+  \\[-5pt]
+  \textbf{(3) Calcular la probabilidad.}
+  \[
+    P(A) = \frac{|A|}{|\Omega|} = \frac{48}{2\,598\,960} \approx 1.85\times 10^{-5}.
+  \]
+  \\[-5pt]
+  \textbf{(4) Interpretaci\'on.} Aproximadamente $1$ de cada $54{,}145$ manos contiene
+  los cuatro ases.
+\end{ejemplo}
+
+% =============================================================================
+\secheader{2}{Probabilidad Condicional e Independencia}
+
+\subsecheader{2.1 \textperiodcentered\ Probabilidad condicional}
+
+\begin{definicion}{Probabilidad condicional}
+  Para $A, B \in \sigalg$ con $P(B) > 0$:
+  \[
+    P(A \mid B) \;=\; \frac{P(A \cap B)}{P(B)}.
+  \]
+  La funci\'on $P(\,\cdot \mid B) : \sigalg \to [0,1]$ es en s\'i misma una medida de probabilidad
+  sobre $(\Omega, \sigalg)$.
+\end{definicion}
+
+\begin{nota}
+  Intuitivamente: al conocer que ocurri\'o $B$, el espacio muestral efectivo se reduce a $B$
+  y se re-normaliza dividiendo por $P(B)$.
+\end{nota}
+
+\begin{teorema}{Ley de probabilidad total}
+  Sea $\{B_1, \ldots, B_n\}$ una partici\'on de $\Omega$ con $P(B_i) > 0$. Entonces:
+  \[
+    P(A) = \sum_{i=1}^{n} P(A \mid B_i)\, P(B_i) \qquad \forall\, A\in\sigalg.
+  \]
+\end{teorema}
+
+\begin{demostracion}
+  Como $\{B_1, \ldots, B_n\}$ es una partici\'on de $\Omega$:
+  \[
+    A \;=\; A \cap \Omega \;=\; A \cap \!\left(\bigsqcup_{i=1}^{n} B_i\right)
+    \;=\; \bigsqcup_{i=1}^{n} (A \cap B_i),
+  \]
+  donde la \'ultima igualdad usa la distributividad de $\cap$ sobre $\sqcup$, y los $A\cap B_i$
+  son disjuntos porque los $B_i$ lo son. Por $\sigma$-aditividad (K3):
+  \[
+    P(A) \;=\; \sum_{i=1}^{n} P(A \cap B_i).
+  \]
+  Por la definici\'on de probabilidad condicional, $P(A\cap B_i) = P(A\mid B_i)\,P(B_i)$
+  (v\'alida pues $P(B_i)>0$). Sustituyendo:
+  \[
+    P(A) \;=\; \sum_{i=1}^{n} P(A \mid B_i)\, P(B_i).
+  \]
+\end{demostracion}
+
+\begin{teorema}{Teorema de Bayes}
+  Sean $A, B \in \sigalg$ con $P(A)>0$ y $P(B)>0$. Entonces:
+  \[
+    P(B \mid A) \;=\; \frac{P(A \mid B)\, P(B)}{P(A)}.
+  \]
+  Si $P(A)$ no se conoce directamente, se obtiene por probabilidad total con la partici\'on
+  $\{B, B^c\}$:
+  \[
+    P(B \mid A) \;=\; \frac{P(A\mid B)\,P(B)}{P(A\mid B)\,P(B) \,+\, P(A\mid B^c)\,P(B^c)}.
+  \]
+  $P(B)$: probabilidad \emph{a priori}. \quad $P(B \mid A)$: probabilidad \emph{a posteriori}.
+\end{teorema}
+
+\vspace{4pt}
+\begin{center}
+  \begin{tikzpicture}[
+      every node/.style={font=\small},
+      level 1/.style={sibling distance=5cm, level distance=2cm},
+      level 2/.style={sibling distance=2.2cm, level distance=2cm},
+      edge from parent/.style={draw, -Latex},
+    ]
+    \node[circle,draw,fill=sectionbg!15,minimum size=8mm] {$\Omega$}
+    child { node[circle,draw,fill=defbg,draw=defborder,minimum size=8mm] {$B_1$}
+        child { node[rectangle,draw,rounded corners,fill=exbg] {$A\cap B_1$}
+            edge from parent node[left,font=\tiny] {$P(A|B_1)$} }
+        child { node[rectangle,draw,rounded corners,fill=exbg] {$A^c\cap B_1$}
+            edge from parent node[right,font=\tiny] {$1-P(A|B_1)$} }
+        edge from parent node[left] {$P(B_1)$}
+      }
+    child { node[circle,draw,fill=notebg,draw=noteborder,minimum size=8mm] {$B_2$}
+        child { node[rectangle,draw,rounded corners,fill=exbg] {$A\cap B_2$}
+            edge from parent node[left,font=\tiny] {$P(A|B_2)$} }
+        child { node[rectangle,draw,rounded corners,fill=exbg] {$A^c\cap B_2$}
+            edge from parent node[right,font=\tiny] {$1-P(A|B_2)$} }
+        edge from parent node[right] {$P(B_2)$}
+      };
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape \'Arbol de probabilidad condicional con partici\'on $\{B_1, B_2\}$.}
+\end{center}
+
+\begin{ejemplo}{Prueba diagn\'ostica (Bayes en acci\'on)}
+  \textbf{Notaci\'on.} Sean los eventos:
+  \begin{itemize}
+    \item $B = $ ``la persona est\'a enferma''.
+    \item $A = $ ``el test da positivo''.
+  \end{itemize}
+  \textbf{Datos del problema:}
+  \begin{itemize}
+    \item Prevalencia: $P(B) = 0.01$ \hfill (el $1\%$ de la poblaci\'on est\'a enferma).
+    \item Sensibilidad: $P(A\mid B) = 0.95$ \hfill ($95\%$ de los enfermos dan positivo).
+    \item Especificidad: $P(A^c\mid B^c) = 0.90$ \hfill ($90\%$ de los sanos dan negativo).
+  \end{itemize}
+  De la especificidad: $P(A\mid B^c) = 1 - 0.90 = 0.10$ (tasa de falsos positivos).
+  \\[5pt]
+  \textbf{Pregunta:} si una persona da positivo, \textquestiondown cu\'al es la probabilidad
+  de que est\'e enferma? Es decir, calcular $P(B\mid A)$.
+  \\[5pt]
+  \textbf{Paso 1.} Calcular $P(A)$ por probabilidad total con la partici\'on $\{B, B^c\}$:
+  \[
+    P(A) = P(A\mid B)\,P(B) + P(A\mid B^c)\,P(B^c)
+    = 0.95\cdot 0.01 + 0.10\cdot 0.99 = 0.0095 + 0.099 = 0.1085.
+  \]
+  \textbf{Paso 2.} Aplicar Bayes:
+  \[
+    P(B\mid A) = \frac{P(A\mid B)\,P(B)}{P(A)}
+    = \frac{0.95\cdot 0.01}{0.1085} = \frac{0.0095}{0.1085} \approx 0.0875.
+  \]
+  \textbf{Interpretaci\'on.} Aunque el test tiene $95\%$ de sensibilidad, solo el $\sim 8.8\%$
+  de quienes dan positivo est\'an realmente enfermos: el $\sim 91\%$ son \emph{falsos positivos}.
+  Esta es la \emph{paradoja del valor predictivo positivo}: cuando una enfermedad es rara, la
+  poblaci\'on sana es mucho m\'as grande y aunque su tasa de error sea baja, genera m\'as
+  positivos en n\'umeros absolutos.
+\end{ejemplo}
+
+\subsecheader{2.2 \textperiodcentered\ Independencia}
+
+\begin{definicion}{Independencia de eventos}
+  $A, B \in \sigalg$ son \textbf{independientes} ($A \perp B$) si:
+  \[
+    P(A \cap B) = P(A)\,P(B).
+  \]
+  Una familia $\{A_i\}_{i\in I}$ es \textbf{mutuamente independiente} si para todo $J\subseteq I$
+  finito:
+  \[
+    P\!\left(\bigcap_{j\in J} A_j\right) = \prod_{j \in J} P(A_j).
+  \]
+\end{definicion}
+
+\begin{cuidado}
+  Independencia mutua es m\'as fuerte que independencia por pares. Existen familias donde
+  todos los pares son independientes pero la familia completa no lo es
+  (contraejemplo: dados de Bernstein con $\Omega = \{1,2,3,4\}$, $P$ uniforme).
+\end{cuidado}
+
+% =============================================================================
+\secheader{3}{Variables Aleatorias}
+
+\subsecheader{3.1 \textperiodcentered\ Definici\'on medida-te\'orica}
+
+\begin{definicion}{$\sigma$-\'algebra de Borel y conjuntos borelianos}
+  La \textbf{$\sigma$-\'algebra de Borel} sobre $\R$, denotada $\Borel(\R)$, es la
+  \emph{m\'as peque\~na} $\sigma$-\'algebra que contiene a todos los intervalos:
+  \[
+    \Borel(\R) \;=\; \sigma\!\left(\{(a,b] : a<b,\; a,b\in\R\}\right).
+  \]
+  Sus elementos se llaman \textbf{conjuntos borelianos} (o \emph{borelianos}). Por construcci\'on,
+  $\Borel(\R)$ contiene a todos los:
+  \begin{itemize}
+    \item intervalos abiertos $(a,b)$, cerrados $[a,b]$, semi-abiertos $(a,b]$ y $[a,b)$;
+    \item rayos $(-\infty, a]$, $(a, \infty)$, etc.;
+    \item conjuntos abiertos y cerrados de $\R$;
+    \item uniones e intersecciones \emph{numerables} de los anteriores;
+    \item complementos de cualquier boreliano.
+  \end{itemize}
+  En la pr\'actica, todo subconjunto de $\R$ que aparece naturalmente (intervalos, puntos,
+  uniones contables, etc.) es boreliano.
+\end{definicion}
+
+\begin{nota}
+  \textbf{\textquestiondown Por qu\'e no usar todos los subconjuntos de $\R$?} Igual que con
+  la $\sigma$-\'algebra general, en $\R$ existen conjuntos ``patol\'ogicos'' (no medibles, como
+  los conjuntos de Vitali) sobre los cuales no se puede definir una medida de probabilidad
+  consistente. $\Borel(\R)$ es el ``contenedor'' suficientemente rico para todos los eventos
+  de inter\'es y suficientemente restrictivo para excluir los problem\'aticos.
+\end{nota}
+
+\begin{definicion}{Variable aleatoria}
+  Dado $(\Omega, \sigalg, P)$, una \textbf{variable aleatoria} es una funci\'on medible
+  $X : \Omega \to \R$, es decir:
+  \[
+    \forall\, B \in \Borel(\R): \quad X^{-1}(B) = \{\omega \in \Omega : X(\omega) \in B\} \in \sigalg.
+  \]
+  Equivalentemente, basta verificar que $\{\omega : X(\omega) \leq x\} \in \sigalg$ para todo $x\in\R$.
+\end{definicion}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.85, >=Latex]
+    \draw[thick, rounded corners=6pt, fill=thmbg!40] (-3.5,-1.8) rectangle (-0.2,1.8);
+    \node[font=\small\bfseries, color=sectionbg] at (-1.85,1.5) {$\Omega$};
+    \draw[fill=defbg, draw=defborder] (-1.85,0) ellipse (1.1cm and 0.9cm);
+    \node[font=\tiny, color=defborder] at (-1.85,0.15) {$X^{-1}(B)$};
+    \node[font=\tiny, color=defborder] at (-1.85,-0.25) {$\in\sigalg$};
+    \draw[thick, -Latex] (0.5,-0.1) -- (4.5,-0.1) node[right,font=\small] {$\R$};
+    \draw[very thick, color=noteborder] (1.8,-0.1) -- (3.2,-0.1);
+    \node[above, font=\tiny\bfseries, color=noteborder] at (2.5,0.05) {$B \in \Borel(\R)$};
+    \draw[thin, color=noteborder] (1.8,-0.05) -- (1.8,-0.18) (3.2,-0.05) -- (3.2,-0.18);
+    \draw[-Latex, very thick, color=codeblue] (-0.2,0.2) to[bend left=25]
+    node[above, font=\small\bfseries, color=codeblue] {$X$} (1.6,-0.1);
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape $X$ lleva $\omega\in\Omega$ a $\R$; la pre-imagen de cualquier boreliano
+    debe pertenecer a $\sigalg$.}
+\end{center}
+
+\subsecheader{3.2 \textperiodcentered\ Funci\'on de distribuci\'on acumulada (FDA)}
+
+\begin{definicion}{FDA}
+  La \textbf{funci\'on de distribuci\'on acumulada} de $X$ es:
+  \[
+    F_X(x) = P(X \leq x), \qquad x \in \R.
+  \]
+\end{definicion}
+
+\begin{proposicion}{Propiedades de la FDA}
+  Toda FDA $F_X$ satisface las siguientes tres propiedades:
+  \\[3pt]
+  \textbf{(1) Mon\'otona no decreciente:} $\;x \leq y \;\Rightarrow\; F(x) \leq F(y)$.
+  \begin{itemize}
+    \item \emph{Por qu\'e:} si $x\leq y$, entonces $\{X\leq x\}\subseteq\{X\leq y\}$.
+          Por monoton\'ia de $P$: $P(X\leq x)\leq P(X\leq y)$.
+    \item \emph{Intuici\'on:} la FDA \emph{acumula} probabilidad de izquierda a derecha;
+          al avanzar nunca puede ``perder'' masa.
+  \end{itemize}
+  \textbf{(2) Continua por la derecha:} $\;\lim_{t\downarrow x} F(t) = F(x)$.
+  \begin{itemize}
+    \item \emph{Notaci\'on.} $t\downarrow x$ significa que $t$ se acerca a $x$
+          \textbf{desde la derecha} ($t>x$ y $t\to x$). Equivale a $\lim_{t\to x^+} F(t)$.
+    \item \emph{Por qu\'e (demostraci\'on).} Si $t_n \downarrow x$, los eventos $\{X\leq t_n\}$
+          forman una sucesi\'on decreciente cuya intersecci\'on es $\{X\leq x\}$.
+          Por continuidad de $P$ para sucesiones decrecientes:
+          $\lim P(X\leq t_n) = P(X\leq x) = F(x)$.
+    \item \emph{Intuici\'on con saltos.} En un punto de salto $x_0$:
+          \begin{itemize}
+            \item Por la izquierda: $\lim_{t\uparrow x_0} F(t) = F(x_0^-)$ (valor \emph{abajo} del salto).
+            \item Por la derecha: $\lim_{t\downarrow x_0} F(t) = F(x_0)$ (valor \emph{arriba} del salto).
+          \end{itemize}
+          La propiedad (2) dice que $F$ ``salta y se queda arriba''.
+    \item \emph{Tama\~no del salto:} $F(x_0) - F(x_0^-) = P(X = x_0)$.
+  \end{itemize}
+  \textbf{(3) L\'imites:} $\;\lim_{x\to-\infty} F(x) = 0$ \;y\; $\lim_{x\to+\infty} F(x) = 1$.
+  \begin{itemize}
+    \item \emph{Por qu\'e:} cuando $x\to-\infty$, los eventos $\{X\leq x\}$ decrecen a $\emptyset$.
+          Cuando $x\to+\infty$, crecen a $\Omega$. Por continuidad de $P$: $P(\emptyset)=0$, $P(\Omega)=1$.
+  \end{itemize}
+  \textbf{Rec\'iproco.} Toda funci\'on $F:\R\to[0,1]$ que satisfaga (1), (2) y (3) es la FDA
+  de \emph{alguna} variable aleatoria. Por tanto, la FDA caracteriza completamente la
+  distribuci\'on de $X$.
+\end{proposicion}
+
+\subsecheader{3.3 \textperiodcentered\ Variables discretas y continuas}
+
+\begin{definicion}{V.A. discreta y PMF}
+  $X$ es \textbf{discreta} si toma valores en un conjunto numerable $\{x_1, x_2, \ldots\}$.
+  Su \textbf{funci\'on de masa de probabilidad} (PMF) es:
+  \[
+    p_X(x_k) = P(X = x_k) \geq 0, \qquad \sum_k p_X(x_k) = 1.
+  \]
+\end{definicion}
+
+\begin{definicion}{V.A. continua y PDF}
+  $X$ es \textbf{continua} si existe $f_X : \R \to [0,\infty)$ (funci\'on de densidad, PDF) tal que:
+  \[
+    F_X(x) = \int_{-\infty}^{x} f_X(t)\,\mathrm{d}t, \qquad \int_{-\infty}^{\infty} f_X(t)\,\mathrm{d}t = 1.
+  \]
+  Para $X$ continua: $P(X = x) = 0$ para todo $x\in\R$.
+\end{definicion}
+
+\begin{definicion}{Soporte de una variable aleatoria}
+  El \textbf{soporte} de $X$, denotado $I_X$, es el conjunto de valores que $X$ toma con
+  probabilidad positiva:
+  \[
+    I_X \;=\;
+    \begin{cases}
+      \{x_k : p_X(x_k) > 0\} & \text{si } X \text{ es discreta,} \\
+      \{x \in \R : f_X(x) > 0\}             & \text{si } X \text{ es continua.}
+    \end{cases}
+  \]
+  En lo que sigue, sumas e integrales se restringen a $I_X$.
+\end{definicion}
+
+\subsecheader{3.4 \textperiodcentered\ Esperanza y varianza}
+
+\begin{definicion}{Esperanza}
+  \textit{Discreta:} $\;\E{X} = \displaystyle\sum_{x\in I_X} x\, p_X(x)$.
+  \\[3pt]
+  \textit{Continua:} $\;\E{X} = \displaystyle\int_{I_X} x\, f_X(x)\,\mathrm{d}x$.
+  \\[3pt]
+  Si $g:\R\to\R$ medible: $\;\E{g(X)} = \displaystyle\sum_{x\in I_X} g(x)\, p_X(x)$
+  \;o\; $\displaystyle\int_{I_X} g(x)\, f_X(x)\,\mathrm{d}x$. \quad
+  (\emph{Ley del estad\'istico inconsciente})
+\end{definicion}
+
+\begin{proposicion}{Propiedades de la esperanza}
+  Sean $X, Y$ variables aleatorias con esperanza finita y $a, b, c \in \R$ constantes.
+  \begin{enumerate}
+    \item \textbf{Constante:} $\;\E{c} = c$.
+    \item \textbf{Linealidad:} $\;\E{aX + bY} = a\,\E{X} + b\,\E{Y}$.
+          \emph{Vale siempre, no requiere independencia.}
+    \item \textbf{Monoton\'ia:} si $X \leq Y$ casi seguramente, entonces $\E{X} \leq \E{Y}$.
+    \item \textbf{No negatividad:} si $X \geq 0$ casi seguramente, entonces $\E{X} \geq 0$.
+    \item \textbf{Desigualdad triangular:} $\;|\E{X}| \leq \E{|X|}$.
+    \item \textbf{Producto bajo independencia:} si $X \perp Y$, entonces $\E{XY} = \E{X}\,\E{Y}$.
+  \end{enumerate}
+\end{proposicion}
+
+\begin{nota}
+  \textbf{Linealidad} es la propiedad m\'as utilizada en pr\'actica: permite descomponer
+  esperanzas de sumas en sumas de esperanzas \emph{aunque las variables sean dependientes}.
+\end{nota}
+
+\begin{definicion}{Varianza}
+  \[
+    \Var{X} = \E{(X-\E{X})^2} = \E{X^2} - (\E{X})^2.
+  \]
+  \textbf{Desviaci\'on est\'andar}: $\sigma_X = \sqrt{\Var{X}}$.
+\end{definicion}
+
+\begin{proposicion}{Propiedades de la varianza}
+  Sean $X, Y$ variables aleatorias con varianza finita y $a, b \in \R$ constantes.
+  \begin{enumerate}
+    \item \textbf{No negatividad:} $\;\Var{X} \geq 0$, con $\Var{X} = 0$ si y solo si $X$ es constante c.s.
+    \item \textbf{Constante:} $\;\Var{c} = 0$.
+    \item \textbf{Translaci\'on (invariancia):} $\;\Var{X + b} = \Var{X}$.
+    \item \textbf{Escalamiento:} $\;\Var{aX} = a^2\,\Var{X}$.
+    \item \textbf{Transformaci\'on af\'in:} $\;\Var{aX + b} = a^2\,\Var{X}$.
+    \item \textbf{Suma (caso general):} $\;\Var{X + Y} = \Var{X} + \Var{Y} + 2\,\Cov{X}{Y}$,
+          donde $\Cov{X}{Y} = \E{XY} - \E{X}\E{Y}$.
+    \item \textbf{Suma bajo independencia:} si $X \perp Y$:
+          $\;\Var{X + Y} = \Var{X} + \Var{Y}$. M\'as general:
+          $\Var{\sum X_i} = \sum \Var{X_i}$ si todos son independientes.
+  \end{enumerate}
+\end{proposicion}
+
+\begin{nota}
+  \textbf{Cuidado:} a diferencia de la esperanza, \emph{la varianza no es lineal}.
+  $\Var{X+Y} \neq \Var{X} + \Var{Y}$ en general --- solo bajo independencia
+  (o, m\'as d\'ebilmente, descorrelaci\'on $\Cov{X}{Y}=0$). La desviaci\'on est\'andar
+  s\'i escala linealmente: $\sigma_{aX} = |a|\,\sigma_X$.
+\end{nota}
+
+% =============================================================================
+\secheader{4}{Distribuciones de Probabilidad Comunes}
+
+\subsecheader{4.1 \textperiodcentered\ Tabla resumen}
+
+\begin{center}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabular}{@{}l l l c c l@{}}
+    \toprule
+    \textbf{Distribuci\'on} & \textbf{Par\'ametros}    & \textbf{Soporte} & $\mathbb{E}[X]$  & $\mathrm{Var}(X)$     & \textbf{MGF}                              \\
+    \midrule
+    Bernoulli($p$)          & $p\in(0,1)$              & $\{0,1\}$        & $p$              & $p(1-p)$              & $1-p+pe^t$                                \\
+    Binomial($n,p$)         & $n\in\Nset$, $p\in(0,1)$ & $\{0,\ldots,n\}$ & $np$             & $np(1-p)$             & $(1-p+pe^t)^n$                            \\
+    Geom\'etrica($p$)       & $p\in(0,1)$              & $\Nset^+$        & $1/p$            & $(1-p)/p^2$           & $\dfrac{pe^t}{1-(1-p)e^t}$                \\[4pt]
+    Poisson($\lambda$)      & $\lambda>0$              & $\Nset_0$        & $\lambda$        & $\lambda$             & $e^{\lambda(e^t-1)}$                      \\
+    Uniforme($a,b$)         & $a<b$                    & $[a,b]$          & $\tfrac{a+b}{2}$ & $\tfrac{(b-a)^2}{12}$ & $\tfrac{e^{tb}-e^{ta}}{t(b-a)}$           \\
+    Exponencial($\lambda$)  & $\lambda>0$              & $[0,\infty)$     & $1/\lambda$      & $1/\lambda^2$         & $\tfrac{\lambda}{\lambda-t},\; t<\lambda$ \\
+    Normal($\mu,\sigma^2$)  & $\mu\in\R,\sigma>0$      & $\R$             & $\mu$            & $\sigma^2$            & $e^{\mu t+\sigma^2 t^2/2}$                \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\vspace{6pt}
+\begin{nota}
+  \textbf{Mapa de decisi\'on r\'apida.}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item \textquestiondown Cuento o mido? \;\emph{Cuento} $\to$ discreta. \;\emph{Mido tiempo/distancia/cantidad continua} $\to$ continua.
+    \item \textquestiondown N\'umero \emph{fijo} de intentos $n$? \;S\'i $\to$ Binomial. \;No, hasta el primer \'exito $\to$ Geom\'etrica.
+          \;No, eventos a tasa por unidad $\to$ Poisson.
+    \item \textquestiondown Tiempo entre eventos? \;$\to$ Exponencial.
+    \item \textquestiondown Sin preferencia en un rango? \;$\to$ Uniforme.
+    \item \textquestiondown Suma de muchos efectos? \;$\to$ Normal (por TCL).
+  \end{itemize}
+\end{nota}
+
+\subsecheader{4.2 \textperiodcentered\ Distribuci\'on Bernoulli}
+
+\begin{definicion}{Distribuci\'on Bernoulli}
+  $X \sim \mathrm{Bernoulli}(p)$ con $p\in(0,1)$ modela un \'unico ensayo con dos resultados.
+  Soporte $I_X = \{0,1\}$, PMF:
+  \[
+    p_X(k) = p^k (1-p)^{1-k}, \quad k\in I_X.
+  \]
+  Equivalentemente: $P(X=1)=p$, $P(X=0)=1-p$.
+  \textbf{Momentos:} $\E{X} = p$, \quad $\Var{X} = p(1-p)$.
+\end{definicion}
+
+\begin{demostracion}
+  Verificamos que la PMF suma $1$:
+  \[
+    \sum_{k=0}^{1} p^k(1-p)^{1-k} = (1-p) + p = 1.
+  \]
+\end{demostracion}
+
+\begin{nota}
+  \textbf{\textquestiondown Cu\'ando usar?} Un solo experimento con dos resultados mutuamente
+  excluyentes. Ladrillo elemental: la Binomial y la Geom\'etrica se construyen como sucesiones
+  de Bernoullis i.i.d.\\
+  \textbf{Ejemplo:} lanzar una moneda; pregunta s\'i/no en encuesta.
+\end{nota}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=11cm, height=4.5cm,
+        xlabel={$k$}, ylabel={$P(X=k)$},
+        xtick={0,1}, ytick={0,0.2,0.4,0.6,0.8},
+        ymin=0, ymax=0.85, xmin=-0.5, xmax=1.5,
+        ybar, bar width=20pt,
+        grid=major, grid style={dotted, gray!40},
+        tick label style={font=\small},
+        label style={font=\small},
+        legend style={at={(0.98,0.95)},anchor=north east,font=\small},
+      ]
+      \addplot[fill=defborder!70, draw=defborder, bar shift=-11pt] coordinates {(0,0.7) (1,0.3)};
+      \addlegendentry{$p=0.3$}
+      \addplot[fill=noteborder!70, draw=noteborder, bar shift=11pt] coordinates {(0,0.5) (1,0.5)};
+      \addlegendentry{$p=0.5$}
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape PMF de Bernoulli para $p=0.3$ (sesgada) y $p=0.5$ (justa).}
+\end{center}
+
+\subsecheader{4.3 \textperiodcentered\ Distribuci\'on Binomial}
+
+\begin{definicion}{Distribuci\'on Binomial}
+  $X \sim \mathrm{Bin}(n, p)$ con $n\in\Nset$, $p\in(0,1)$ cuenta el n\'umero de \'exitos en $n$
+  ensayos Bernoulli$(p)$ \emph{independientes}. Soporte $I_X = \{0,1,\ldots,n\}$, PMF:
+  \[
+    p_X(k) = \binom{n}{k} p^k (1-p)^{n-k}, \quad k\in I_X.
+  \]
+  Equivalentemente, $X = \sum_{i=1}^{n} Y_i$ con $Y_i \sim \mathrm{Bernoulli}(p)$ i.i.d.
+  \textbf{Momentos:} $\E{X} = np$, \quad $\Var{X} = np(1-p)$.
+\end{definicion}
+
+\begin{demostracion}
+  Por el \emph{teorema del binomio} aplicado a $(p + (1-p))^n$:
+  \[
+    \sum_{k=0}^{n} \binom{n}{k} p^k (1-p)^{n-k}
+    = \big(p + (1-p)\big)^n = 1^n = 1.
+  \]
+\end{demostracion}
+
+\begin{nota}
+  \textbf{\textquestiondown Cu\'ando usar?} Cuando se realizan $n$ ensayos Bernoulli
+  independientes con la \emph{misma} $p$ y se cuenta el total de \'exitos.\\
+  \textbf{Ejemplo:} \# caras en $10$ lanzamientos; \# defectuosas en una muestra de $100$ piezas.
+\end{nota}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=13cm, height=5.5cm,
+        xlabel={$k$}, ylabel={$P(X=k)$},
+        xtick={0,1,2,3,4,5,6,7,8,9,10},
+        ymin=0, ymax=0.32,
+        legend style={at={(0.98,0.95)},anchor=north east,font=\small},
+        tick label style={font=\small},
+        label style={font=\small},
+        grid=major, grid style={dotted, gray!40},
+        ybar, bar width=5pt,
+      ]
+      \addplot[fill=defborder!70, draw=defborder, bar shift=-3pt] coordinates {
+          (0,0.0282)(1,0.1211)(2,0.2335)(3,0.2668)(4,0.2001)
+          (5,0.1029)(6,0.0368)(7,0.0090)(8,0.0014)(9,0.0001)(10,0)
+        };
+      \addlegendentry{$\mathrm{Bin}(10,\,0.3)$}
+      \addplot[fill=noteborder!70, draw=noteborder, bar shift=3pt] coordinates {
+          (0,0.0010)(1,0.0098)(2,0.0439)(3,0.1172)(4,0.2051)
+          (5,0.2461)(6,0.2051)(7,0.1172)(8,0.0439)(9,0.0098)(10,0.0010)
+        };
+      \addlegendentry{$\mathrm{Bin}(10,\,0.5)$}
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape PMF de Binomial$(n=10)$. Con $p=0.5$ es sim\'etrica;
+    con $p\neq 0.5$ se sesga hacia $np$.}
+\end{center}
+
+\subsecheader{4.4 \textperiodcentered\ Distribuci\'on Geom\'etrica}
+
+\begin{definicion}{Distribuci\'on Geom\'etrica}
+  $X \sim \mathrm{Geom}(p)$ con $p\in(0,1)$ cuenta el n\'umero de ensayos Bernoulli$(p)$ i.i.d.\
+  \emph{hasta el primer \'exito} (incluido). Soporte $I_X = \{1,2,3,\ldots\}$, PMF:
+  \[
+    p_X(k) = p\,(1-p)^{k-1}, \quad k\in I_X.
+  \]
+  \textbf{Momentos:} $\E{X} = 1/p$, \quad $\Var{X} = (1-p)/p^2$.
+\end{definicion}
+
+\begin{demostracion}
+  Reindexando $j = k-1$ y usando la \emph{serie geom\'etrica}:
+  \[
+    \sum_{k=1}^{\infty} p\,(1-p)^{k-1}
+    = p\sum_{j=0}^{\infty} (1-p)^j
+    = p \cdot \frac{1}{1-(1-p)} = p \cdot \frac{1}{p} = 1.
+  \]
+\end{demostracion}
+
+\begin{nota}
+  \textbf{\textquestiondown Cu\'ando usar?} Cuando se repiten ensayos Bernoulli y se cuenta
+  cu\'antos ensayos hacen falta hasta el primer \'exito (no hay tope $n$).\\
+  \textbf{Ejemplo:} \# lanzamientos hasta la primera cara; \# productos hasta el primero defectuoso.
+\end{nota}
+
+\begin{proposicion}{P\'erdida de memoria (caso discreto)}
+  $X \sim \mathrm{Geom}(p)$ si y s\'olo si:
+  \[
+    P(X > m+n \mid X > m) = P(X > n) \quad \forall\, m, n \in \Nset_0.
+  \]
+  Es la \emph{\'unica} distribuci\'on discreta con esta propiedad (an\'aloga discreta de la Exponencial).
+\end{proposicion}
+
+\begin{demostracion}
+  \textbf{($\Rightarrow$)} La \emph{funci\'on de supervivencia} es $P(X > k) = (1-p)^k$. Como
+  $m+n \geq m$, $\{X>m+n\} \subseteq \{X>m\}$, luego:
+  \[
+    P(X > m+n \mid X > m) = \frac{(1-p)^{m+n}}{(1-p)^m} = (1-p)^n = P(X > n). \;\checkmark
+  \]
+  \textbf{($\Leftarrow$)} Sea $G(k) = P(X > k)$ con $G(0) = 1$. La propiedad equivale a
+  $G(m+n) = G(m)\,G(n)$. Por inducci\'on, $G(k) = G(1)^k = q^k$. La PMF resulta
+  $p_X(k) = q^{k-1}(1-q) = (1-p)^{k-1}\, p$ con $p = 1-q$.
+\end{demostracion}
+
+\begin{ejemplo}{P\'erdida de memoria en acci\'on (Geom\'etrica)}
+  Cada pieza es defectuosa con probabilidad $p = 0.1$. Sea $X$ = \# de piezas inspeccionadas
+  hasta la primera defectuosa. Entonces $X \sim \mathrm{Geom}(0.1)$ con $\E{X} = 10$.
+  \\[5pt]
+  \textbf{Pregunta:} ya inspeccionaste $5$ piezas y todas resultaron buenas.
+  \textquestiondown Cu\'al es la probabilidad de inspeccionar al menos $3$ piezas m\'as
+  sin encontrar defectuosa?
+  \\[5pt]
+  \textbf{Soluci\'on:} $P(X > 8 \mid X > 5) = P(X > 3) = (0.9)^3 = 0.729$.
+  \\[5pt]
+  \textbf{Interpretaci\'on.} Las $5$ inspecciones previas no aportan informaci\'on:
+  la probabilidad de inspeccionar otras $3$ sin defectuosa es la misma que empezar de cero.
+\end{ejemplo}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=13cm, height=5.5cm,
+        xlabel={$k$}, ylabel={$P(X=k)$},
+        xtick={1,2,3,4,5,6,7,8,9,10,11,12},
+        ymin=0, ymax=0.55,
+        legend style={at={(0.98,0.95)},anchor=north east,font=\small},
+        tick label style={font=\small},
+        label style={font=\small},
+        grid=major, grid style={dotted, gray!40},
+        ybar, bar width=5pt,
+      ]
+      \addplot[fill=defborder!70, draw=defborder, bar shift=-3pt] coordinates {
+          (1,0.3)(2,0.21)(3,0.147)(4,0.1029)(5,0.0720)
+          (6,0.0504)(7,0.0353)(8,0.0247)(9,0.0173)(10,0.0121)(11,0.0085)(12,0.0059)
+        };
+      \addlegendentry{$p=0.3$}
+      \addplot[fill=noteborder!70, draw=noteborder, bar shift=3pt] coordinates {
+          (1,0.5)(2,0.25)(3,0.125)(4,0.0625)(5,0.0313)
+          (6,0.0156)(7,0.0078)(8,0.0039)(9,0.0020)(10,0.0010)(11,0.0005)(12,0.0002)
+        };
+      \addlegendentry{$p=0.5$}
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape PMF de Geom\'etrica: decrece geom\'etricamente.}
+\end{center}
+
+\subsecheader{4.5 \textperiodcentered\ Distribuci\'on Poisson}
+
+\begin{definicion}{Distribuci\'on Poisson}
+  $X \sim \mathrm{Poisson}(\lambda)$ con $\lambda > 0$ cuenta eventos raros que ocurren a
+  tasa constante en un intervalo. Soporte $I_X = \Nset_0$, PMF:
+  \[
+    p_X(k) = \frac{\lambda^k\, e^{-\lambda}}{k!}, \quad k \in I_X.
+  \]
+  \textbf{Momentos:} $\E{X} = \lambda$, \quad $\Var{X} = \lambda$ (\emph{equidispersi\'on}).
+\end{definicion}
+
+\begin{demostracion}
+  Usando la \emph{serie de Taylor} de la exponencial $e^\lambda = \sum_{k=0}^{\infty}\lambda^k/k!$:
+  \[
+    \sum_{k=0}^{\infty} \frac{\lambda^k e^{-\lambda}}{k!}
+    = e^{-\lambda} \sum_{k=0}^{\infty} \frac{\lambda^k}{k!}
+    = e^{-\lambda} \cdot e^{\lambda} = 1.
+  \]
+\end{demostracion}
+
+\begin{nota}
+  \textbf{\textquestiondown Cu\'ando usar?} Cuando se cuentan eventos que ocurren
+  \emph{independientemente} a una tasa constante en tiempo o espacio. L\'imite de
+  $\mathrm{Bin}(n,\lambda/n)$ cuando $n\to\infty$.\\
+  \textbf{Ejemplo:} \# llamadas/hora a un call center; \# decaimientos radiactivos/seg.
+\end{nota}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=13cm, height=6cm,
+        xlabel={$k$}, ylabel={$P(X=k)$},
+        xtick={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16},
+        ymin=0, ymax=0.42,
+        legend style={at={(0.98,0.95)},anchor=north east,font=\small},
+        tick label style={font=\small},
+        label style={font=\small},
+        grid=major, grid style={dotted, gray!40},
+        ybar, bar width=4pt,
+      ]
+      \addplot[fill=sectionbg!70, draw=sectionbg, bar shift=-4pt] coordinates {
+          (0,0.3679)(1,0.3679)(2,0.1839)(3,0.0613)(4,0.0153)(5,0.0031)(6,0.0005)
+        };
+      \addlegendentry{$\lambda=1$}
+      \addplot[fill=defborder!70, draw=defborder, bar shift=0pt] coordinates {
+          (0,0.0498)(1,0.1494)(2,0.2240)(3,0.2240)(4,0.1680)(5,0.1008)(6,0.0504)
+          (7,0.0216)(8,0.0081)(9,0.0027)(10,0.0008)
+        };
+      \addlegendentry{$\lambda=3$}
+      \addplot[fill=noteborder!70, draw=noteborder, bar shift=4pt] coordinates {
+          (0,0.0009)(1,0.0064)(2,0.0223)(3,0.0521)(4,0.0912)(5,0.1277)(6,0.1490)
+          (7,0.1490)(8,0.1304)(9,0.1014)(10,0.0710)(11,0.0452)(12,0.0264)(13,0.0142)
+          (14,0.0071)(15,0.0033)
+        };
+      \addlegendentry{$\lambda=7$}
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape PMF de Poisson para $\lambda\in\{1,3,7\}$.}
+\end{center}
+
+\subsecheader{4.6 \textperiodcentered\ Distribuci\'on Uniforme}
+
+\begin{definicion}{Distribuci\'on Uniforme}
+  $X \sim \mathrm{Unif}(a,b)$ con $a<b$ tiene soporte $I_X = [a,b]$ y densidad constante:
+  \[
+    f_X(x) = \frac{1}{b-a}, \quad x\in I_X, \qquad
+    F_X(x) = \frac{x-a}{b-a}.
+  \]
+  \textbf{Momentos:} $\E{X} = (a+b)/2$, \quad $\Var{X} = (b-a)^2/12$.
+\end{definicion}
+
+\begin{demostracion}
+  $\int_a^b \frac{1}{b-a}\,\mathrm{d}x = \frac{b-a}{b-a} = 1.$
+\end{demostracion}
+
+\begin{nota}
+  \textbf{\textquestiondown Cu\'ando usar?} Cuando todo punto del intervalo $[a,b]$ es igualmente
+  probable.\\
+  \textbf{Aplicaci\'on cr\'itica:} la $\mathrm{Unif}(0,1)$ es la base computacional para generar
+  cualquier distribuci\'on por \emph{transformada inversa}: $F^{-1}(U) \sim F$.
+\end{nota}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=12cm, height=4.5cm,
+        xlabel={$x$}, ylabel={$f(x)$},
+        xtick={0,1,2,3,4,5,6},
+        ymin=0, ymax=1.2, xmin=-0.5, xmax=6.5,
+        grid=major, grid style={dotted, gray!40},
+        tick label style={font=\small},
+        label style={font=\small},
+        legend style={at={(0.98,0.95)},anchor=north east,font=\small},
+        axis lines=left,
+      ]
+      \addplot[thick, color=defborder, fill=defbg, opacity=0.7]
+      coordinates {(0,0)(0,1)(1,1)(1,0)} \closedcycle;
+      \addlegendentry{$\mathrm{Unif}(0,1)$}
+      \addplot[thick, color=noteborder, fill=notebg, opacity=0.7]
+      coordinates {(2,0)(2,0.25)(6,0.25)(6,0)} \closedcycle;
+      \addlegendentry{$\mathrm{Unif}(2,6)$}
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+\subsecheader{4.7 \textperiodcentered\ Distribuci\'on Exponencial}
+
+\begin{definicion}{Distribuci\'on Exponencial}
+  $X\sim\mathrm{Exp}(\lambda)$ con $\lambda>0$ tiene soporte $I_X = [0,\infty)$ y:
+  \[
+    f_X(x) = \lambda e^{-\lambda x},\quad x \in I_X, \qquad F_X(x) = 1 - e^{-\lambda x}.
+  \]
+  \textbf{Momentos:} $\E{X} = 1/\lambda$, \quad $\Var{X} = 1/\lambda^2$.
+\end{definicion}
+
+\begin{demostracion}
+  $\int_0^\infty \lambda e^{-\lambda x}\,\mathrm{d}x = \left[-e^{-\lambda x}\right]_0^\infty = 1.$
+\end{demostracion}
+
+\begin{nota}
+  \textbf{\textquestiondown Cu\'ando usar?} Tiempo \emph{continuo} de espera entre eventos
+  sucesivos en un proceso de Poisson de tasa $\lambda$. Tambi\'en para vidas \'utiles
+  \emph{sin envejecimiento}.\\
+  \textbf{Ejemplo:} tiempo entre llegadas de clientes; tiempo hasta la falla de un componente.
+\end{nota}
+
+\begin{proposicion}{Propiedad de p\'erdida de memoria}
+  $X \sim \mathrm{Exp}(\lambda)$ si y s\'olo si:
+  \[
+    P(X > s+t \mid X > s) = P(X > t) \quad \forall\, s,t \geq 0.
+  \]
+  Es la \emph{\'unica} distribuci\'on continua con esta propiedad.
+\end{proposicion}
+
+\begin{demostracion}
+  \textbf{($\Rightarrow$)} La supervivencia es $\overline{F}_X(x) = e^{-\lambda x}$. Como
+  $\{X>s+t\} \subseteq \{X>s\}$:
+  \[
+    P(X > s+t \mid X > s) = \frac{e^{-\lambda(s+t)}}{e^{-\lambda s}} = e^{-\lambda t} = P(X > t). \;\checkmark
+  \]
+  \textbf{($\Leftarrow$)} Sea $G(x) = P(X > x)$. La propiedad da $G(s+t) = G(s)\,G(t)$ (ecuaci\'on
+  de Cauchy multiplicativa). Bajo continuidad de $G$, las \'unicas soluciones son $G(x) = e^{-\lambda x}$.
+\end{demostracion}
+
+\begin{ejemplo}{P\'erdida de memoria en acci\'on}
+  Call center con $\lambda = 4$ llamadas/hora ($1/\lambda = 15$ min). Llevas $10$ min sin
+  llamadas. \textquestiondown Probabilidad de esperar al menos $5$ min m\'as?
+  \[
+    P(X > s+t \mid X > s) = P(X > t) = e^{-4/12} = e^{-1/3} \approx 0.7165.
+  \]
+  El tiempo ya esperado \emph{no aporta informaci\'on}.
+\end{ejemplo}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=13cm, height=5.5cm,
+        xlabel={$x$}, ylabel={$f(x)$},
+        xtick={0,1,2,3,4,5},
+        ymin=0, ymax=2.1, xmin=0, xmax=5,
+        domain=0:5, samples=100,
+        legend style={at={(0.98,0.95)},anchor=north east,font=\small},
+        tick label style={font=\small},
+        label style={font=\small},
+        grid=major, grid style={dotted, gray!40},
+        axis lines=left,
+      ]
+      \addplot[thick, color=sectionbg] {2*exp(-2*x)};
+      \addlegendentry{$\lambda=2$}
+      \addplot[thick, color=defborder, dashed] {1*exp(-1*x)};
+      \addlegendentry{$\lambda=1$}
+      \addplot[thick, color=noteborder, dash dot] {0.5*exp(-0.5*x)};
+      \addlegendentry{$\lambda=0.5$}
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+\subsecheader{4.8 \textperiodcentered\ Distribuci\'on Normal}
+
+\begin{definicion}{Distribuci\'on Normal}
+  $X \sim \mathcal{N}(\mu, \sigma^2)$ tiene soporte $I_X = \R$ y densidad:
+  \[
+    f_X(x) = \frac{1}{\sigma\sqrt{2\pi}}\exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right), \quad x\in\R.
+  \]
+  \textbf{Normal est\'andar} $Z \sim \mathcal{N}(0,1)$: $\phi(z) = \frac{1}{\sqrt{2\pi}}e^{-z^2/2}$,
+  FDA: $\Phi(z)$.\\
+  \textbf{Estandarizaci\'on:} $Z = (X-\mu)/\sigma \sim \mathcal{N}(0,1)$.
+  \textbf{Momentos:} $\E{X} = \mu$, \quad $\Var{X} = \sigma^2$.
+\end{definicion}
+
+\begin{demostracion}
+  Cambio de variable $u = (x-\mu)/\sigma$, $\mathrm{d}u = \mathrm{d}x/\sigma$:
+  \[
+    \int_{-\infty}^{\infty} \frac{1}{\sigma\sqrt{2\pi}} e^{-(x-\mu)^2/(2\sigma^2)}\,\mathrm{d}x
+    = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} e^{-u^2/2}\,\mathrm{d}u = 1.
+  \]
+  Donde se us\'o la \emph{integral de Gauss} $\int_{-\infty}^{\infty} e^{-u^2/2}\,\mathrm{d}u = \sqrt{2\pi}$
+  (cuya prueba pasa a coordenadas polares).
+\end{demostracion}
+
+\begin{nota}
+  \textbf{\textquestiondown Cu\'ando usar?} La variable resulta de la \emph{suma de muchos
+    efectos peque\~nos e independientes} (Teorema Central del L\'imite).\\
+  \textbf{Propiedad clave:} cerrada bajo combinaciones lineales: si
+  $X_i \sim \mathcal{N}(\mu_i,\sigma_i^2)$ independientes,
+  $\sum a_i X_i \sim \mathcal{N}(\sum a_i\mu_i, \sum a_i^2\sigma_i^2)$.
+\end{nota}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=13cm, height=5.5cm,
+        domain=-4:4, samples=200,
+        axis lines=left,
+        xlabel={$x$}, ylabel={$f(x)$},
+        xtick={-3,-2,-1,0,1,2,3},
+        ytick={0,0.1,0.2,0.3,0.4},
+        ymin=0, ymax=0.85,
+        legend style={at={(0.98,0.95)},anchor=north east,font=\small},
+        tick label style={font=\small},
+        label style={font=\small},
+        grid=major, grid style={dotted, gray!40},
+      ]
+      \addplot[thick, color=sectionbg, domain=-4:4] {exp(-x^2/2)/sqrt(2*pi)};
+      \addlegendentry{$\mathcal{N}(0,1)$}
+      \addplot[thick, color=defborder, dashed, domain=-4:4]
+      {exp(-(x-1.5)^2/(2*0.5^2))/(0.5*sqrt(2*pi))};
+      \addlegendentry{$\mathcal{N}(1.5,\,0.25)$}
+      \addplot[thick, color=noteborder, dash dot, domain=-4:4]
+      {exp(-x^2/(2*4))/(2*sqrt(2*pi))};
+      \addlegendentry{$\mathcal{N}(0,\,4)$}
+      \addplot[fill=sectionbg!15, draw=none, domain=-1:1] {exp(-x^2/2)/sqrt(2*pi)} \closedcycle;
+      \node[font=\tiny, color=sectionbg] at (axis cs:0,0.18) {$68\%$};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+\subsecheader{4.9 \textperiodcentered\ Relaciones entre distribuciones}
+
+\begin{tcolorbox}[
+    enhanced,
+    colback=sectionbg!8, colframe=sectionbg,
+    boxrule=0.8pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    coltitle=white, colbacktitle=sectionbg,
+    titlerule=0pt,
+    fonttitle=\small\bfseries\sffamily,
+    title={Conexiones entre las distribuciones de la Secci\'on 4},
+  ]
+  \small
+  \begin{itemize}
+    \item \textbf{Bernoulli $\to$ Binomial:} $\mathrm{Bin}(n,p)$ es la suma de $n$ Bernoulli$(p)$
+          i.i.d. Caso particular: $\mathrm{Bin}(1,p) = \mathrm{Bernoulli}(p)$.
+    \item \textbf{Bernoulli $\to$ Geom\'etrica:} $\mathrm{Geom}(p)$ cuenta cu\'antos ensayos
+          Bernoulli$(p)$ hacen falta para el primer \'exito.
+    \item \textbf{Binomial $\to$ Poisson:} $\mathrm{Bin}(n,\lambda/n) \xrightarrow{n\to\infty} \mathrm{Poisson}(\lambda)$.
+    \item \textbf{Poisson $\leftrightarrow$ Exponencial:} en un proceso de Poisson, los tiempos
+          entre llegadas son Exp$(\lambda)$ i.i.d.
+    \item \textbf{Geom\'etrica $\leftrightarrow$ Exponencial:} an\'aloga discreta y continua.
+    \item \textbf{Suma de Poissons:} Poisson$(\lambda_1)$ + Poisson$(\lambda_2)$ = Poisson$(\lambda_1+\lambda_2)$.
+    \item \textbf{Suma de Normales:} cerrada bajo combinaciones lineales independientes.
+    \item \textbf{TCL $\to$ Normal:} $\mathrm{Bin}(n,p) \approx \mathcal{N}(np, np(1-p))$ y
+          $\mathrm{Poisson}(\lambda) \approx \mathcal{N}(\lambda, \lambda)$ para par\'ametros grandes.
+    \item \textbf{Uniforme $\to$ cualquier distribuci\'on:} si $U\sim\mathrm{Unif}(0,1)$ y $F$
+          es una FDA, entonces $F^{-1}(U) \sim F$.
+  \end{itemize}
+\end{tcolorbox}
+
+% =============================================================================
+\secheader{5}{Vectores Aleatorios y Distribuciones Conjuntas}
+
+\subsecheader{5.1 \textperiodcentered\ Vectores aleatorios}
+
+\begin{definicion}{Vector aleatorio}
+  Un \textbf{vector aleatorio} de dimensi\'on $n$ es una tupla
+  $\mathbf{X} = (X_1, X_2, \ldots, X_n)$ donde cada $X_i$ es una variable aleatoria definida
+  sobre el mismo espacio de probabilidad $(\Omega, \sigalg, P)$. Equivalentemente,
+  $\mathbf{X}: \Omega \to \R^n$ medible.
+\end{definicion}
+
+\begin{nota}
+  Un vector aleatorio modela varias mediciones \emph{simult\'aneas} sobre el mismo experimento.\\
+  \textbf{Ejemplos:} (altura, peso) de una persona; resultados de tres lanzamientos de un dado.\\
+  Las componentes pueden \emph{depender} entre s\'i: estudiar cada $X_i$ por separado no captura
+  toda la informaci\'on.
+\end{nota}
+
+\subsecheader{5.2 \textperiodcentered\ Funci\'on de distribuci\'on conjunta}
+
+\begin{definicion}{Funci\'on de distribuci\'on conjunta (FDC)}
+  Para un vector aleatorio $(X_1, \ldots, X_n)$:
+  \[
+    F_{X_1,\ldots,X_n}(x_1, \ldots, x_n) = P(X_1 \leq x_1,\, \ldots,\, X_n \leq x_n).
+  \]
+  Caso bivariado: $F_{X,Y}(x, y) = P(X \leq x,\, Y \leq y)$.
+\end{definicion}
+
+\begin{proposicion}{Propiedades de la FDC bivariada}
+  $F_{X,Y}: \R^2 \to [0,1]$ satisface:
+  \begin{enumerate}
+    \item \textbf{Mon\'otona no decreciente} en cada variable.
+    \item \textbf{Continua por la derecha} en cada variable.
+    \item \textbf{L\'imites:} $F_{X,Y}(x,y) \to 0$ si $x\to-\infty$ o $y\to-\infty$;
+          $\to 1$ si $x,y\to+\infty$.
+    \item \textbf{Probabilidad sobre rect\'angulo:}
+          $P(a_1 < X \leq a_2, b_1 < Y \leq b_2) = F(a_2,b_2) - F(a_1,b_2) - F(a_2,b_1) + F(a_1,b_1)$.
+  \end{enumerate}
+\end{proposicion}
+
+\vspace{4pt}
+\begin{center}
+  \begin{tikzpicture}[scale=0.85, >=Latex]
+    \draw[-Latex, thick] (-0.3,0) -- (4.5,0) node[right,font=\small] {$X$};
+    \draw[-Latex, thick] (0,-0.3) -- (0,3.5) node[above,font=\small] {$Y$};
+    \fill[fill=defbg, draw=defborder, thick] (0,0) rectangle (3,2);
+    \draw[dashed, thin, color=defborder] (3,0) -- (3,2) -- (0,2);
+    \fill[color=defborder] (3,2) circle (2pt);
+    \node[above right, font=\small\bfseries, color=defborder] at (3.05,2.05) {$(x_0, y_0)$};
+    \node[below, font=\small] at (3,-0.05) {$x_0$};
+    \node[left, font=\small] at (-0.05,2) {$y_0$};
+    \node[font=\small\itshape, color=defborder] at (1.5,1.0) {$\{X\leq x_0,\,Y\leq y_0\}$};
+    \node[font=\tiny, color=defborder] at (1.5,0.4) {prob.\ $=F_{X,Y}(x_0,y_0)$};
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  {\footnotesize\itshape La FDC $F_{X,Y}(x_0, y_0)$ asigna probabilidad al cuadrante
+    inferior-izquierdo con esquina en $(x_0, y_0)$.}
+\end{center}
+
+\subsecheader{5.3 \textperiodcentered\ Distribuciones marginales}
+
+\begin{definicion}{FDC marginal}
+  Las \textbf{marginales} se obtienen tomando l\'imite en las dem\'as variables:
+  \[
+    F_X(x) = \lim_{y \to \infty} F_{X,Y}(x, y), \qquad
+    F_Y(y) = \lim_{x \to \infty} F_{X,Y}(x, y).
+  \]
+\end{definicion}
+
+\begin{nota}
+  La conjunta determina un\'ivocamente las marginales, \emph{pero NO al rev\'es}: dos vectores
+  con las mismas marginales pueden tener conjuntas distintas. La diferencia es la
+  \emph{dependencia} entre componentes.
+\end{nota}
+
+\subsecheader{5.4 \textperiodcentered\ Caso discreto: PMF conjunta y marginal}
+
+\begin{definicion}{Funci\'on de masa conjunta}
+  $p_{X,Y}(x, y) = P(X = x,\, Y = y)$. Cumple $\geq 0$ y $\sum_x \sum_y p_{X,Y}(x,y) = 1$.
+\end{definicion}
+
+\begin{definicion}{PMF marginal discreta}
+  $p_X(x) = \sum_{y} p_{X,Y}(x, y)$, \quad $p_Y(y) = \sum_{x} p_{X,Y}(x, y)$.
+\end{definicion}
+
+\begin{definicion}{FDC conjunta discreta}
+  $F_{X,Y}(x, y) = \sum_{x_i \leq x} \sum_{y_j \leq y} p_{X,Y}(x_i, y_j)$.
+\end{definicion}
+
+\begin{ejemplo}{Dos dados}
+  Dos dados justos. $p_{X,Y}(i,j) = 1/36$ para $i,j \in \{1,\ldots,6\}$.
+  Marginal: $p_X(i) = \sum_j 1/36 = 1/6$. Igual para $p_Y$.
+\end{ejemplo}
+
+\subsecheader{5.5 \textperiodcentered\ Caso continuo: PDF conjunta y marginal}
+
+\begin{definicion}{Funci\'on de densidad conjunta}
+  $(X, Y)$ es continuo si existe $f_{X,Y}: \R^2 \to [0,\infty)$ tal que:
+  \[
+    F_{X,Y}(x, y) = \int_{-\infty}^{x}\!\int_{-\infty}^{y} f_{X,Y}(s, t)\,\mathrm{d}t\,\mathrm{d}s,
+    \qquad \iint f_{X,Y} = 1.
+  \]
+  $P((X,Y) \in B) = \iint_B f_{X,Y}\,\mathrm{d}x\,\mathrm{d}y$.
+\end{definicion}
+
+\begin{definicion}{PDF marginal}
+  $f_X(x) = \int f_{X,Y}(x, y)\,\mathrm{d}y$, \quad $f_Y(y) = \int f_{X,Y}(x, y)\,\mathrm{d}x$.
+\end{definicion}
+
+\begin{definicion}{FDC conjunta continua}
+  Donde $F_{X,Y}$ es diferenciable: $f_{X,Y}(x, y) = \partial^2 F_{X,Y}/(\partial x\,\partial y)$.
+\end{definicion}
+
+\begin{ejemplo}{Uniforme en el cuadrado unitario}
+  $(X, Y) \sim \mathrm{Unif}([0,1]^2)$: $f_{X,Y}(x,y) = 1$ en $[0,1]^2$, $0$ fuera. Marginal:
+  $f_X(x) = \int_0^1 1\,\mathrm{d}y = 1$, luego $X \sim \mathrm{Unif}(0,1)$. \\
+  $P(X^2 + Y^2 \leq 1/4) = \pi/16$ (\'area del cuarto de c\'irculo).
+\end{ejemplo}
+
+\begin{nota}
+  \textbf{Resumen:} Conjunta $\to$ Marginal: suma/integraci\'on. PMF/PDF $\leftrightarrow$ FDC:
+  suma/integraci\'on o derivaci\'on. Marginal $\not\Rightarrow$ Conjunta: falta info de dependencia.
+\end{nota}
+
+% =============================================================================
+\secheader{6}{Proceso de Poisson}
+
+\subsecheader{6.1 \textperiodcentered\ Procesos estoc\'asticos y de conteo}
+
+\begin{definicion}{Proceso estoc\'astico}
+  Un \textbf{proceso estoc\'astico} es una familia de variables aleatorias
+  $\{X(t),\, t\in T\}$ definidas sobre el mismo espacio de probabilidad, con $T$ conjunto de
+  \'indices (t\'ipicamente tiempo).
+  \begin{itemize}
+    \item Si $T = \{0, 1, 2, \ldots\}$: tiempo discreto.
+    \item Si $T = [0, \infty)$: tiempo continuo.
+  \end{itemize}
+\end{definicion}
+
+\begin{definicion}{Proceso de conteo}
+  $\{N(t),\, t\geq 0\}$ es un \textbf{proceso de conteo} si:
+  \begin{enumerate}
+    \item $N(t) \in \Nset_0$.
+    \item $N(t)$ es no decreciente.
+    \item Para $s < t$, $N(t) - N(s) = $ \# eventos en $(s, t]$.
+  \end{enumerate}
+  T\'ipicamente $N(0) = 0$.
+\end{definicion}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.95, >=Latex]
+    \draw[-Latex, thick] (-0.2,0) -- (8.5,0) node[right,font=\small] {$t$};
+    \draw[-Latex, thick] (0,-0.2) -- (0,4.2) node[above,font=\small] {$N(t)$};
+    \draw[very thick, color=sectionbg]
+    (0,0) -- (1.2,0) -- (1.2,1) -- (2.5,1) -- (2.5,2) --
+    (3.3,2) -- (3.3,3) -- (5.0,3) -- (5.0,4) -- (8.2,4);
+    \foreach \x/\y in {1.2/1, 2.5/2, 3.3/3, 5.0/4} {
+        \fill[color=sectionbg] (\x,\y) circle (2.5pt);
+        \draw[dashed, color=gray!50, thin] (\x,0) -- (\x,\y);
+      }
+    \foreach \y in {1,2,3,4} {
+        \node[font=\tiny, left, color=gray] at (0,\y) {$\y$};
+      }
+  \end{tikzpicture}
+\end{center}
+
+\subsecheader{6.2 \textperiodcentered\ Incrementos independientes y estacionarios}
+
+\begin{definicion}{Incrementos independientes}
+  Para cualquier partici\'on $0 \leq t_0 < t_1 < \cdots < t_k$, las v.a.\
+  $N(t_1)-N(t_0), N(t_2)-N(t_1), \ldots$ son mutuamente independientes.
+\end{definicion}
+
+\begin{definicion}{Incrementos estacionarios}
+  $N(t+s) - N(t) \stackrel{d}{=} N(s) - N(0)$ para todo $t, s \geq 0$. La distribuci\'on solo
+  depende de la longitud del intervalo.
+\end{definicion}
+
+\subsecheader{6.3 \textperiodcentered\ Proceso de Poisson homog\'eneo}
+
+\begin{definicion}{Proceso de Poisson homog\'eneo}
+  $\{N(t)\}$ es un \textbf{proceso de Poisson} con tasa $\lambda > 0$ si:
+  \begin{enumerate}
+    \item $N(0) = 0$.
+    \item Tiene incrementos independientes.
+    \item $N(t+s) - N(t) \sim \mathrm{Poisson}(\lambda s)$.
+  \end{enumerate}
+  \textbf{Consecuencias:} $N(t) \sim \mathrm{Poisson}(\lambda t)$; $\E{N(t)} = \Var{N(t)} = \lambda t$.
+\end{definicion}
+
+\subsecheader{6.4 \textperiodcentered\ Tiempos entre eventos}
+
+\begin{proposicion}{$T_i \sim$ Exponencial}
+  En un proceso de Poisson de tasa $\lambda$, los tiempos entre eventos $T_1, T_2, \ldots$
+  son i.i.d.\ $\sim \mathrm{Exp}(\lambda)$.
+\end{proposicion}
+
+\begin{demostracion}
+  $P(T_1 > t) = P(N(t)=0) = e^{-\lambda t}$, luego $T_1 \sim \mathrm{Exp}(\lambda)$.
+  Por incrementos independientes y estacionarios, $T_2$ es independiente de $T_1$ y tambi\'en
+  $\mathrm{Exp}(\lambda)$. Inducci\'on completa.
+\end{demostracion}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.9, >=Latex]
+    \draw[-Latex, thick] (-0.2,0) -- (9,0) node[right,font=\small] {$t$};
+    \foreach \x/\n in {1.2/1, 2.5/2, 3.3/3, 5.0/4, 7.5/5} {
+        \fill[color=sectionbg] (\x,0) circle (2.5pt);
+        \node[above, font=\tiny\bfseries, color=sectionbg] at (\x,0.12) {$S_\n$};
+      }
+    \draw[{Latex[length=2.5pt]}-{Latex[length=2.5pt]}, color=defborder, thick]
+    (0,-0.55) -- (1.2,-0.55) node[midway,below,font=\tiny\itshape,color=defborder] {$T_1$};
+    \draw[{Latex[length=2.5pt]}-{Latex[length=2.5pt]}, color=defborder, thick]
+    (1.2,-0.55) -- (2.5,-0.55) node[midway,below,font=\tiny\itshape,color=defborder] {$T_2$};
+    \draw[{Latex[length=2.5pt]}-{Latex[length=2.5pt]}, color=defborder, thick]
+    (2.5,-0.55) -- (3.3,-0.55) node[midway,below,font=\tiny\itshape,color=defborder] {$T_3$};
+    \draw[{Latex[length=2.5pt]}-{Latex[length=2.5pt]}, color=defborder, thick]
+    (3.3,-0.55) -- (5.0,-0.55) node[midway,below,font=\tiny\itshape,color=defborder] {$T_4$};
+    \draw[{Latex[length=2.5pt]}-{Latex[length=2.5pt]}, color=defborder, thick]
+    (5.0,-0.55) -- (7.5,-0.55) node[midway,below,font=\tiny\itshape,color=defborder] {$T_5$};
+  \end{tikzpicture}
+\end{center}
+
+\subsecheader{6.5 \textperiodcentered\ Competencia de tasa}
+
+\begin{proposicion}{Competencia entre dos procesos de Poisson}
+  Sean $N_1, N_2$ procesos independientes con tasas $\lambda_1, \lambda_2$. Para los primeros
+  eventos $T^{(i)}$:
+  \begin{enumerate}
+    \item $T = \min(T^{(1)}, T^{(2)}) \sim \mathrm{Exp}(\lambda_1 + \lambda_2)$.
+    \item $P(T^{(1)} < T^{(2)}) = \lambda_1/(\lambda_1 + \lambda_2)$.
+  \end{enumerate}
+\end{proposicion}
+
+\begin{demostracion}
+  $P(T > t) = e^{-\lambda_1 t}\,e^{-\lambda_2 t} = e^{-(\lambda_1+\lambda_2)t}$.
+  Por integraci\'on: $P(T^{(1)} < T^{(2)}) = \int_0^\infty \lambda_1 e^{-\lambda_1 t} e^{-\lambda_2 t}\,\mathrm{d}t
+  = \lambda_1/(\lambda_1+\lambda_2)$.
+\end{demostracion}
+
+\begin{ejemplo}{Dos cajas en un banco}
+  $\lambda_A = 6$/h, $\lambda_B = 4$/h. $P(A \text{ primero}) = 6/10 = 0.6$. Tiempo medio:
+  $1/10$ h $= 6$ min.
+\end{ejemplo}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.95, >=Latex]
+    \draw[-Latex, thick] (-0.2,1.5) -- (8.5,1.5) node[right,font=\small] {tipo $1$};
+    \foreach \x in {1.6, 4.0, 6.7} {
+        \fill[color=defborder] (\x,1.5) circle (3pt);
+      }
+    \node[font=\small\bfseries, color=defborder, left] at (-0.3,1.5) {$\lambda_1$};
+    \draw[-Latex, thick] (-0.2,0) -- (8.5,0) node[right,font=\small] {tipo $2$};
+    \foreach \x in {0.9, 2.8, 5.2, 7.5} {
+        \fill[color=noteborder] (\x,0) circle (3pt);
+      }
+    \node[font=\small\bfseries, color=noteborder, left] at (-0.3,0) {$\lambda_2$};
+    \draw[->, very thick, color=sectionbg] (0.9, -0.6) -- (0.9, -0.2);
+    \node[font=\small\bfseries, color=sectionbg, below] at (0.9,-0.7)
+    {primer evento (tipo $2$)};
+  \end{tikzpicture}
+\end{center}
+
+\subsecheader{6.6 \textperiodcentered\ Tiempo de la $n$-\'esima llegada}
+
+\begin{proposicion}{$S_n \sim$ Erlang}
+  $S_n = T_1 + \cdots + T_n \sim \mathrm{Erlang}(n, \lambda)$:
+  \[
+    f_{S_n}(t) = \frac{\lambda^n t^{n-1} e^{-\lambda t}}{(n-1)!}, \quad t \geq 0.
+  \]
+  $\E{S_n} = n/\lambda$, $\Var{S_n} = n/\lambda^2$.
+\end{proposicion}
+
+\begin{demostracion}
+  $\{S_n \leq t\} = \{N(t) \geq n\}$. Entonces $F_{S_n}(t) = P(N(t)\geq n) = \sum_{k=n}^\infty \frac{(\lambda t)^k e^{-\lambda t}}{k!}$.
+  Derivando se obtiene $f_{S_n}(t)$.
+\end{demostracion}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=13cm, height=5.5cm,
+        domain=0:10, samples=200,
+        axis lines=left,
+        xlabel={$t$}, ylabel={$f_{S_n}(t)$},
+        xtick={0,1,2,3,4,5,6,7,8,9,10},
+        ymin=0, ymax=1.05,
+        legend style={at={(0.98,0.95)},anchor=north east,font=\small},
+        tick label style={font=\small},
+        label style={font=\small},
+        grid=major, grid style={dotted, gray!40},
+      ]
+      \addplot[thick, color=sectionbg, domain=0:10] {exp(-x)};
+      \addlegendentry{$n=1$}
+      \addplot[thick, color=defborder, dashed, domain=0:10] {x*exp(-x)};
+      \addlegendentry{$n=2$}
+      \addplot[thick, color=noteborder, dash dot, domain=0:10] {x^2*exp(-x)/2};
+      \addlegendentry{$n=3$}
+      \addplot[thick, color=warnborder, densely dotted, domain=0:10]
+      {x^4*exp(-x)/24};
+      \addlegendentry{$n=5$}
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+\subsecheader{6.7 \textperiodcentered\ Procesos de Poisson bifurcados (\emph{thinning})}
+
+\begin{proposicion}{Bifurcaci\'on}
+  Sea $\{N(t)\}$ un proceso de Poisson de tasa $\lambda$. Cada evento se clasifica
+  independientemente como tipo $1$ (prob.\ $p$) o tipo $2$ (prob.\ $1-p$). Entonces $N_1$ y
+  $N_2$ son procesos de Poisson \textbf{independientes} con tasas $\lambda p$ y $\lambda(1-p)$.
+\end{proposicion}
+
+\begin{nota}
+  \textbf{Sorpresa:} aunque comparten el mismo proceso original, los procesos resultantes son
+  \emph{independientes}.
+\end{nota}
+
+\begin{ejemplo}{Tienda con compradores y curiosos}
+  Llegadas Poisson($\lambda = 20$/h), compra con prob.\ $p = 0.3$. Compradores: Poisson($6$/h);
+  no compradores: Poisson($14$/h); independientes.
+\end{ejemplo}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.95, >=Latex]
+    \draw[-Latex, thick] (-0.2,2) -- (8.5,2) node[right,font=\small] {$N(t)$};
+    \foreach \x/\type in {1.0/1, 2.2/2, 3.0/1, 4.5/2, 5.7/1, 7.2/1} {
+        \ifnum\type=1
+          \fill[color=defborder] (\x,2) circle (2.5pt);
+        \else
+          \fill[color=noteborder] (\x,2) circle (2.5pt);
+        \fi
+      }
+    \node[font=\small\bfseries, left] at (-0.3,2) {$\lambda$};
+    \draw[-Latex, thick] (-0.2,0.5) -- (8.5,0.5) node[right,font=\small] {$N_1(t)$};
+    \foreach \x in {1.0, 3.0, 5.7, 7.2} {
+        \fill[color=defborder] (\x,0.5) circle (2.5pt);
+      }
+    \node[font=\small\bfseries, left, color=defborder] at (-0.3,0.5) {$\lambda p$};
+    \draw[-Latex, thick] (-0.2,-1) -- (8.5,-1) node[right,font=\small] {$N_2(t)$};
+    \foreach \x in {2.2, 4.5} {
+        \fill[color=noteborder] (\x,-1) circle (2.5pt);
+      }
+    \node[font=\small\bfseries, left, color=noteborder] at (-0.3,-1) {$\lambda(1{-}p)$};
+  \end{tikzpicture}
+\end{center}
+
+\subsecheader{6.8 \textperiodcentered\ Suma (superposici\'on) de procesos de Poisson}
+
+\begin{proposicion}{Superposici\'on}
+  Si $N_1, \ldots, N_k$ son procesos de Poisson independientes con tasas $\lambda_1, \ldots, \lambda_k$,
+  entonces $N(t) = \sum_i N_i(t)$ es Poisson de tasa $\sum_i \lambda_i$.
+\end{proposicion}
+
+\begin{demostracion}
+  $N(0) = 0$. Incrementos independientes (cada $N_i$ los tiene; entre procesos son indep.).
+  $N(t+s) - N(t) = \sum_i (N_i(t+s)-N_i(t))$ es suma de Poissons independientes
+  $\sim$ Poisson($\sum \lambda_i s$).
+\end{demostracion}
+
+\subsecheader{6.9 \textperiodcentered\ Distribuci\'on condicional del primer evento}
+
+\begin{proposicion}{$T_1 \mid N(t)=1$ es uniforme}
+  En un proceso de Poisson de tasa $\lambda$, dado $N(t) = 1$:
+  \[
+    T_1 \mid N(t) = 1 \sim \mathrm{Unif}(0, t).
+  \]
+\end{proposicion}
+
+\begin{demostracion}
+  $P(T_1 \leq s, N(t) = 1) = P(N(s)=1)\,P(N(t)-N(s)=0) = \lambda s\,e^{-\lambda s}\cdot e^{-\lambda(t-s)} = \lambda s\,e^{-\lambda t}$.
+  $P(N(t)=1) = \lambda t\,e^{-\lambda t}$. Dividiendo: $P(T_1 \leq s \mid N(t) = 1) = s/t$.
+\end{demostracion}
+
+\begin{nota}
+  \textbf{Generalizaci\'on:} dado $N(t) = n$, los $n$ tiempos son los \emph{estad\'isticos de orden}
+  de $n$ uniformes i.i.d.\ en $(0, t)$.
+\end{nota}
+
+\begin{center}
+  \begin{tikzpicture}[scale=1, >=Latex]
+    \draw[thick] (0,0) -- (8,0);
+    \fill[color=sectionbg] (0,0) circle (2pt);
+    \fill[color=sectionbg] (8,0) circle (2pt);
+    \node[below, font=\small] at (0,-0.1) {$0$};
+    \node[below, font=\small] at (8,-0.1) {$t$};
+    \fill[fill=defbg, draw=defborder, opacity=0.7] (0,0.05) rectangle (8,0.6);
+    \node[font=\small\itshape, color=defborder] at (4,0.32) {$f_{T_1\mid N(t)=1}(s) = 1/t$};
+    \draw[decorate, decoration={brace, amplitude=4pt}, thick]
+    (0,-0.4) -- (8,-0.4) node[midway, below=4pt, font=\small]
+    {dado $N(t)=1$: $T_1 \sim \mathrm{Unif}(0,t)$};
+  \end{tikzpicture}
+\end{center}
+
+\vspace{10pt}
+\begin{tcolorbox}[
+    colback=sectionbg!8, colframe=sectionbg,
+    boxrule=0.8pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    fonttitle=\bfseries\sffamily,
+    title={Conexiones clave del m\'odulo},
+  ]
+  \small
+  \begin{itemize}
+    \item $\mathrm{Bin}(n,\lambda/n) \xrightarrow{n\to\infty} \mathrm{Poisson}(\lambda)$
+          \hfill (eventos raros)
+    \item $\mathrm{Poisson}(\lambda) \xrightarrow{\lambda\to\infty} \mathcal{N}(\lambda,\lambda)$
+          \hfill (normalidad asint\'otica)
+    \item Geom\'etrica $\Leftrightarrow$ Exponencial \hfill (p\'erdida de memoria)
+    \item Tiempos entre llegadas Poisson $\sim$ Exp$(\lambda)$ i.i.d. \hfill (proceso de Poisson)
+    \item $S_n \sim$ Erlang$(n, \lambda)$ \hfill (tiempo de la $n$-\'esima llegada)
+    \item FDA $F_X$ determina la ley de $X$
+  \end{itemize}
+\end{tcolorbox}
+
+\end{document}
