@@ -13,6 +13,7 @@
 \usepackage{parskip}
 \usepackage{fancyhdr}
 \usepackage{hyperref}
+\usepackage{multicol}
 % sansmath not needed
 
 \setlength{\parskip}{3pt}
@@ -94,6 +95,7 @@
 \newcommand{\secheader}[2]{%
   \vspace{10pt}%
   \needspace{6cm}%
+  \phantomsection\hypertarget{sec#1}{}%
   \noindent%
   \begin{tcolorbox}[
     colback=sectionbg, colupper=white,
@@ -106,9 +108,10 @@
   \vspace{2pt}%
 }
 
-\newcommand{\entryheader}[1]{%
+\newcommand{\entryheader}[2][]{%
   \needspace{5cm}%
   \vspace{6pt}%
+  \ifx\relax#1\relax\else\phantomsection\hypertarget{#1}{}\fi%
   \noindent%
   \begin{tcolorbox}[
     colback=subsecbg!18,
@@ -117,7 +120,7 @@
     left=5pt, right=5pt, top=2pt, bottom=2pt,
     fontupper=\small\bfseries\sffamily,
   ]
-  #1
+  #2
   \end{tcolorbox}%
   \vspace{2pt}%
 }
@@ -163,11 +166,70 @@
     }}
 \vspace{4pt}
 
+% ─── Índice ───────────────────────────────────────────────────────
+\begin{tcolorbox}[
+    colback=sectionbg!8, colframe=sectionbg!35,
+    sharp corners, boxrule=0.4pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt,
+]
+{\small\bfseries\sffamily\textcolor{sectionbg}{\'{I}ndice de contenidos}}\\[1pt]
+\begin{multicols}{2}
+\setlength{\columnseprule}{0.3pt}
+\footnotesize\setlength{\parskip}{1pt}
+\hyperlink{sec1}{\textbf{\S1\enspace Setup del modelo}}\\
+\quad\hyperlink{e11}{1.1 Crear modelo e importar librer\'ias}\\
+\quad\hyperlink{e12}{1.2 Variable continua con cotas}\\
+\quad\hyperlink{e13}{1.3 Variable entera}\\
+\quad\hyperlink{e14}{1.4 Variable binaria}\\
+\quad\hyperlink{e15}{1.5 Variables indexadas --- Loops}\\
+\quad\hyperlink{e16}{1.6 Variables indexadas --- dict comp.}\\
+\quad\hyperlink{e17}{1.7 Variables indexadas --- addVars}\\[3pt]
+\hyperlink{sec2}{\textbf{\S2\enspace Restricciones b\'asicas}}\\
+\quad\hyperlink{e21}{2.1 Igualdad}\\
+\quad\hyperlink{e22}{2.2 Desigualdad $\leq$ ponderada}\\
+\quad\hyperlink{e23}{2.3 Desigualdad $\geq$ con filtro}\\
+\quad\hyperlink{e24}{2.4 Restricciones indexadas --- Loops}\\
+\quad\hyperlink{e25}{2.5 Restricciones indexadas --- addConstrs}\\
+\quad\hyperlink{e26}{2.6 Rango (restricci\'on doble)}\\[3pt]
+\hyperlink{sec3}{\textbf{\S3\enspace Sumas y quicksum}}\\
+\quad\hyperlink{e31}{3.1 quicksum vs sum de Python}\\
+\quad\hyperlink{e32}{3.2 Objetivo lineal}\\
+\quad\hyperlink{e33}{3.3 Suma doble (multi-\'indice)}\\
+\quad\hyperlink{e34}{3.4 Objetivo con suma doble}\\[3pt]
+\hyperlink{sec4}{\textbf{\S4\enspace Variables binarias y Big-M}}\\
+\quad\hyperlink{e41}{4.1 Activaci\'on con Big-M}\\
+\quad\hyperlink{e42}{4.2 Equivalencia $y_i=1 \Leftrightarrow x_i>0$}\\
+\quad\hyperlink{e43}{4.3 addGenConstrIndicator}\\[3pt]
+\hyperlink{sec5}{\textbf{\S5\enspace Restricciones multi-\'indice}}\\
+\quad\hyperlink{e51}{5.1 Para todo par $(i,j)$}\\
+\quad\hyperlink{e52}{5.2 Suma por fila y columna}\\
+\quad\hyperlink{e53}{5.3 Doble suma con filtro}\\[3pt]
+\hyperlink{sec6}{\textbf{\S6\enspace Restricciones de red}}\\
+\quad\hyperlink{e61}{6.1 Conservaci\'on de flujo}\\
+\quad\hyperlink{e62}{6.2 Capacidad de arco binaria}\\
+\quad\hyperlink{e63}{6.3 Asignaci\'on: uno activo}\\[3pt]
+\hyperlink{sec7}{\textbf{\S7\enspace Linealizaci\'on}}\\
+\quad\hyperlink{e71}{7.1 Valor absoluto $t=|x|$}\\
+\quad\hyperlink{e72}{7.2 M\'aximo $t=\max_i x_i$}\\
+\quad\hyperlink{e73}{7.3 M\'inimo $t=\min_i x_i$}\\[3pt]
+\hyperlink{sec8}{\textbf{\S8\enspace Avanzado}}\\
+\quad\hyperlink{e81}{8.1 Par\'ametros y lectura de resultados}\\[3pt]
+\hyperlink{sec9}{\textbf{\S9\enspace Post-optimizaci\'on}}\\
+\quad\hyperlink{e91}{9.1 Precios sombra (dual values)}\\
+\quad\hyperlink{e92}{9.2 Holguras (slack/surplus)}\\
+\quad\hyperlink{e93}{9.3 Costos reducidos}\\
+\quad\hyperlink{e94}{9.4 Ranging del RHS}\\
+\quad\hyperlink{e95}{9.5 Ranging coef.\ objetivo}
+\end{multicols}
+\end{tcolorbox}
+
+\vspace{4pt}
+
 % ══════════════════════════════════════════════════════════════════
 \secheader{1}{Setup del modelo}
 % ══════════════════════════════════════════════════════════════════
 
-\entryheader{1.1\quad Crear modelo e importar librer\'ias}
+\entryheader[e11]{1.1\quad Crear modelo e importar librer\'ias}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -189,7 +251,7 @@ m.setParam("TimeLimit", 300)  # limite de tiempo en segundos
 
 \vspace{4pt}
 
-\entryheader{1.2\quad Variable continua con cotas}
+\entryheader[e12]{1.2\quad Variable continua con cotas}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -213,7 +275,7 @@ x = m.addVar(
 
 \vspace{4pt}
 
-\entryheader{1.3\quad Variable entera}
+\entryheader[e13]{1.3\quad Variable entera}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -237,7 +299,7 @@ z = m.addVar(
 
 \vspace{4pt}
 
-\entryheader{1.4\quad Variable binaria (caso particular de entera con $lb=0$ y $ub=1$)}
+\entryheader[e14]{1.4\quad Variable binaria (caso particular de entera con $lb=0$ y $ub=1$)}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -257,7 +319,7 @@ y = m.addVar(vtype=GRB.BINARY, name="y")
 
 \vspace{4pt}
 
-\entryheader{1.5\quad Variables indexadas --- Loops anidados}
+\entryheader[e15]{1.5\quad Variables indexadas --- Loops anidados}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -286,7 +348,7 @@ for i in I:             # para cada i en I
 
 \vspace{4pt}
 
-\entryheader{1.6\quad Variables indexadas --- dict comprehension}
+\entryheader[e16]{1.6\quad Variables indexadas --- dict comprehension}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -315,7 +377,7 @@ X = {
 
 \vspace{4pt}
 
-\entryheader{1.7\quad Variables indexadas --- \py{addVars} y \py{multidict}}
+\entryheader[e17]{1.7\quad Variables indexadas --- \py{addVars} y \py{multidict}}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -355,7 +417,7 @@ expr = x.sum("A", "*")
 \secheader{2}{Restricciones b\'asicas}
 % ══════════════════════════════════════════════════════════════════
 
-\entryheader{2.1\quad Igualdad}
+\entryheader[e21]{2.1\quad Igualdad}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -378,7 +440,7 @@ m.addConstr(
 
 \vspace{4pt}
 
-\entryheader{2.2\quad Desigualdad $\leq$ con suma ponderada por $a_i$}
+\entryheader[e22]{2.2\quad Desigualdad $\leq$ con suma ponderada por $a_i$}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -399,7 +461,7 @@ m.addConstr(
 
 \vspace{4pt}
 
-\entryheader{2.3\quad Desigualdad $\geq$ --- con restriccion de elementos en $I$}
+\entryheader[e23]{2.3\quad Desigualdad $\geq$ --- con restriccion de elementos en $I$}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -417,7 +479,7 @@ m.addConstr(
 
 \vspace{4pt}
 
-\entryheader{2.4\quad Restricciones indexadas con elementos excluidos de $I$ --- Loops}
+\entryheader[e24]{2.4\quad Restricciones indexadas con elementos excluidos de $I$ --- Loops}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -437,7 +499,7 @@ for i in I:
 
 \vspace{4pt}
 
-\entryheader{2.5\quad Restricciones indexadas --- Vectorizadas con \py{addConstrs} y \py{quicksum}}
+\entryheader[e25]{2.5\quad Restricciones indexadas --- Vectorizadas con \py{addConstrs} y \py{quicksum}}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -461,7 +523,7 @@ m.addConstrs(
 
 \vspace{4pt}
 
-\entryheader{2.6\quad Rango (restricci\'on doble)}
+\entryheader[e26]{2.6\quad Rango (restricci\'on doble)}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -491,7 +553,7 @@ m.addConstr(expr <= 5, name="rango_ub")
 \secheader{3}{Sumas y \texttt{quicksum}}
 % ══════════════════════════════════════════════════════════════════
 
-\entryheader{3.1\quad \py{quicksum} vs \py{sum} de Python}
+\entryheader[e31]{3.1\quad \py{quicksum} vs \py{sum} de Python}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -516,7 +578,7 @@ expr_lenta = sum(c[i] * x[i] for i in I)
 
 \vspace{4pt}
 
-\entryheader{3.2\quad Objetivo lineal}
+\entryheader[e32]{3.2\quad Objetivo lineal}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -534,7 +596,7 @@ m.setObjective(
 
 \vspace{4pt}
 
-\entryheader{3.3\quad Suma doble (multi-\'indice)}
+\entryheader[e33]{3.3\quad Suma doble (multi-\'indice)}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -561,7 +623,7 @@ m.setObjective(obj, GRB.MINIMIZE)
 
 \vspace{4pt}
 
-\entryheader{3.4\quad Objetivos con suma doble (multi-\'indice)}
+\entryheader[e34]{3.4\quad Objetivos con suma doble (multi-\'indice)}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -594,7 +656,7 @@ m.setObjective(obj, GRB.MINIMIZE)
 \secheader{4}{Variables binarias y Big-M}
 % ══════════════════════════════════════════════════════════════════
 
-\entryheader{4.1\quad Activaci\'on: $y_i = 1 \Rightarrow x_i \leq M$ y $y_i = 0 \Rightarrow x_i = 0$}
+\entryheader[e41]{4.1\quad Activaci\'on: $y_i = 1 \Rightarrow x_i \leq M$ y $y_i = 0 \Rightarrow x_i = 0$}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -622,7 +684,7 @@ for i in I:
 
 \vspace{4pt}
 
-\entryheader{4.2\quad Equivalencia: $y_i = 1 \Leftrightarrow x_i > 0$}
+\entryheader[e42]{4.2\quad Equivalencia: $y_i = 1 \Leftrightarrow x_i > 0$}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -649,7 +711,7 @@ for i in I:
 
 \vspace{4pt}
 
-\entryheader{4.3\quad \py{addGenConstrIndicator} --- implicaci\'on limpia}
+\entryheader[e43]{4.3\quad \py{addGenConstrIndicator} --- implicaci\'on limpia}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -682,7 +744,7 @@ for i in I:
 \secheader{5}{Restricciones multi-\'indice}
 % ══════════════════════════════════════════════════════════════════
 
-\entryheader{5.1\quad Para todo par $(i,\,j)$}
+\entryheader[e51]{5.1\quad Para todo par $(i,\,j)$}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -703,7 +765,7 @@ for i in I:
 
 \vspace{4pt}
 
-\entryheader{5.2\quad Suma por fila y por columna}
+\entryheader[e52]{5.2\quad Suma por fila y por columna}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -731,7 +793,7 @@ for j in J:
 
 \vspace{4pt}
 
-\entryheader{5.3\quad Doble suma con filtro}
+\entryheader[e53]{5.3\quad Doble suma con filtro}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -768,7 +830,7 @@ for t in T:
 \secheader{6}{Restricciones de red}
 % ══════════════════════════════════════════════════════════════════
 
-\entryheader{6.1\quad Conservaci\'on de flujo}
+\entryheader[e61]{6.1\quad Conservaci\'on de flujo}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -803,7 +865,7 @@ for i in nodes:
 
 \vspace{4pt}
 
-\entryheader{6.2\quad Capacidad de arco con apertura binaria}
+\entryheader[e62]{6.2\quad Capacidad de arco con apertura binaria}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -828,7 +890,7 @@ for a in arcs:
 
 \vspace{4pt}
 
-\entryheader{6.3\quad Asignaci\'on: exactamente uno activo}
+\entryheader[e63]{6.3\quad Asignaci\'on: exactamente uno activo}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -850,7 +912,7 @@ m.addConstr(
 \secheader{7}{Linealizaci\'on de no-linealidades}
 % ══════════════════════════════════════════════════════════════════
 
-\entryheader{7.1\quad Valor absoluto: $t = |x|$}
+\entryheader[e71]{7.1\quad Valor absoluto: $t = |x|$}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -881,7 +943,7 @@ m.addGenConstrAbs(t, x, name="abs_x")
 
 \vspace{4pt}
 
-\entryheader{7.2\quad M\'aximo: $t = \max_i x_i$}
+\entryheader[e72]{7.2\quad M\'aximo: $t = \max_i x_i$}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -913,7 +975,7 @@ m.addGenConstrMax(
 
 \vspace{4pt}
 
-\entryheader{7.3\quad M\'inimo: $t = \min_i x_i$}
+\entryheader[e73]{7.3\quad M\'inimo: $t = \min_i x_i$}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -939,7 +1001,7 @@ m.addGenConstrMin(
 \secheader{8}{Avanzado}
 % ══════════════════════════════════════════════════════════════════
 
-\entryheader{8.1\quad Par\'ametros del solver y lectura de resultados}
+\entryheader[e81]{8.1\quad Par\'ametros del solver y lectura de resultados}
 \noindent
 \begin{minipage}[t]{\mathcolw}
     \begin{tcolorbox}[mathbox]
@@ -966,6 +1028,141 @@ if m.Status == GRB.OPTIMAL:
     print(f"Runtime:  {m.Runtime:.1f}s")
     sol = {i: x[i].X for i in I}  # .X = valor optimo
 \end{lstlisting}
+\end{minipage}
+
+
+% ══════════════════════════════════════════════════════════════════
+\secheader{9}{An\'alisis de sensibilidad post-optimizaci\'on}
+% ══════════════════════════════════════════════════════════════════
+
+\entryheader[e91]{9.1\quad Precios sombra (\textit{dual values})}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\lambda_i = \dfrac{\partial z^*}{\partial b_i}$\\[6pt]
+        $\Delta z^* \approx \lambda_i \cdot \Delta b_i$\\[4pt]
+        $\forall\; i \in \text{restricciones}$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Solo LP (no MIP directo). En min: $\lambda_i > 0$ $\Rightarrow$ relajar $b_i$ reduce $z^*$. Restricci\'on ``cara'': activa con $\lambda_i \neq 0$.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+m.optimize()  # LP requerido para analisis de sensibilidad
+
+for c in m.getConstrs():
+    print(f"{c.ConstrName:15s}  Pi = {c.Pi:+.4f}")
+
+# Pi = -2.5 (min): relajar b_i en 1 reduce z* en 2.5
+c_cap = m.getConstrByName("capacidad")
+print(f"precio sombra: {c_cap.Pi:.4f}")
+    \end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader[e92]{9.2\quad Holguras (\textit{slack\,/\,surplus})}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $s_i = b_i - \displaystyle\sum_j a_{ij}\,x_j^*$\\[4pt]
+        $s_i = 0$:\enspace restricci\'on activa\\[2pt]
+        $s_i > 0$:\enspace restricci\'on inactiva
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Restricci\'on inactiva $\Rightarrow\;\lambda_i = 0$. Para $\geq$:\; $s_i = \text{lhs} - b_i$. Disponible en LP y MIP.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+for c in m.getConstrs():
+    activa = abs(c.Slack) < 1e-6
+    estado = "activa" if activa else "inactiva"
+    print(f"{c.ConstrName}: slack={c.Slack:.4f}  [{estado}]")
+    \end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader[e93]{9.3\quad Costos reducidos (\textit{reduced costs})}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $\bar{c}_j = c_j - \mathbf{c}_B^\top \mathbf{B}^{-1} \mathbf{a}_j$\\[6pt]
+        Var.\ b\'asica:\enspace $\bar{c}_j = 0$\\[2pt]
+        No b\'asica (min):\enspace $\bar{c}_j \geq 0$
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        $|\bar{c}_j|$ = cu\'anto debe cambiar $c_j$ para que $x_j$ entre a la base. Si $x_j^* > 0$, entonces RC $= 0$.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+for v in m.getVars():
+    estado = "basica" if abs(v.RC) < 1e-6 else "no basica"
+    print(
+        f"{v.VarName:10s}  x*={v.X:.4f}"
+        f"  RC={v.RC:+.4f}  [{estado}]"
+    )
+    \end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader[e94]{9.4\quad Ranging del RHS}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $b_i \in [\text{Low}_i,\;\text{Up}_i]$\\[6pt]
+        $\lambda_i$ constante en ese\\ intervalo (misma base)\\[4pt]
+        Fuera del rango:\\ la base cambia
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        \py{SARHSLow/Up}: l\'imites de $b_i$ donde $\lambda_i$ sigue siendo v\'alido. Si $b_i$ sale del rango, la base cambia.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+for c in m.getConstrs():
+    print(
+        f"{c.ConstrName:15s}"
+        f"  b_i in [{c.SARHSLow:.3f}, {c.SARHSUp:.3f}]"
+        f"  Pi={c.Pi:.4f}"
+    )
+# [Low, Up]: intervalo donde lambda_i permanece constante
+    \end{lstlisting}
+\end{minipage}
+
+\vspace{4pt}
+
+\entryheader[e95]{9.5\quad Ranging de coeficientes objetivo}
+\noindent
+\begin{minipage}[t]{\mathcolw}
+    \begin{tcolorbox}[mathbox]
+        $c_j \in [\text{Low}_j,\;\text{Up}_j]$\\[6pt]
+        Base \'optima no cambia\\ en ese intervalo
+    \end{tcolorbox}
+    \vspace{2pt}
+    \begin{tcolorbox}[notebox]
+        Fuera del rango, otra variable puede entrar a la base y $x^*$ cambia. \'Util para evaluar robustez frente a cambios en costos.
+    \end{tcolorbox}
+\end{minipage}\hspace{0.02\textwidth}%
+\begin{minipage}[t]{\codecolw}
+    \begin{lstlisting}[style=gurobipy]
+for v in m.getVars():
+    print(
+        f"{v.VarName:10s}"
+        f"  c_j={v.Obj:.3f}"
+        f"  in [{v.SAObjLow:.3f}, {v.SAObjUp:.3f}]"
+    )
+# SAObjLow/Up: rango de c_j donde la base actual
+# sigue siendo optima (misma solucion x*)
+    \end{lstlisting}
 \end{minipage}
 
 \vspace{14pt}
