@@ -25,3 +25,9 @@ out/
 ## --- Archivos del sistema ---
 .DS_Store
 Thumbs.db
+
+## --- Python / Poetry ---
+.venv/
+__pycache__/
+*.pyc
+*.pyo

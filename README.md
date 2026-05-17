@@ -2,6 +2,63 @@
 
 # Resources / Apps
 
+## Entorno Python (Poetry)
+
+### Requisitos previos
+
+- **Python 3.11+** — se recomienda usar [pyenv](https://github.com/pyenv/pyenv) para gestionar versiones.
+- **Poetry 1.8+** — gestor de dependencias y entornos virtuales.
+
+```bash
+# Instalar pyenv (si no lo tienes)
+brew install pyenv
+
+# Instalar Python 3.12
+pyenv install 3.12.9
+pyenv local 3.12.9   # crea .python-version en el proyecto
+
+# Instalar Poetry (si no lo tienes)
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+### Montar el entorno
+
+```bash
+# Clonar el repositorio y entrar al directorio
+git clone <repo-url>
+cd university-notes
+
+# Instalar todas las dependencias (crea el virtualenv automáticamente)
+poetry install
+
+# Activar el entorno en la shell actual
+poetry shell
+```
+
+> **Nota:** Poetry crea el virtualenv dentro del proyecto si configuras `poetry config virtualenvs.in-project true`, lo que facilita que VS Code lo detecte automáticamente.
+
+### Abrir JupyterLab
+
+Con el entorno activo:
+
+```bash
+poetry run jupyter lab
+```
+
+O si ya ejecutaste `poetry shell`:
+
+```bash
+jupyter lab
+```
+
+Esto abre JupyterLab en el navegador en `http://localhost:8888`. Para especificar un directorio de trabajo distinto:
+
+```bash
+poetry run jupyter lab --notebook-dir=./semester_1
+```
+
+---
+
 ## Configuración de LaTeX en Visual Studio Code
 
 Este repositorio contiene la configuración necesaria para trabajar con documentos LaTeX de manera profesional utilizando **Visual Studio Code (VS Code)** como IDE principal.
