@@ -1,0 +1,38 @@
+.gitignore
+  s_cadeb70782d812::t_ebec5c51291210 27-33
+README.md
+  s_182a38ef75bc11::t_95e11a1a86c203 5-61
+pyproject.toml
+  h_31c9995c9558a3 5,10-11,13-23,25-31,35-60
+  s_182a38ef75bc11::t_b67403eda0fd38 12
+  s_cadeb70782d812::t_d69c4189333814 1-4,6-9,24,32-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "0c8ef7724f590077eaa7870441c72c07b80a0a79",
+  "prompts": {},
+  "humans": {
+    "h_31c9995c9558a3": {
+      "author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  },
+  "sessions": {
+    "s_182a38ef75bc11": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "00103a9d-d6dd-4fa1-b08c-70285907380a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    },
+    "s_cadeb70782d812": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9c9ed281-f6dd-42b8-a1ef-719f84b67571",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  }
+}
