@@ -1,0 +1,25 @@
+semester_1/mathematical_programming/exercises/coding_exam/part_B_Hurtado.py
+  s_5bc125f35a80a3::t_de61198d048524 55-56
+  h_31c9995c9558a3 3-4,14,53-54,70-71,78-79,82,87-88,94-95,100-101,106-110,123,152-157,202,208-209,211,218
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "14f2bef320ab38ddb81fb15291e9ff1877d1b1d4",
+  "prompts": {},
+  "humans": {
+    "h_31c9995c9558a3": {
+      "author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  },
+  "sessions": {
+    "s_5bc125f35a80a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e45cad1d-cc16-493e-bb1f-41a57a1e1a9d",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  }
+}
