@@ -1,0 +1,32 @@
+semester_1/mathematical_programming/exercises/transport_problem.py
+  s_182a38ef75bc11::t_48376185741780 1-205
+semester_1/mathematical_programming/exercises/coding_exam/part_B_Hurtado.py
+  ai_agent 1-253
+semester_1/mathematical_programming/exercises/coding_exam/report_Hurtado.tex
+  ai_agent 1-335
+semester_1/mathematical_programming/exercises/coding_exam/part_A_Hurtado.py
+  h_31c9995c9558a3 1-392
+semester_1/mathematical_programming/exercises/transport_problem.ipynb
+  s_182a38ef75bc11::t_5dda739bdc4f43 1-2139,2141-2151,2155-2159
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "f17e7b273ca7c6db8d692a97eb24dc7e70f82d6a",
+  "prompts": {},
+  "humans": {
+    "h_31c9995c9558a3": {
+      "author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  },
+  "sessions": {
+    "s_182a38ef75bc11": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "00103a9d-d6dd-4fa1-b08c-70285907380a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  }
+}
