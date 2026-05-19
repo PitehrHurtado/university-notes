@@ -1,9 +1,9 @@
 """
 part_B_Hurtado.py
+
+Name: Pitehr Hurtado-Cayo
 =================
-Part B of the Ph.D. Coding Exam — Minimum Lot Size + Setup Cost extension.
-Adds binary delta_{m,k,t} variables, Big-M and minimum-lot constraints, and
-per-setup costs to the base MILP, then compares the two optimal plans.
+Part B of the Coding Exam — Minimum Lot Size + Setup Cost extension.
 """
 
 import os
@@ -11,10 +11,11 @@ import pandas as pd
 import gurobipy as gp
 from gurobipy import GRB, quicksum
 
+# Set script directory for saving figures and ouptuts
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ===========================================================================
-# 1. SETS & PARAMETERS  (self-contained; identical to Part A)
+# 1. SETS & PARAMETERS  (identical to Part A)
 # ===========================================================================
 K = ['A', 'B', 'C']
 M = ['F1', 'F2']
@@ -49,12 +50,14 @@ epsilon = 0.25
 # Part B specific
 L_min  = {'A': 25, 'B': 20, 'C': 15}
 SC     = {(m, k): 50 for m in M for k in K}
-M_big  = {(m, k, t): (H_reg[m,t] + H_ov[m,t]) / a_mach[m,k]
-          for m in M for k in K for t in T}
+
+# artigicial parameter used hardcoded
+_M_big_k = {'A': 140, 'B': 100, 'C': 175}
+M_big  = {(m, k, t): _M_big_k[k] for m in M for k in K for t in T}
 
 
 # ===========================================================================
-# 2. SHARED CONSTRAINT BUILDER (adds constraints (2)-(10) to any model)
+# 2. SHARED CONSTRAINT BUILDER (adds constraints (2)-(10))
 # ===========================================================================
 
 def _add_base_constraints(mdl, x, y, inv, bkd, ot, z):
@@ -64,50 +67,51 @@ def _add_base_constraints(mdl, x, y, inv, bkd, ot, z):
             mdl.addConstr(
                 inv[k,t] == inv_prev
                            + quicksum(x[m,k,t] for m in M)
-                           - quicksum(y[j,k,t] for j in J)
+                           - quicksum(y[j,k,t] for j in J),
+                name=f'inv_bal_{k}_{t}'
             )
     for k in K:
         for t in T:
             bkd_prev = 0 if t == 1 else bkd[k, t-1]
             mdl.addConstr(
                 quicksum(y[j,k,t] for j in J) + bkd[k,t]
-                == quicksum(D[j,k,t] for j in J) + bkd_prev
+                == quicksum(D[j,k,t] for j in J) + bkd_prev,
+                name=f'backorder_bal_{k}_{t}'
             )
     for k in K:
-        mdl.addConstr(bkd[k, 4] == 0)
+        mdl.addConstr(bkd[k, 4] == 0, name=f'backorder_final_{k}')
     for k in K:
         for t in T:
             mdl.addConstr(
                 quicksum(y[j,k,t] for j in J)
-                >= rho[k] * quicksum(D[j,k,t] for j in J)
+                >= rho[k] * quicksum(D[j,k,t] for j in J),
+                name=f'service_{k}_{t}'
             )
-    for k in K:
-        for t in T:
-            mdl.addConstr(inv[k,t] <= S_cap[k])
     for m in M:
         for t in T:
             mdl.addConstr(
                 quicksum(a_mach[m,k] * x[m,k,t] for k in K)
-                <= H_reg[m,t] * z[m,t] + ot[m,t]
+                <= H_reg[m,t] * z[m,t] + ot[m,t],
+                name=f'hours_used_{m}_{t}'
             )
     for m in M:
         for t in T:
-            mdl.addConstr(ot[m,t] <= H_ov[m,t] * z[m,t])
+            mdl.addConstr(
+                ot[m,t] <= H_ov[m,t] * z[m,t],
+                name=f'overtime_lim_{m}_{t}'    
+            )
     for k in K:
         for t in T:
             if t >= 2:
-                mdl.addConstr(
-                    quicksum(x[m,k,t] for m in M)
-                    <= (1 + epsilon) * quicksum(x[m,k,t-1] for m in M)
-                )
-                mdl.addConstr(
-                    quicksum(x[m,k,t] for m in M)
-                    >= (1 - epsilon) * quicksum(x[m,k,t-1] for m in M)
-                )
+                X_kt = quicksum(x[m,k,t]  for m in M)
+                X_kt_1 = quicksum(x[m,k,t-1] for m in M)
+                mdl.addConstr(X_kt <= (1 + epsilon) * X_kt_1, name=f'smooth_up_{k}_{t}')
+                mdl.addConstr(X_kt >= (1 - epsilon) * X_kt_1, name=f'smooth_down_{k}_{t}')
+
 
 
 # ===========================================================================
-# 3. BUILD PART A (base model, for comparison)
+# 3. BUILD PART A (base model)
 # ===========================================================================
 
 def build_part_A():
@@ -116,7 +120,7 @@ def build_part_A():
 
     x   = mdl.addVars(M, K, T, vtype=GRB.CONTINUOUS, lb=0, name='x')
     y   = mdl.addVars(J, K, T, vtype=GRB.CONTINUOUS, lb=0, name='y')
-    inv = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, name='inv')
+    inv = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, ub=200, name='inv')
     bkd = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, name='bkd')
     ot  = mdl.addVars(M, T, vtype=GRB.CONTINUOUS,    lb=0, name='ot')
     z   = mdl.addVars(M, T, vtype=GRB.BINARY,              name='z')
@@ -145,10 +149,12 @@ def build_part_B():
 
     x     = mdl.addVars(M, K, T, vtype=GRB.CONTINUOUS, lb=0, name='x')
     y     = mdl.addVars(J, K, T, vtype=GRB.CONTINUOUS, lb=0, name='y')
-    inv   = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, name='inv')
-    bkd   = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, name='bkd')
-    ot    = mdl.addVars(M, T, vtype=GRB.CONTINUOUS,    lb=0, name='ot')
-    z     = mdl.addVars(M, T, vtype=GRB.BINARY,              name='z')
+    inv   = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, name='inventory')
+    bkd   = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, name='backorder')
+    ot    = mdl.addVars(M, T, vtype=GRB.CONTINUOUS,    lb=0, name='overtime')
+    z     = mdl.addVars(M, T, vtype=GRB.BINARY,              name='furnace_used')
+
+    # delta[m,k,t] = 1 if we pay setup cost for producing product k in furnace m at time t, 0 otherwise
     delta = mdl.addVars(M, K, T, vtype=GRB.BINARY,           name='delta')
 
     # Objective: base costs + setup costs
@@ -166,7 +172,7 @@ def build_part_B():
     # Base constraints (2)-(10)
     _add_base_constraints(mdl, x, y, inv, bkd, ot, z)
 
-    # New constraints: Big-M side and minimum-lot side
+    # New constraints: Big-M and minimum-lot
     for m in M:
         for k in K:
             for t in T:
@@ -193,27 +199,23 @@ print("\n" + "="*70)
 print("  B.2 — PART B: MINIMUM LOT SIZE + SETUP COST")
 print("="*70)
 
-print("\nSolving Part A base model (for comparison)...")
+print("\nSolving Part A base model...")
 mdl_A, x_A = build_part_A()
-if mdl_A.Status != GRB.OPTIMAL:
-    raise SystemExit(f"Part A not optimal in Part B script (status {mdl_A.Status})")
 print(f"Part A optimal cost  : {mdl_A.ObjVal:,.4f}")
 
 print("\nSolving Part B extended model...")
 mdl_B, x_B, delta_B = build_part_B()
-if mdl_B.Status != GRB.OPTIMAL:
-    raise SystemExit(f"Part B not optimal (status {mdl_B.Status})")
-print(f"Part B optimal cost  : {mdl_B.ObjVal:,.4f}")
-print(f"Cost increase        : {mdl_B.ObjVal - mdl_A.ObjVal:+,.4f}")
+print(f"Part B optimal cost    : {mdl_B.ObjVal:,.4f}")
+print(f"Cost Delta (FO_B-FO_A) : {mdl_B.ObjVal - mdl_A.ObjVal:.4f}")
 
-# Count and list setups
+# ii) Count and list setups
 setups = [(m, k, t) for m in M for k in K for t in T if delta_B[m,k,t].X > 0.5]
 print(f"\nNumber of (m,k,t) setups paid: {len(setups)}")
 print("Setup list:")
 for m, k, t in setups:
     print(f"  delta[{m},{k},{t}]=1  x={x_B[m,k,t].X:.4f}")
 
-# Side-by-side comparison table X^(A) vs X^(B)
+# iii) Side-by-side comparison table X^(A) vs X^(B)
 rows = []
 for m in M:
     for k in K:
@@ -249,5 +251,3 @@ df_agg = pd.DataFrame(rows3)
 print(df_agg.to_string(index=False))
 
 print("\n" + "="*70)
-print("  [Part B complete]")
-print("="*70 + "\n")
