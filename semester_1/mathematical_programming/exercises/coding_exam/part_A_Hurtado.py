@@ -238,6 +238,22 @@ x_v, y_v, inv_v, bkd_v, ot_v, z_v = (
 # ===========================================================================
 print(f"\nOptimal objective value: {mdl.ObjVal:,.4f}\n")
 
+# print costs breakdown
+cost_prod = sum(CP[m,k,t] * x_v[m,k,t].X for m in M for k in K for t in T)
+cost_trans = sum(CT[j,k,t] * y_v[j,k,t].X for j in J for k in K for t in T)
+cost_fixed = sum(CF[m,t] * z_v[m,t].X for m in M for t in T)
+cost_ot    = sum(cov_base[m,t] * ot_v[m,t].X for m in M for t in T)
+cost_hold  = sum(CH_base[k] * inv_v[k,t].X for k in K for t in T)
+cost_bkd  = sum(CB[k] * bkd_v[k,t].X for k in K for t in T)
+
+print(f"Cost breakdown:")
+print(f"  Production cost: ${cost_prod:,.2f} - share: {cost_prod/mdl.ObjVal:.1%}")
+print(f"  Transportation cost: ${cost_trans:,.2f} - share: {cost_trans/mdl.ObjVal:.1%}")
+print(f"  Fixed furnace cost: ${cost_fixed:,.2f} - share: {cost_fixed/mdl.ObjVal:.1%}")
+print(f"  Overtime cost: ${cost_ot:,.2f} - share: {cost_ot/mdl.ObjVal:.1%}")
+print(f"  Holding cost: ${cost_hold:,.2f} - share: {cost_hold/mdl.ObjVal:.1%}")
+print(f"  Backorder cost: ${cost_bkd:,.2f} - share: {cost_bkd/mdl.ObjVal:.1%}\n")
+
 # ===========================================================================
 # ii) Actual Demand / Optimal production / delivery / inventory / backorder table
 # ===========================================================================
