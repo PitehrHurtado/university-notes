@@ -92,7 +92,7 @@ epsilon = 0.25
 # 3. MODEL BUILDER
 # ===========================================================================
 
-def build_and_solve(alpha=1.0, beta=1.0):
+def build_and_solve(alpha=1.0, beta=1.0, output_flag=False):
     """
     Params:
     alpha : multiplier on holding costs CH_k -> alpha * CH_k
@@ -103,17 +103,34 @@ def build_and_solve(alpha=1.0, beta=1.0):
     Returns (model, vars_dict) or (None, None) if not optimal.
     """
     mdl = gp.Model("production_planning_problem")
+    mdl.setParam('OutputFlag', 1 if output_flag else 0)  # Suppress Gurobi output
 
+    # Adjusted costs based on sensitivity parameters
     CH  = {k: alpha * CH_base[k] for k in K}
     cov = {(m, t): beta * cov_base[m, t] for m in M for t in T}
 
+    # ===================================================================================
     # Variables
+    # ===================================================================================
+    # x[m,k,t] = unit of k produced on furnace m in period t
     x   = mdl.addVars(M, K, T, vtype=GRB.CONTINUOUS, lb=0, name='x')
+
+    # y[j,k,t] = unit of k delivered to DC j in period t
     y   = mdl.addVars(J, K, T, vtype=GRB.CONTINUOUS, lb=0, name='y')
-    inv = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, name='inv')
-    bkd = mdl.addVars(K, T, vtype=GRB.CONTINUOUS,    lb=0, name='bkd')
-    ot  = mdl.addVars(M, T, vtype=GRB.CONTINUOUS,    lb=0, name='ot')
-    z   = mdl.addVars(M, T, vtype=GRB.BINARY,              name='z')
+
+    # inv[k,t] = physical inventory of k at end of period t
+    # note: I can limit inventory to 200 units (S_cap).
+    # Contraint (6) will enforce this, but adding an upper bound here can help the solver.
+    inv = mdl.addVars(K, T, vtype=GRB.CONTINUOUS, lb=0, ub=200, name='inventory')
+
+    # bkd[k,t] = cumulativebackorder of k at end of period t
+    bkd = mdl.addVars(K, T, vtype=GRB.CONTINUOUS, lb=0, name='backorder')
+    
+    # ot[m,t] = overtime hours used on furnace m in period t
+    ot  = mdl.addVars(M, T, vtype=GRB.CONTINUOUS, lb=0, name='overtime')
+
+    # z[m,t] = binary variable indicating if furnace m is used in period t
+    z   = mdl.addVars(M, T, vtype=GRB.BINARY, name='furnace_used')
 
     # Objective (1)
     mdl.setObjective(
@@ -144,12 +161,12 @@ def build_and_solve(alpha=1.0, beta=1.0):
             mdl.addConstr(
                 quicksum(y[j,k,t] for j in J) + bkd[k,t]
                 == quicksum(D[j,k,t] for j in J) + bkd_prev,
-                name=f'bo_bal_{k}_{t}'
+                name=f'backorder_bal_{k}_{t}'
             )
 
     # (4) Final backorders = 0
     for k in K:
-        mdl.addConstr(bkd[k, 4] == 0, name=f'bo_final_{k}')
+        mdl.addConstr(bkd[k, len(T)] == 0, name=f'backorder_final_{k}')
 
     # (5) Service level
     for k in K:
@@ -161,9 +178,10 @@ def build_and_solve(alpha=1.0, beta=1.0):
             )
 
     # (6) Inventory cap
-    for k in K:
-        for t in T:
-            mdl.addConstr(inv[k,t] <= S_cap[k], name=f'inv_cap_{k}_{t}')
+    # Note: I already set an UB of 200 in inv[k,t] when defining the variable, so this constraint is redundant
+    # for k in K:
+    #     for t in T:
+    #         mdl.addConstr(inv[k,t] <= S_cap[k], name=f'inv_cap_{k}_{t}')
 
     # (7) Machine hours
     for m in M:
@@ -171,22 +189,26 @@ def build_and_solve(alpha=1.0, beta=1.0):
             mdl.addConstr(
                 quicksum(a_mach[m,k] * x[m,k,t] for k in K)
                 <= H_reg[m,t] * z[m,t] + ot[m,t],
-                name=f'hours_{m}_{t}'
+                name=f'hours_used_{m}_{t}'
             )
 
     # (8) Overtime limit
     for m in M:
         for t in T:
-            mdl.addConstr(ot[m,t] <= H_ov[m,t] * z[m,t], name=f'ot_lim_{m}_{t}')
+            mdl.addConstr(
+                ot[m,t] <= H_ov[m,t] * z[m,t], 
+                name=f'overtime_lim_{m}_{t}'
+            )
 
     # (9)-(10) Production smoothing
     for k in K:
         for t in T:
             if t >= 2:
-                X_t   = quicksum(x[m,k,t]   for m in M)
-                X_tm1 = quicksum(x[m,k,t-1] for m in M)
-                mdl.addConstr(X_t <= (1 + epsilon) * X_tm1, name=f'smooth_up_{k}_{t}')
-                mdl.addConstr(X_t >= (1 - epsilon) * X_tm1, name=f'smooth_dn_{k}_{t}')
+                X_kt = quicksum(x[m,k,t]  for m in M)
+                X_kt_1 = quicksum(x[m,k,t-1] for m in M)
+
+                mdl.addConstr(X_kt <= (1 + epsilon) * X_kt_1, name=f'smooth_up_{k}_{t}')
+                mdl.addConstr(X_kt >= (1 - epsilon) * X_kt_1, name=f'smooth_down_{k}_{t}')
 
     mdl.optimize()
 
@@ -206,15 +228,19 @@ print("="*70)
 
 mdl, vs = build_and_solve(alpha=1.0, beta=1.0, output_flag=True)
 if mdl is None:
-    raise SystemExit("Base model infeasible!")
+    raise SystemExit("Base model infeasible, sad!")
 
 x_v, y_v, inv_v, bkd_v, ot_v, z_v = (
     vs['x'], vs['y'], vs['inv'], vs['bkd'], vs['ot'], vs['z']
 )
-
+# ===========================================================================
+# i) Optimal objective value
+# ===========================================================================
 print(f"\nOptimal objective value: {mdl.ObjVal:,.4f}\n")
 
-# Production / delivery / inventory / backorder table
+# ===========================================================================
+# ii) Actual Demand / Optimal production / delivery / inventory / backorder table
+# ===========================================================================
 rows = []
 for k in K:
     for t in T:
@@ -232,10 +258,12 @@ for k in K:
             'B_kt': round(B_kt, 4),
         })
 df_prod = pd.DataFrame(rows)
-print("Production / Delivery / Inventory / Backorder Table:")
+print("Demand / Production / Delivery / Inventory / Backorder Table:")
 print(df_prod.to_string(index=False))
 
-# Furnace schedule table
+# ===========================================================================
+# iii) Furnace table (z[m,t], hours used, overtime used)
+# ===========================================================================
 rows2 = []
 for m in M:
     for t in T:
@@ -251,43 +279,28 @@ for m in M:
             'Total hrs used': round(hours_used, 4),
         })
 df_furn = pd.DataFrame(rows2)
-print("\nFurnace Schedule Table:")
+print("\nFurnace Table:")
 print(df_furn.to_string(index=False))
-
-# Cost breakdown
-cost_prod  = sum(CP[m,k,t]     * x_v[m,k,t].X  for m in M for k in K for t in T)
-cost_trans = sum(CT[j,k,t]     * y_v[j,k,t].X  for j in J for k in K for t in T)
-cost_act   = sum(CF[m,t]       * z_v[m,t].X    for m in M for t in T)
-cost_ot    = sum(cov_base[m,t] * ot_v[m,t].X   for m in M for t in T)
-cost_hold  = sum(CH_base[k]    * inv_v[k,t].X  for k in K for t in T)
-cost_bo    = sum(CB[k]         * bkd_v[k,t].X  for k in K for t in T)
-
-print("\nCost Breakdown:")
-print(f"  Production cost : {cost_prod:,.4f}")
-print(f"  Transport cost  : {cost_trans:,.4f}")
-print(f"  Activation cost : {cost_act:,.4f}")
-print(f"  Overtime cost   : {cost_ot:,.4f}")
-print(f"  Holding cost    : {cost_hold:,.4f}")
-print(f"  Backorder cost  : {cost_bo:,.4f}")
-print(f"  TOTAL           : {cost_prod+cost_trans+cost_act+cost_ot+cost_hold+cost_bo:,.4f}")
-
-# Store base x values for reporting
-X_base = {(m,k,t): x_v[m,k,t].X for m in M for k in K for t in T}
 
 # ===========================================================================
 # 5. A.2 — HOLDING-COST SENSITIVITY
 # ===========================================================================
 
 print("\n" + "="*70)
-print("  A.2 — HOLDING-COST SENSITIVITY  (alpha sweep, 25 points)")
+print("  A.2 — HOLDING-COST SENSITIVITY  (alpha sweep, 20 points)")
 print("="*70)
 
-alphas   = np.linspace(0, 5, 25)
+alphas   = np.linspace(0, 5, 20)
+print(
+    "Running sensitivity analysis on alpha (holding-cost multiplier):\n"
+    f" Testing values: {', '.join(f'{a:.2f}' for a in alphas)} \n"
+)
 costs_A2 = []
 invs_A2  = []
 
 for alpha in alphas:
-    m2, vs2 = build_and_solve(alpha=alpha, beta=1.0)
+    m2, vs2 = build_and_solve(alpha=alpha, beta=1.0, output_flag=False)
+    status_str = "Optimal" if m2 is not None and m2.Status == GRB.OPTIMAL else "Infeasible/Unbounded"
     if m2 is None:
         costs_A2.append(float('nan'))
         invs_A2.append(float('nan'))
@@ -295,9 +308,9 @@ for alpha in alphas:
         costs_A2.append(m2.ObjVal)
         total_inv = sum(vs2['inv'][k,t].X for k in K for t in T)
         invs_A2.append(total_inv)
-    print(f"  alpha={alpha:.3f}  cost={costs_A2[-1]:,.2f}  inv={invs_A2[-1]:.2f}")
+    print(f"{status_str}  alpha={alpha:.3f}  cost={costs_A2[-1]:,.2f}  inv={invs_A2[-1]:.2f}")
 
-kink_alpha = None
+kink_alpha = None # point where inventory drops to zero, indicating a shift from produce-ahead to just-in-time strategy
 for a_val, inv_val in zip(alphas, invs_A2):
     if inv_val < 1e-3:
         kink_alpha = a_val
@@ -335,15 +348,20 @@ print(f"Figure saved: {path_A2}")
 # ===========================================================================
 
 print("\n" + "="*70)
-print("  A.3 — OVERTIME-COST SENSITIVITY  (beta sweep, 20 points)")
+print("  A.3 — OVERTIME-COST SENSITIVITY  (beta sweep, 15 points)")
 print("="*70)
 
-betas    = np.linspace(0.5, 4.0, 20)
+betas    = np.linspace(0.5, 4.0, 15)
+print(
+    "Running sensitivity analysis on beta (overtime-cost multiplier):\n"
+    f" Testing values: {', '.join(f'{b:.2f}' for b in betas)} \n"
+)
 costs_A3 = []
 ots_A3   = []
 
 for beta in betas:
-    m3, vs3 = build_and_solve(alpha=1.0, beta=beta)
+    m3, vs3 = build_and_solve(alpha=1.0, beta=beta, output_flag=False)
+    status_str = "Optimal" if m3 is not None and m3.Status == GRB.OPTIMAL else "Infeasible/Unbounded"
     if m3 is None:
         costs_A3.append(float('nan'))
         ots_A3.append(float('nan'))
@@ -351,9 +369,9 @@ for beta in betas:
         costs_A3.append(m3.ObjVal)
         total_ot = sum(vs3['ot'][m,t].X for m in M for t in T)
         ots_A3.append(total_ot)
-    print(f"  beta={beta:.3f}  cost={costs_A3[-1]:,.2f}  overtime={ots_A3[-1]:.4f}")
+    print(f"{status_str}  beta={beta:.3f}  cost={costs_A3[-1]:,.2f}  overtime={ots_A3[-1]:.4f}")
 
-breakeven_beta = None
+breakeven_beta = None # point where overtime drops to zero, indicating that the overtime premium exceeds the marginal benefit of extra production
 for b_val, ot_val in zip(betas, ots_A3):
     if ot_val < 1e-3:
         breakeven_beta = b_val
@@ -388,5 +406,3 @@ plt.close(fig3)
 print(f"Figure saved: {path_A3}")
 
 print("\n" + "="*70)
-print("  [Part A complete]")
-print("="*70 + "\n")
