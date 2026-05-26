@@ -1,7 +1,30 @@
+semester_1/mathematical_programming/exercises/coding_exam/report_Hurtado.tex
+  s_5bc125f35a80a3::t_86d751d2af8253 2
+  s_5bc125f35a80a3::t_26043450d1c1c9 9,20,23,50-51,53-57,102-114,158-160,184,186-189,193,198,212,215-222,241-256,265-267
+  h_31c9995c9558a3 11-12,52,138,140,146,156-157,162,190,195-196,210-211,223,279
+  s_5bc125f35a80a3::t_49dc58e4980466 13
+  s_5bc125f35a80a3::t_a514bc627ebbfb 25-27,29,32-40,62-63,66-89,92-96,99-100,119-123,125,127-129,132-134,139,141-142,144,147,150-152,161,163-178,191,199-202,206-207,228-230,233-234,260-264,268-278
+semester_1/mathematical_programming/exercises/coding_exam/part_A_Hurtado.py
+  h_31c9995c9558a3 241-256
 ---
 {
   "schema_version": "authorship/3.0.0",
-  "git_ai_version": "1.5.2",
+  "git_ai_version": "1.4.10",
   "base_commit_sha": "41ded95c8e6759867a126a8c2f513060577ba5cc",
-  "prompts": {}
+  "prompts": {},
+  "humans": {
+    "h_31c9995c9558a3": {
+      "author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  },
+  "sessions": {
+    "s_5bc125f35a80a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e45cad1d-cc16-493e-bb1f-41a57a1e1a9d",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  }
 }

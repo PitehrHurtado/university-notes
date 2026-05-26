@@ -1,7 +1,56 @@
+semester_1/mathematical_programming/resumen/guide_python_01.tex
+  s_7d9a83227ff55d::t_8d3975ed0f58fc 833
+  s_7d9a83227ff55d::t_6e33f6bed75c41 322
+  s_7d9a83227ff55d::t_95b75cfe41a8c4 464
+  s_7d9a83227ff55d::t_46429b5f711ea0 278
+  s_7d9a83227ff55d::t_bef2ed1a0ffd97 254
+  s_7d9a83227ff55d::t_78ac3383255ba8 169-174,176-215,223-227
+  s_7d9a83227ff55d::t_3953149f75583b 111,114
+  s_7d9a83227ff55d::t_caa2a49d3ea46c 581
+  s_7d9a83227ff55d::t_5a816e78d0d059 482
+  s_7d9a83227ff55d::t_01f7a05e964cf7 175
+  s_7d9a83227ff55d::t_3f17ad54fb24a6 420
+  s_7d9a83227ff55d::t_d61ecf50db3841 599
+  s_7d9a83227ff55d::t_1badf5b99bc121 747
+  s_7d9a83227ff55d::t_ab42ab57679d02 216-222
+  s_7d9a83227ff55d::t_33fb5d354655f5 232
+  s_7d9a83227ff55d::t_53d8b20566c59b 16
+  s_7d9a83227ff55d::t_d5c4ac2533038c 123
+  s_7d9a83227ff55d::t_692dcd5d5f2d06 380
+  s_7d9a83227ff55d::t_4a71bd3f4dccdc 768
+  s_7d9a83227ff55d::t_8b9a0b27ba83b2 868
+  s_7d9a83227ff55d::t_b7de70d85909a9 946
+  s_7d9a83227ff55d::t_22d4bf9cfe148a 1033-1167
+  s_7d9a83227ff55d::t_78924418c65fd3 556
+  s_7d9a83227ff55d::t_46a6701a37557e 893
+  s_7d9a83227ff55d::t_4c7bd46fe6b5cc 915
+  s_7d9a83227ff55d::t_ab88429c138db9 443
+  s_7d9a83227ff55d::t_aeb96bf6a28616 714
+  s_7d9a83227ff55d::t_ded671a543f243 659
+  s_7d9a83227ff55d::t_1fe00afa671b81 351
+  s_7d9a83227ff55d::t_b59e31837e2a6d 502
+  s_7d9a83227ff55d::t_c2544d427913b6 796
+  s_7d9a83227ff55d::t_3446c7b5398423 302
+  s_7d9a83227ff55d::t_7408bfe4b1860c 98
+  s_7d9a83227ff55d::t_0568b3eba0c460 1004
+  s_7d9a83227ff55d::t_22c462132a1f91 526
+  s_7d9a83227ff55d::t_a2eb936507e7ad 626
+  s_7d9a83227ff55d::t_c3c8f4a328addd 687
+  s_7d9a83227ff55d::t_d272aaf15c6cc8 978
 ---
 {
   "schema_version": "authorship/3.0.0",
-  "git_ai_version": "1.5.2",
+  "git_ai_version": "1.4.8",
   "base_commit_sha": "2cb134d03aae2ed44ef0d9b96064dedf4f88d8c8",
-  "prompts": {}
+  "prompts": {},
+  "sessions": {
+    "s_7d9a83227ff55d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ac155936-a842-4c1f-858b-402a138f144c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitHurtado_Meli <pitehr.hurtado@mercadolibre.cl>"
+    }
+  }
 }
