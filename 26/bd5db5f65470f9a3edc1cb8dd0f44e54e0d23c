@@ -1,0 +1,19 @@
+semester_1/stochastic_model/resumen/module_02.tex
+  s_721144f2229e11::t_4c999e089d703f 1-1235
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "26bd5db5f65470f9a3edc1cb8dd0f44e54e0d23c",
+  "prompts": {},
+  "sessions": {
+    "s_721144f2229e11": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "da7321a2-3f0f-49a8-aae2-6da067b51490",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitehrHurtado <pitehr.hurtado.c@mail.pucv.cl>"
+    }
+  }
+}
