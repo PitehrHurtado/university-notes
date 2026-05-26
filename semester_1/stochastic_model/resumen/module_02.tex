@@ -1,0 +1,1235 @@
+% ─────────────────────────────────────────────────────────────────────────────
+%  Cadenas de Markov Homogéneas — Modelos Estocásticos
+%  Autor: P. Hurtado · 2026
+% ─────────────────────────────────────────────────────────────────────────────
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper, top=1.8cm, bottom=2.0cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, fit, backgrounds, decorations.pathreplacing}
+
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+\setlength{\headheight}{19pt}
+
+% ─── Numeración de ecuaciones por sección ────────────────────────────────────
+\numberwithin{equation}{section}
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{sectionbg}{rgb}{0.16,0.26,0.52}
+\definecolor{subsecbg}{rgb}{0.38,0.50,0.75}
+\definecolor{codeblue}{rgb}{0.0,0.28,0.68}
+\definecolor{notebg}{rgb}{1.0,0.97,0.87}
+\definecolor{noteborder}{rgb}{0.80,0.65,0.25}
+\definecolor{defbg}{rgb}{0.93,0.98,0.93}
+\definecolor{defborder}{rgb}{0.25,0.60,0.30}
+\definecolor{thmbg}{rgb}{0.92,0.95,1.0}
+\definecolor{thmborder}{rgb}{0.25,0.45,0.80}
+\definecolor{exbg}{rgb}{0.96,0.96,0.96}
+\definecolor{exborder}{rgb}{0.55,0.55,0.55}
+\definecolor{warnbg}{rgb}{1.0,0.94,0.93}
+\definecolor{warnborder}{rgb}{0.80,0.25,0.20}
+\definecolor{proofbg}{rgb}{0.98,0.97,1.0}
+\definecolor{proofborder}{rgb}{0.55,0.40,0.75}
+
+% ─── Hyperref ────────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=codeblue,
+  citecolor=codeblue,
+  urlcolor=codeblue,
+}
+
+% ─── Cabeceras ───────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\sffamily\color{sectionbg}Resumen de Probabilidad --- Modelos Estoc\'asticos}
+\fancyhead[R]{\footnotesize\sffamily\color{sectionbg}2026}
+\fancyfoot[C]{\footnotesize\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{subsecbg}\leaders\hrule height \headrulewidth\hfill}}
+
+% ─── tcolorbox styles ────────────────────────────────────────────────────────
+\tcbset{
+  defbox/.style={
+    enhanced,
+    colback=defbg, colframe=defborder,
+    boxrule=0.6pt, arc=3pt,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily,
+    coltitle=white, colbacktitle=defborder,
+    titlerule=0pt,
+    colupper=black,
+  },
+  thmbox/.style={
+    enhanced,
+    colback=thmbg, colframe=thmborder,
+    boxrule=0.6pt, arc=3pt,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily,
+    coltitle=white, colbacktitle=thmborder,
+    titlerule=0pt,
+  },
+  exbox/.style={
+    enhanced,
+    colback=exbg, colframe=exborder,
+    boxrule=0.4pt, arc=3pt,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily,
+    coltitle=white, colbacktitle=exborder,
+    titlerule=0pt,
+  },
+  notebox/.style={
+    colback=notebg, colframe=noteborder,
+    boxrule=0.4pt, arc=3pt,
+    left=5pt, right=5pt, top=4pt, bottom=4pt,
+    fontupper=\footnotesize\itshape,
+  },
+  warnbox/.style={
+    enhanced,
+    colback=warnbg, colframe=warnborder,
+    boxrule=0.6pt, arc=3pt,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily,
+    coltitle=white, colbacktitle=warnborder,
+    titlerule=0pt,
+    title={$\triangle$\ Atenci\'on},
+    fontupper=\small,
+  },
+  proofbox/.style={
+    enhanced,
+    colback=proofbg, colframe=proofborder!60,
+    boxrule=0.6pt, arc=3pt,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\itshape\sffamily,
+    coltitle=white, colbacktitle=proofborder!80,
+    titlerule=0pt,
+    title={Demostraci\'on},
+    fontupper=\small,
+  },
+}
+
+% ─── Helpers ─────────────────────────────────────────────────────────────────
+\newcommand{\secheader}[2]{%
+  \refstepcounter{section}%
+  \addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}%
+  \vspace{10pt}\needspace{6cm}\noindent%
+  \begin{tcolorbox}[
+    colback=sectionbg, colupper=white, colframe=sectionbg,
+    sharp corners, left=8pt, right=8pt, top=5pt, bottom=5pt,
+    fontupper=\large\bfseries\sffamily,
+  ]
+  Secci\'on #1:\enspace #2
+  \end{tcolorbox}\vspace{2pt}%
+}
+
+\newcommand{\subsecheader}[1]{%
+  \needspace{4cm}\vspace{6pt}\noindent%
+  \addcontentsline{toc}{subsection}{#1}%
+  \begin{tcolorbox}[
+    colback=subsecbg!18, colframe=subsecbg!45,
+    sharp corners, boxrule=0.4pt,
+    left=5pt, right=5pt, top=2pt, bottom=2pt,
+    fontupper=\small\bfseries\sffamily,
+  ]
+  #1
+  \end{tcolorbox}\vspace{1pt}%
+}
+
+% ─── Macros matemáticos (módulo 01) ──────────────────────────────────────────
+\newcommand{\Prob}[1]{\mathbb{P}\!\left(#1\right)}
+\newcommand{\E}[1]{\mathbb{E}\!\left[#1\right]}
+\newcommand{\Var}[1]{\mathrm{Var}\!\left(#1\right)}
+\newcommand{\Cov}[2]{\mathrm{Cov}\!\left(#1,\,#2\right)}
+\newcommand{\sigalg}{\mathcal{F}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\Borel}{\mathcal{B}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Nset}{\mathbb{N}}
+\DeclareMathOperator{\supp}{supp}
+
+% ─── Macros adicionales para cadenas de Markov ───────────────────────────────
+\newcommand{\Sset}{\mathcal{S}}                          % espacio de estados
+\newcommand{\Pmat}{\mathbf{P}}                           % matriz de transición
+\newcommand{\generator}{\mathbf{Q}}                      % generador infinitesimal
+\newcommand{\pij}[2]{p_{\,#1#2}}                         % prob. de transición 1 paso
+\newcommand{\pijn}[3]{p_{\,#1#2}^{(#3)}}                 % prob. en n pasos
+\newcommand{\fij}[2]{f_{\,#1#2}}                         % prob. de primer paso
+\newcommand{\muu}[1]{\mu_{#1}}                           % tiempo medio de retorno
+
+% ─── Contadores ──────────────────────────────────────────────────────────────
+\newcounter{defcount}[section]
+\renewcommand{\thedefcount}{\thesection.\arabic{defcount}}
+\newcounter{thmcount}[section]
+\renewcommand{\thethmcount}{\thesection.\arabic{thmcount}}
+\newcounter{excount}[section]
+\renewcommand{\theexcount}{\thesection.\arabic{excount}}
+
+% ─── Entornos ────────────────────────────────────────────────────────────────
+\newenvironment{definicion}[1]{%
+  \refstepcounter{defcount}%
+  \begin{tcolorbox}[defbox, title={Definici\'on \thedefcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{teorema}[1]{%
+  \refstepcounter{thmcount}%
+  \begin{tcolorbox}[thmbox, title={Teorema \thethmcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{proposicion}[1]{%
+  \refstepcounter{thmcount}%
+  \begin{tcolorbox}[thmbox, title={Proposici\'on \thethmcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{ejemplo}[1]{%
+  \refstepcounter{excount}%
+  \begin{tcolorbox}[exbox, title={Ejemplo \theexcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{nota}{\begin{tcolorbox}[notebox]}{\end{tcolorbox}}
+
+\newenvironment{cuidado}{\begin{tcolorbox}[warnbox]}{\end{tcolorbox}}
+
+\newenvironment{demostracion}{\begin{tcolorbox}[proofbox]}{\hfill$\square$\end{tcolorbox}}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────────────────────
+
+%  T I T U L O
+\begin{tcolorbox}[
+    colback=sectionbg, colupper=white, colframe=sectionbg,
+    sharp corners, left=12pt, right=12pt, top=10pt, bottom=10pt,
+  ]
+  {\Large\bfseries\sffamily Cadenas de Markov Homog\'eneas}\\[4pt]
+  {\normalsize\sffamily M\'odulo 2 --- Modelos Estoc\'asticos}\\[6pt]
+  {\small\sffamily\color{white!80!sectionbg}
+    Propiedad de Markov \textperiodcentered\ Tiempo discreto \textperiodcentered\
+    Clasificaci\'on de estados \textperiodcentered\ Distribuciones estacionarias
+    \textperiodcentered\ Tiempos de primer paso \textperiodcentered\
+    Tiempo continuo \textperiodcentered\ Nacimiento y muerte}\\[6pt]
+  {\footnotesize\sffamily\color{white!85!sectionbg}\itshape
+    Por P. Hurtado \textperiodcentered\ 2026}
+\end{tcolorbox}
+
+\vspace{4pt}
+\begin{nota}
+  Este m\'odulo contin\'ua desde el M\'odulo~1 (probabilidad, variables aleatorias, proceso de Poisson).
+  El Proceso de Poisson aparece como caso particular de cadena de Markov en tiempo continuo
+  (proceso de nacimiento puro). Se asume familiaridad con \'algebra lineal (matrices, autovalores)
+  y con la distribuci\'on Exponencial. Notaci\'on: $\Sset$ espacio de estados, $\Pmat$ matriz de
+  transici\'on, $\pi$ distribuci\'on estacionaria, $\generator$ generador infinitesimal.
+\end{nota}
+
+\tableofcontents
+
+\vspace{8pt}
+\begin{tcolorbox}[
+    colback=white, colframe=sectionbg,
+    boxrule=0.6pt, arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    fonttitle=\small\bfseries\sffamily,
+    title={Leyenda de colores},
+  ]
+  \small
+  Cada bloque de contenido se identifica visualmente por color, seg\'un su naturaleza:
+  \vspace{4pt}
+
+  \renewcommand{\arraystretch}{1.35}
+  \begin{tabular}{@{}p{0.7cm} l p{10.5cm}@{}}
+    \tikz\fill[defbg, draw=defborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Definici\'on}      & Concepto formal con nombre y notaci\'on. Marco verde claro.                            \\
+    \tikz\fill[thmbg, draw=thmborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Teorema/Proposici\'on} & Resultado demostrable a partir de las definiciones. Marco azul.                    \\
+    \tikz\fill[proofbg, draw=proofborder!50, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Demostraci\'on}    & Argumento que justifica un teorema o proposici\'on. Marco morado.                      \\
+    \tikz\fill[exbg, draw=exborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Ejemplo}           & Aplicaci\'on concreta o caso ilustrativo. Marco gris.                                  \\
+    \tikz\fill[notebg, draw=noteborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Nota}              & Observaci\'on, intuici\'on o comentario complementario. Marco \'ambar.                 \\
+    \tikz\fill[warnbg, draw=warnborder, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Atenci\'on}        & Advertencia sobre un error com\'un o sutileza. Marco rojo.                             \\
+    \tikz\fill[sectionbg] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Secci\'on}         & Encabezado principal del m\'odulo. Fondo azul oscuro.                                  \\
+    \tikz\fill[subsecbg!18, draw=subsecbg!45, line width=0.6pt] (0,0) rectangle (0.55,0.35);
+                                          & \textbf{Subsecci\'on}      & Subdivisi\'on tem\'atica dentro de una secci\'on. Fondo azul claro.                    \\
+  \end{tabular}
+\end{tcolorbox}
+
+\newpage
+
+% =============================================================================
+\secheader{1}{Procesos Estoc\'asticos y Propiedad de Markov}
+
+\subsecheader{1.1 \textperiodcentered\ Proceso estoc\'astico}
+
+\begin{definicion}{Proceso estoc\'astico}
+  Sea $(\Omega, \sigalg, P)$ un espacio de probabilidad y $T$ un conjunto de \'indices
+  (conjunto de \emph{tiempo}). Un \textbf{proceso estoc\'astico} es una familia de variables
+  aleatorias
+  \[
+    \{X_t : t \in T\},
+  \]
+  donde cada $X_t : \Omega \to \Sset$ toma valores en el \textbf{espacio de estados} $\Sset$.\\[3pt]
+  Seg\'un la naturaleza de $T$ y $\Sset$ se distinguen cuatro tipos:
+  \begin{center}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{@{}llll@{}}
+      \toprule
+      \textbf{Tiempo} $T$ & \textbf{Estados} $\Sset$ & \textbf{Tipo} \\
+      \midrule
+      Discreto ($\Nset$) & Discreto & Cadena en tiempo discreto \\
+      Discreto ($\Nset$) & Continuo ($\R$) & Proceso en tiempo discreto \\
+      Continuo ($[0,\infty)$) & Discreto & Cadena en tiempo continuo \\
+      Continuo ($[0,\infty)$) & Continuo ($\R$) & Proceso en tiempo continuo \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  En este m\'odulo $T = \Nset_0$ (discreto) o $T = [0,\infty)$ (continuo), y $\Sset$ es
+  \emph{discreto} (finito o numerable).
+\end{definicion}
+
+\begin{nota}
+  Para cada $\omega \in \Omega$ fijo, la funci\'on $t \mapsto X_t(\omega)$ es una
+  \textbf{trayectoria} (o \emph{realizaci\'on}) del proceso.
+  Un proceso estoc\'astico puede verse como una distribuci\'on sobre el espacio de trayectorias.
+\end{nota}
+
+\begin{center}
+\begin{tikzpicture}[scale=1, >=Latex]
+  \draw[->] (0,0) -- (8.5,0) node[right, font=\small] {$n$};
+  \draw[->] (0,0) -- (0,3.5) node[above, font=\small] {$X_n$};
+  \foreach \x in {0,1,2,3,4,5,6,7,8}
+    \draw (\x, 0.05) -- (\x, -0.05) node[below, font=\tiny] {$\x$};
+  \foreach \y/\lab in {1/$1$, 2/$2$, 3/$3$}
+    \draw (0.05,\y) -- (-0.05,\y) node[left, font=\tiny] {\lab};
+  % trayectoria ejemplo
+  \draw[thick, color=sectionbg]
+    (0,2) -- (1,2) -- (1,1) -- (2,1) -- (2,3) -- (3,3)
+    -- (3,2) -- (4,2) -- (4,1) -- (5,1) -- (5,2) -- (6,2) -- (6,3)
+    -- (7,3) -- (7,2) -- (8,2);
+  \foreach \x/\y in {0/2,1/1,2/3,3/2,4/1,5/2,6/3,7/2,8/2}
+    \fill[color=sectionbg] (\x,\y) circle (2.5pt);
+  \node[font=\small\itshape, color=sectionbg!70!black] at (4,-0.8)
+    {Trayectoria de una cadena en $\Sset = \{1,2,3\}$};
+\end{tikzpicture}
+\end{center}
+
+\subsecheader{1.2 \textperiodcentered\ Filtraci\'on y adaptabilidad}
+
+\begin{definicion}{Filtraci\'on y proceso adaptado}
+  Una \textbf{filtraci\'on} $\{\sigalg_n\}_{n\ge0}$ es una sucesi\'on creciente de
+  $\sigma$-\'algebras: $\sigalg_0 \subseteq \sigalg_1 \subseteq \cdots \subseteq \sigalg$.\\[3pt]
+  Un proceso $\{X_n\}$ es \textbf{adaptado} a $\{\sigalg_n\}$ si $X_n$ es
+  $\sigalg_n$-medible para todo $n$. Intuitivamente, $\sigalg_n$ representa la
+  \emph{informaci\'on disponible hasta el instante $n$}.\\[3pt]
+  La filtraci\'on natural del proceso es $\sigalg_n = \sigma(X_0, X_1, \ldots, X_n)$.
+\end{definicion}
+
+\subsecheader{1.3 \textperiodcentered\ Propiedad de Markov}
+
+\begin{definicion}{Propiedad de Markov (d\'ebil)}
+  Un proceso estoc\'astico $\{X_n\}_{n\ge0}$ con espacio de estados discreto $\Sset$ tiene la
+  \textbf{propiedad de Markov} (d\'ebil) si para todo $n \ge 0$ y todos los estados
+  $i_0, i_1, \ldots, i_{n-1}, i, j \in \Sset$:
+  \[
+    \Prob{X_{n+1} = j \mid X_n = i,\, X_{n-1} = i_{n-1}, \ldots, X_0 = i_0}
+    = \Prob{X_{n+1} = j \mid X_n = i}.
+  \]
+  En palabras: el futuro depende del pasado \emph{\'unicamente} a trav\'es del presente.
+  El estado actual $X_n$ captura toda la informaci\'on relevante del historial.
+\end{definicion}
+
+\begin{nota}
+  La propiedad de Markov es una hip\'otesis de \emph{falta de memoria} del proceso.
+  No dice que el futuro sea independiente del pasado en absoluto, sino que
+  condicionar al presente hace que el pasado sea irrelevante.
+\end{nota}
+
+\begin{definicion}{Propiedad de Markov fuerte}
+  Sea $\tau$ un \textbf{tiempo de parada} (variable aleatoria con valores en $\Nset_0$
+  tal que $\{\tau = n\} \in \sigalg_n$). La \textbf{propiedad de Markov fuerte} establece que,
+  dado $\tau < \infty$, el proceso desplazado $\{X_{\tau+k}\}_{k\ge0}$ tiene la misma
+  distribuci\'on que $\{X_k\}_{k\ge0}$ iniciado en $X_\tau$, e independiente de
+  $\sigalg_\tau$.\\[3pt]
+  Toda cadena de Markov homog\'enea satisface la propiedad de Markov fuerte.
+\end{definicion}
+
+\subsecheader{1.4 \textperiodcentered\ Homogeneidad temporal}
+
+\begin{definicion}{Cadena de Markov homog\'enea}
+  Un proceso $\{X_n\}_{n\ge0}$ con la propiedad de Markov es \textbf{homog\'eneo en el tiempo}
+  (o \emph{temporalmente homog\'eneo}) si las probabilidades de transici\'on no dependen de $n$:
+  \[
+    \Prob{X_{n+1} = j \mid X_n = i} = \pij{i}{j} \quad \forall\, n \ge 0,
+  \]
+  donde $\pij{i}{j}$ es la \textbf{probabilidad de transici\'on en un paso} de $i$ a $j$.
+  En adelante toda cadena mencionada es homog\'enea salvo menci\'on expl\'icita.
+\end{definicion}
+
+\begin{cuidado}
+  No confundir homogeneidad temporal con independencia. Los estados $X_n$ no son
+  independientes; la homogeneidad solo garantiza que las \emph{probabilidades de salto} son
+  constantes en el tiempo.
+\end{cuidado}
+
+% =============================================================================
+\secheader{2}{Cadenas de Markov en Tiempo Discreto (CMTD)}
+
+\subsecheader{2.1 \textperiodcentered\ Espacio de estados y probabilidades de transici\'on}
+
+\begin{definicion}{Probabilidades de transici\'on en $n$ pasos}
+  La \textbf{probabilidad de transici\'on en $n$ pasos} de $i$ a $j$ es
+  \[
+    \pijn{i}{j}{n} = \Prob{X_{n+m} = j \mid X_m = i}, \quad n \ge 1,
+  \]
+  que por homogeneidad no depende de $m$. Por convenio: $\pijn{i}{j}{0} = \delta_{ij}$
+  (delta de Kronecker: 1 si $i=j$, 0 en caso contrario).
+\end{definicion}
+
+\subsecheader{2.2 \textperiodcentered\ Matriz de transici\'on}
+
+\begin{definicion}{Matriz de transici\'on (matriz estoc\'astica)}
+  Si $\Sset = \{1, 2, \ldots, s\}$ es finito, la \textbf{matriz de transici\'on} es la
+  matriz $\Pmat \in \R^{s\times s}$ con entradas $(\Pmat)_{ij} = \pij{i}{j}$.\\[3pt]
+  $\Pmat$ es una \textbf{matriz estoc\'astica por filas}: satisface
+  \begin{enumerate}
+    \item $\pij{i}{j} \ge 0$ para todo $i, j \in \Sset$.
+    \item $\displaystyle\sum_{j \in \Sset} \pij{i}{j} = 1$ para todo $i \in \Sset$
+          \quad (cada fila suma 1).
+  \end{enumerate}
+\end{definicion}
+
+\begin{ejemplo}{Cadena del clima (2 estados)}
+  Sea $\Sset = \{S, L\}$ (soleado, lluvioso). Si hoy es soleado, ma\~nana es soleado con
+  probabilidad $0.8$ y lluvioso con $0.2$. Si hoy es lluvioso, ma\~nana es soleado con
+  $0.4$ y lluvioso con $0.6$. La matriz de transici\'on es:
+  \[
+    \Pmat = \begin{pmatrix} 0.8 & 0.2 \\ 0.4 & 0.6 \end{pmatrix}
+    \quad \leftarrow
+    \begin{array}{l} \text{fila } S \\ \text{fila } L \end{array}
+  \]
+  Verificaci\'on: filas suman $1$. $\Pmat$ es estoc\'astica.
+\end{ejemplo}
+
+\begin{center}
+\begin{tikzpicture}[>=Latex, node distance=3.5cm,
+    state/.style={circle, draw=sectionbg, fill=thmbg, line width=1pt,
+                  minimum size=1.1cm, font=\small\bfseries}]
+  \node[state] (S) {$S$};
+  \node[state, right of=S] (L) {$L$};
+  \draw[->, thick, color=sectionbg]
+    (S) edge[bend left=25] node[above, font=\small]{$0.2$} (L)
+    (L) edge[bend left=25] node[below, font=\small]{$0.4$} (S);
+  \draw[->, thick, color=defborder]
+    (S) edge[loop left] node[left, font=\small]{$0.8$} (S)
+    (L) edge[loop right] node[right, font=\small]{$0.6$} (L);
+  \node[font=\small\itshape, color=sectionbg!70!black] at (2,-1.6)
+    {Diagrama de transici\'on: cadena del clima};
+\end{tikzpicture}
+\end{center}
+
+\subsecheader{2.3 \textperiodcentered\ Ecuaciones de Chapman-Kolmogorov}
+
+\begin{teorema}{Ecuaciones de Chapman-Kolmogorov}
+  Para todo $n, m \ge 0$ e $i, j \in \Sset$:
+  \[
+    \pijn{i}{j}{n+m} = \sum_{k \in \Sset} \pijn{i}{k}{n}\, \pijn{k}{j}{m}.
+  \]
+  En notaci\'on matricial: $\Pmat^{(n+m)} = \Pmat^{(n)} \Pmat^{(m)}$, con la convenci\'on
+  $\Pmat^{(n)} = \Pmat^n$, donde $\Pmat^n$ es la $n$-\'esima potencia de $\Pmat$.
+\end{teorema}
+
+\begin{demostracion}
+  Por la propiedad de Markov y marginalizaci\'on:
+  \begin{align*}
+    \pijn{i}{j}{n+m}
+    &= \Prob{X_{n+m} = j \mid X_0 = i} \\
+    &= \sum_{k \in \Sset} \Prob{X_{n+m}=j \mid X_n=k}\,\Prob{X_n = k \mid X_0 = i}
+       \quad \text{(ley total)} \\
+    &= \sum_{k \in \Sset} \pijn{k}{j}{m}\,\pijn{i}{k}{n}.
+  \end{align*}
+  Esto es exactamente la $(i,j)$-\'esima entrada del producto $\Pmat^n \Pmat^m = \Pmat^{n+m}$.
+\end{demostracion}
+
+\begin{nota}
+  La clave es que \emph{la $n$-\'esima potencia de la matriz de transici\'on da las
+  probabilidades en $n$ pasos}: $(\Pmat^n)_{ij} = \pijn{i}{j}{n}$.
+\end{nota}
+
+\subsecheader{2.4 \textperiodcentered\ Distribuci\'on en el paso $n$}
+
+\begin{definicion}{Distribuci\'on marginal en el paso $n$}
+  Sea $\boldsymbol{\mu}^{(0)}$ el vector fila de probabilidades iniciales:
+  $\mu^{(0)}_i = \Prob{X_0 = i}$. La \textbf{distribuci\'on marginal} en el instante $n$ es
+  \[
+    \boldsymbol{\mu}^{(n)} = \boldsymbol{\mu}^{(0)}\,\Pmat^n,
+  \]
+  es decir, $\mu^{(n)}_j = \Prob{X_n = j} = \sum_{i\in\Sset} \mu^{(0)}_i\,\pijn{i}{j}{n}$.
+\end{definicion}
+
+\begin{ejemplo}{Distribuci\'on del clima en 2 pasos}
+  Con la cadena del clima anterior y distribuci\'on inicial $(0.5, 0.5)$:
+  \[
+    \Pmat^2 = \begin{pmatrix}0.8&0.2\\0.4&0.6\end{pmatrix}^2
+    = \begin{pmatrix}0.72&0.28\\0.56&0.44\end{pmatrix}.
+  \]
+  \[
+    \boldsymbol{\mu}^{(2)} = (0.5,\,0.5)\begin{pmatrix}0.72&0.28\\0.56&0.44\end{pmatrix}
+    = (0.64,\,0.36).
+  \]
+  Probabilidad de estar soleado a los 2 pasos: $0.64$.
+\end{ejemplo}
+
+\subsecheader{2.5 \textperiodcentered\ Forma can\'onica y clases de estados (anticipo)}
+
+\begin{nota}
+  Si el espacio de estados $\Sset$ se puede particionar en \emph{clases de comunicaci\'on}
+  (ver Secci\'on~3), la matriz $\Pmat$ se puede reordenar en \emph{forma can\'onica}:
+  \[
+    \Pmat = \begin{pmatrix} \mathbf{Q} & \mathbf{R} \\ \mathbf{0} & \mathbf{I} \end{pmatrix},
+  \]
+  donde $\mathbf{Q}$ describe transiciones entre estados transitorios y $\mathbf{I}$
+  los estados absorbentes. Esta forma es central para tiempos de absorci\'on (Secci\'on~5).
+\end{nota}
+
+% =============================================================================
+\secheader{3}{Clasificaci\'on de Estados}
+
+\subsecheader{3.1 \textperiodcentered\ Accesibilidad y comunicaci\'on}
+
+\begin{definicion}{Accesibilidad}
+  El estado $j$ es \textbf{accesible} desde $i$ (notaci\'on: $i \to j$) si existe $n \ge 0$
+  tal que $\pijn{i}{j}{n} > 0$, es decir, es posible llegar de $i$ a $j$ en alg\'un n\'umero
+  de pasos.\\[3pt]
+  Dos estados $i$ y $j$ se \textbf{comunican} ($i \leftrightarrow j$) si $i \to j$ y $j \to i$.
+  La comunicaci\'on es una relaci\'on de equivalencia en $\Sset$.
+\end{definicion}
+
+\begin{definicion}{Clase de comunicaci\'on}
+  Las clases de equivalencia de $\leftrightarrow$ se llaman \textbf{clases de comunicaci\'on}.
+  Una clase $C$ es \textbf{cerrada} si no existe salida: $i \in C$, $i \to j \Rightarrow j \in C$.\\[3pt]
+  Una cadena es \textbf{irreducible} si solo tiene una clase de comunicaci\'on, es decir,
+  todos los estados se comunican entre s\'i.
+\end{definicion}
+
+\begin{ejemplo}{Clases de comunicaci\'on en una cadena de 4 estados}
+  Considerar la cadena con estados $\{1,2,3,4\}$ y la siguiente matriz de transici\'on:
+  \[
+    \Pmat = \begin{pmatrix}
+      0   & 1   & 0   & 0   \\
+      0.5 & 0.5 & 0   & 0   \\
+      0.3 & 0   & 0.4 & 0.3 \\
+      0   & 0   & 0   & 1
+    \end{pmatrix}
+  \]
+  \begin{itemize}
+    \item Estados $\{1,2\}$: $1 \leftrightarrow 2$ \quad (clase cerrada).
+    \item Estado $\{3\}$: puede ir a $\{1\}$ y a $\{4\}$, pero ni $1$ ni $4$ van a $3$
+          (clase abierta, estado transitorio).
+    \item Estado $\{4\}$: $p_{44}=1$, no hay salida \quad (clase cerrada, estado absorbente).
+  \end{itemize}
+\end{ejemplo}
+
+\begin{center}
+\begin{tikzpicture}[>=Latex, node distance=2.5cm,
+    state/.style={circle, draw=sectionbg, fill=thmbg, line width=1pt,
+                  minimum size=0.9cm, font=\small\bfseries},
+    abs/.style={circle, draw=warnborder, fill=warnbg, line width=1pt,
+                minimum size=0.9cm, font=\small\bfseries},
+    trans/.style={circle, draw=noteborder, fill=notebg, line width=1pt,
+                  minimum size=0.9cm, font=\small\bfseries}]
+  \node[state] (1) {$1$};
+  \node[state, right of=1] (2) {$2$};
+  \node[trans, below of=1, xshift=1.2cm] (3) {$3$};
+  \node[abs, right of=3, xshift=0.5cm] (4) {$4$};
+  \draw[->, thick, color=sectionbg]
+    (1) edge[bend left=20] node[above,font=\tiny]{$1$} (2)
+    (2) edge[bend left=20] node[below,font=\tiny]{$0.5$} (1)
+    (2) edge[loop right] node[right,font=\tiny]{$0.5$} (2);
+  \draw[->, thick, color=noteborder]
+    (3) edge node[left,font=\tiny]{$0.3$} (1)
+    (3) edge[loop left] node[left,font=\tiny]{$0.4$} (3)
+    (3) edge node[below,font=\tiny]{$0.3$} (4);
+  \draw[->, thick, color=warnborder]
+    (4) edge[loop right] node[right,font=\tiny]{$1$} (4);
+  \node[font=\tiny\itshape, color=sectionbg!70!black] at (2,-3.3)
+    {Azul: clase cerrada $\{1,2\}$ \quad Naranja: transitorio $\{3\}$ \quad Rojo: absorbente $\{4\}$};
+\end{tikzpicture}
+\end{center}
+
+\subsecheader{3.2 \textperiodcentered\ Estados recurrentes y transitorios}
+
+\begin{definicion}{Probabilidad de retorno}
+  Define $f_{ii} = \Prob{X_n = i \text{ para alg\'un } n \ge 1 \mid X_0 = i}$, la
+  probabilidad de que la cadena regrese al estado $i$. Entonces:
+  \begin{itemize}
+    \item $i$ es \textbf{recurrente} si $f_{ii} = 1$ (el retorno es seguro).
+    \item $i$ es \textbf{transitorio} si $f_{ii} < 1$ (hay probabilidad positiva de no regresar).
+  \end{itemize}
+\end{definicion}
+
+\begin{teorema}{Criterio de recurrencia por series}
+  El estado $i$ es recurrente si y solo si
+  \[
+    \sum_{n=0}^{\infty} \pijn{i}{i}{n} = \infty.
+  \]
+  El estado $i$ es transitorio si y solo si $\displaystyle\sum_{n=0}^{\infty}\pijn{i}{i}{n} < \infty$,
+  en cuyo caso el n\'umero esperado de visitas a $i$ es finito.
+\end{teorema}
+
+\begin{proposicion}{Recurrencia en cadenas finitas irreducibles}
+  En una cadena de Markov con espacio de estados \emph{finito} e \emph{irreducible},
+  todos los estados son \textbf{recurrentes positivos}.
+\end{proposicion}
+
+\begin{demostracion}
+  Como $|\Sset| < \infty$, al menos un estado debe ser visitado infinitas veces (la cadena
+  no puede ``escapar'' a infinito). En una cadena irreducible, si un estado $i$ es recurrente
+  entonces \emph{todos} los estados son recurrentes (por comunicaci\'on). Y en $\Sset$ finito
+  la recurrencia implica recurrencia positiva (el tiempo medio de retorno es finito).
+\end{demostracion}
+
+\begin{definicion}{Recurrencia positiva y nula}
+  Sea $i$ recurrente y $\muu{i} = \E{\min\{n \ge 1 : X_n = i\} \mid X_0 = i}$ el
+  \textbf{tiempo medio de retorno} a $i$. Entonces:
+  \begin{itemize}
+    \item $i$ es \textbf{recurrente positivo} si $\muu{i} < \infty$.
+    \item $i$ es \textbf{recurrente nulo} si $\muu{i} = \infty$.
+  \end{itemize}
+\end{definicion}
+
+\begin{cuidado}
+  La recurrencia nula solo aparece en cadenas con espacio de estados \emph{infinito numerable}.
+  El ejemplo m\'as conocido es la caminata aleatoria sim\'etrica en $\mathbb{Z}$: todos los
+  estados son recurrentes (vuelve con probabilidad $1$), pero el tiempo esperado de retorno
+  al origen es $\infty$.
+\end{cuidado}
+
+\subsecheader{3.3 \textperiodcentered\ Periodicidad}
+
+\begin{definicion}{Periodo de un estado}
+  El \textbf{periodo} del estado $i$ es el m\'aximo com\'un divisor de los tiempos en los
+  que es posible regresar a $i$:
+  \[
+    d(i) = \gcd\!\bigl\{n \ge 1 : \pijn{i}{i}{n} > 0\bigr\}.
+  \]
+  Si $d(i) = 1$, el estado es \textbf{aperi\'odico}. Si $d(i) > 1$, es \textbf{peri\'odico}
+  con periodo $d(i)$.
+\end{definicion}
+
+\begin{proposicion}{Periodicidad es invariante en una clase}
+  Si $i \leftrightarrow j$, entonces $d(i) = d(j)$.
+  Por tanto, el periodo es una propiedad de la clase de comunicaci\'on, no del estado individual.
+\end{proposicion}
+
+\begin{ejemplo}{Periodicidad}
+  \begin{itemize}
+    \item Cadena $1 \to 2 \to 1$ (dos estados en ciclo): $d(1) = d(2) = 2$ (peri\'odica).
+    \item Cadena del clima (con autoloops): $d(S) = d(L) = 1$ (aperi\'odica).
+    \item Caminata aleatoria en $\mathbb{Z}$ (pasos $\pm 1$): $d(0) = 2$ (peri\'odica).
+  \end{itemize}
+\end{ejemplo}
+
+\subsecheader{3.4 \textperiodcentered\ Cadenas erg\'odicas}
+
+\begin{definicion}{Cadena erg\'odica}
+  Una cadena de Markov es \textbf{erg\'odica} si es:
+  \begin{enumerate}
+    \item \textbf{Irreducible}: todos los estados se comunican.
+    \item \textbf{Recurrente positiva}: todos los estados tienen tiempo medio de retorno finito.
+    \item \textbf{Aperi\'odica}: $d(i) = 1$ para todo $i \in \Sset$.
+  \end{enumerate}
+  En particular, toda cadena irreducible con $\Sset$ finito y aperi\'odica es erg\'odica.
+\end{definicion}
+
+\begin{nota}
+  La erg\'odicidad es la condici\'on que garantiza la convergencia de $\Pmat^n$ a una
+  distribuci\'on estacionaria \'unica (ver Secci\'on~4).
+  En $\Sset$ finito, irreducibilidad + aperiodicidad $\Rightarrow$ erg\'odicidad.
+\end{nota}
+
+% =============================================================================
+\secheader{4}{Distribuciones Estacionarias y Comportamiento a Largo Plazo}
+
+\subsecheader{4.1 \textperiodcentered\ Distribuci\'on estacionaria}
+
+\begin{definicion}{Distribuci\'on estacionaria (invariante)}
+  Un vector de probabilidades $\boldsymbol{\pi} = (\pi_j)_{j \in \Sset}$ es una
+  \textbf{distribuci\'on estacionaria} (o \emph{invariante}) si satisface:
+  \begin{align}
+    \boldsymbol{\pi}\,\Pmat &= \boldsymbol{\pi} \label{eq:stat1}\\
+    \sum_{j \in \Sset} \pi_j &= 1,\quad \pi_j \ge 0 \quad \forall j. \label{eq:stat2}
+  \end{align}
+  En forma escalar: $\pi_j = \sum_{i \in \Sset} \pi_i\, \pij{i}{j}$ para todo $j$.\\[3pt]
+  Si $\boldsymbol{\mu}^{(0)} = \boldsymbol{\pi}$, entonces $\boldsymbol{\mu}^{(n)} = \boldsymbol{\pi}$
+  para todo $n$: la distribuci\'on no cambia en el tiempo.
+\end{definicion}
+
+\begin{nota}
+  La distribuci\'on estacionaria existe siempre en una cadena \emph{irreducible recurrente
+  positiva}. La unicidad se obtiene adem\'as si la cadena es irreducible.
+\end{nota}
+
+\subsecheader{4.2 \textperiodcentered\ C\'alculo de la distribuci\'on estacionaria}
+
+\begin{ejemplo}{Distribuci\'on estacionaria del clima}
+  Con $\Pmat = \bigl(\begin{smallmatrix}0.8 & 0.2 \\ 0.4 & 0.6\end{smallmatrix}\bigr)$,
+  resolver $\boldsymbol{\pi}\Pmat = \boldsymbol{\pi}$, $\pi_S + \pi_L = 1$:
+  \begin{align*}
+    \pi_S &= 0.8\,\pi_S + 0.4\,\pi_L \\
+    \pi_L &= 0.2\,\pi_S + 0.6\,\pi_L
+  \end{align*}
+  De la primera ecuaci\'on: $0.2\,\pi_S = 0.4\,\pi_L$, luego $\pi_S = 2\pi_L$.\\
+  Con $\pi_S + \pi_L = 1$: $\pi_L = 1/3$, $\pi_S = 2/3$.\\[3pt]
+  \textbf{Interpretaci\'on:} a largo plazo, $2/3$ de los d\'ias son soleados.
+\end{ejemplo}
+
+\begin{ejemplo}{Distribuci\'on estacionaria de una cadena de 3 estados}
+  Sea $\Sset = \{1,2,3\}$ con:
+  \[
+    \Pmat = \begin{pmatrix}0 & 0.5 & 0.5 \\ 0.3 & 0.4 & 0.3 \\ 0.6 & 0 & 0.4\end{pmatrix}.
+  \]
+  Las ecuaciones $\boldsymbol{\pi}\Pmat = \boldsymbol{\pi}$ con $\pi_1+\pi_2+\pi_3=1$ dan:
+  \begin{align*}
+    \pi_1 &= 0.3\pi_2 + 0.6\pi_3 \\
+    \pi_2 &= 0.5\pi_1 + 0.4\pi_2 \;\Rightarrow\; 0.6\pi_2 = 0.5\pi_1 \\
+    \pi_3 &= 0.5\pi_1 + 0.3\pi_2 + 0.4\pi_3 \;\Rightarrow\; 0.6\pi_3 = 0.5\pi_1 + 0.3\pi_2
+  \end{align*}
+  Resolviendo: $\pi_2 = \tfrac{5}{6}\pi_1$, $\pi_3 = \tfrac{5}{6}\pi_1 - \tfrac{1}{2}\pi_2 = \tfrac{5}{12}\pi_1$.\\
+  Normalizando $\pi_1(1 + 5/6 + 5/12)=1$: $\pi_1 = 12/27$, $\pi_2 = 10/27$, $\pi_3 = 5/27$.
+\end{ejemplo}
+
+\subsecheader{4.3 \textperiodcentered\ Teorema erg\'odico y convergencia}
+
+\begin{teorema}{Convergencia para cadenas erg\'odicas}
+  Sea $\{X_n\}$ una cadena de Markov erg\'odica (irreducible, recurrente positiva, aperi\'odica)
+  con distribuci\'on estacionaria \'unica $\boldsymbol{\pi}$. Entonces para todo $i, j \in \Sset$:
+  \[
+    \lim_{n \to \infty} \pijn{i}{j}{n} = \pi_j,
+  \]
+  independientemente del estado inicial $i$. En notaci\'on matricial:
+  $\Pmat^n \xrightarrow{n\to\infty} \boldsymbol{\Pi}$, donde $\boldsymbol{\Pi}$ es la
+  matriz cuyas filas son todas iguales a $\boldsymbol{\pi}$.
+\end{teorema}
+
+\begin{nota}
+  Este teorema garantiza que, sin importar d\'onde comience la cadena, la distribuci\'on
+  marginal converge a $\boldsymbol{\pi}$.
+  Si la cadena es peri\'odica, el l\'imite $\pijn{i}{j}{n}$ puede no existir, pero
+  la media Ces\`aro converge: $\frac{1}{N}\sum_{n=0}^{N-1}\pijn{i}{j}{n} \to \pi_j$.
+\end{nota}
+
+\begin{teorema}{Teorema erg\'odico (frecuencias de visita)}
+  Sea $\{X_n\}$ irreducible y recurrente positiva. Para todo $j \in \Sset$ y toda
+  trayectoria (con probabilidad 1):
+  \[
+    \frac{1}{N}\sum_{n=0}^{N-1} \ind_{\{X_n = j\}} \;\xrightarrow{N\to\infty}\; \pi_j.
+  \]
+  La proporci\'on de tiempo que la cadena pasa en el estado $j$ converge (c.s.) a $\pi_j$.
+  Adem\'as, $\pi_j = 1/\muu{j}$ (rec\'iproco del tiempo medio de retorno).
+\end{teorema}
+
+\subsecheader{4.4 \textperiodcentered\ Reversibilidad y balance detallado}
+
+\begin{definicion}{Condici\'on de balance detallado}
+  Una distribuci\'on $\boldsymbol{\pi}$ satisface el \textbf{balance detallado} respecto a
+  $\Pmat$ si
+  \[
+    \pi_i\,\pij{i}{j} = \pi_j\,\pij{j}{i} \quad \forall\, i, j \in \Sset.
+  \]
+  Si existe tal $\boldsymbol{\pi}$, la cadena es \textbf{reversible} (en equilibrio,
+  no se puede distinguir si el tiempo avanza hacia adelante o hacia atr\'as).
+\end{definicion}
+
+\begin{proposicion}{Balance detallado implica estacionariedad}
+  Si $\boldsymbol{\pi}$ satisface el balance detallado respecto a $\Pmat$ y
+  $\sum_j \pi_j = 1$, entonces $\boldsymbol{\pi}$ es distribuci\'on estacionaria.
+\end{proposicion}
+
+\begin{demostracion}
+  $\displaystyle\sum_{i} \pi_i\,\pij{i}{j} = \sum_{i} \pi_j\,\pij{j}{i}
+  = \pi_j \sum_{i} \pij{j}{i} = \pi_j \cdot 1 = \pi_j$.
+  Luego $\boldsymbol{\pi}\Pmat = \boldsymbol{\pi}$.
+\end{demostracion}
+
+\begin{cuidado}
+  El rec\'iproco es falso: existen distribuciones estacionarias que no satisfacen
+  balance detallado (cadenas no reversibles). Balance detallado es una condici\'on
+  \emph{suficiente} para estacionariedad, no necesaria.
+\end{cuidado}
+
+% =============================================================================
+\secheader{5}{Tiempos de Primer Paso y Absorci\'on}
+
+\subsecheader{5.1 \textperiodcentered\ Tiempo de primer paso}
+
+\begin{definicion}{Tiempo de primer paso (hitting time)}
+  El \textbf{tiempo de primer paso} al estado $j$, partiendo de $i$, es:
+  \[
+    T_j = \min\{n \ge 1 : X_n = j\}, \quad T_j = \infty \text{ si nunca se llega a } j.
+  \]
+  Es un tiempo de parada respecto a la filtraci\'on natural.
+  La \textbf{probabilidad de primer paso en $n$ pasos} de $i$ a $j$ es:
+  \[
+    \fij{i}{j}^{(n)} = \Prob{T_j = n \mid X_0 = i}, \quad
+    \fij{i}{j} = \Prob{T_j < \infty \mid X_0 = i} = \sum_{n=1}^{\infty} \fij{i}{j}^{(n)}.
+  \]
+\end{definicion}
+
+\begin{proposicion}{Relaci\'on entre $\pijn{i}{j}{n}$ y $\fij{i}{j}^{(n)}$}
+  Para $n \ge 1$:
+  \[
+    \pijn{i}{j}{n} = \sum_{k=1}^{n} \fij{i}{j}^{(k)}\,\pijn{j}{j}{n-k}.
+  \]
+  Esto es una convolución: llegar de $i$ a $j$ en $n$ pasos = llegar por primera vez
+  en $k$ pasos, y luego regresar de $j$ a $j$ en los $n-k$ restantes.
+\end{proposicion}
+
+\subsecheader{5.2 \textperiodcentered\ Tiempo medio de retorno y estacionariedad}
+
+\begin{teorema}{Tiempo medio de retorno y distribuci\'on estacionaria}
+  Sea $\{X_n\}$ irreducible y recurrente positiva, con distribuci\'on estacionaria
+  $\boldsymbol{\pi}$. Entonces para todo $j \in \Sset$:
+  \[
+    \pi_j = \frac{1}{\muu{j}}, \quad \text{donde } \muu{j} = \E{T_j \mid X_0 = j}.
+  \]
+  Los estados m\'as frecuentemente visitados tienen tiempo medio de retorno m\'as corto.
+\end{teorema}
+
+\begin{ejemplo}{Tiempo de retorno en la cadena del clima}
+  Con $\pi_S = 2/3$ y $\pi_L = 1/3$:
+  \[
+    \muu{S} = \frac{1}{\pi_S} = \frac{3}{2} = 1.5 \text{ d\'ias}, \quad
+    \muu{L} = \frac{1}{\pi_L} = 3 \text{ d\'ias}.
+  \]
+  En promedio, el tiempo entre dos d\'ias lluviosos consecutivos es de 3 d\'ias.
+\end{ejemplo}
+
+\subsecheader{5.3 \textperiodcentered\ Probabilidades de absorci\'on}
+
+\begin{definicion}{Estado absorbente y probabilidad de absorci\'on}
+  Un estado $a$ es \textbf{absorbente} si $\pij{a}{a} = 1$ (una vez alcanzado, no se escapa).
+  Dado un conjunto de estados absorbentes $A \subset \Sset$ y un estado transitorio $i \notin A$,
+  la \textbf{probabilidad de absorci\'on} en $a \in A$ partiendo de $i$ es:
+  \[
+    h_i^{(a)} = \Prob{X_{T_A} = a \mid X_0 = i},
+  \]
+  donde $T_A = \min\{n \ge 0 : X_n \in A\}$.
+\end{definicion}
+
+\begin{teorema}{Sistema de ecuaciones para probabilidades de absorci\'on}
+  Las probabilidades $h_i^{(a)}$ satisfacen el sistema lineal:
+  \[
+    h_i^{(a)} = \pij{i}{a} + \sum_{k \notin A} \pij{i}{k}\,h_k^{(a)}, \quad i \notin A,
+  \]
+  con condici\'on de frontera $h_a^{(a)} = 1$ y $h_b^{(a)} = 0$ para $b \in A$, $b \neq a$.
+\end{teorema}
+
+\subsecheader{5.4 \textperiodcentered\ Tiempo esperado de absorci\'on: matriz fundamental}
+
+\begin{definicion}{Forma can\'onica y matriz fundamental}
+  Ordenando los estados como (transitorios, absorbentes), la matriz de transici\'on toma
+  la forma can\'onica:
+  \[
+    \Pmat = \begin{pmatrix} \mathbf{Q}_T & \mathbf{R} \\ \mathbf{0} & \mathbf{I} \end{pmatrix},
+  \]
+  donde $\mathbf{Q}_T$ es la submatriz de transici\'on entre estados transitorios y
+  $\mathbf{R}$ las probabilidades de ir de transitorio a absorbente.\\[3pt]
+  La \textbf{matriz fundamental} es $\mathbf{N} = (\mathbf{I} - \mathbf{Q}_T)^{-1}$.
+  La entrada $n_{ij}$ = n\'umero esperado de visitas al estado transitorio $j$
+  partiendo de $i$ (antes de la absorci\'on).
+\end{definicion}
+
+\begin{proposicion}{Tiempo esperado de absorci\'on}
+  El vector de tiempos esperados de absorci\'on $\mathbf{t}$ (con $t_i = \E{T_A \mid X_0=i}$)
+  satisface:
+  \[
+    \mathbf{t} = \mathbf{N}\,\mathbf{1} = (\mathbf{I} - \mathbf{Q}_T)^{-1}\mathbf{1},
+  \]
+  donde $\mathbf{1}$ es el vector de unos. Las probabilidades de absorci\'on en cada
+  estado absorbente forman la matriz $\mathbf{B} = \mathbf{N}\,\mathbf{R}$.
+\end{proposicion}
+
+\begin{ejemplo}{Juego de la ruina ($N=4$)}
+  Un jugador tiene $k$ fichas ($k \in \{0,1,2,3,4\}$) y en cada ronda gana o pierde una
+  con probabilidad $p=0.5$ y $1-p=0.5$. Los estados $\{0,4\}$ son absorbentes (ruina o victoria).
+  Los estados transitorios son $\{1,2,3\}$.
+  \[
+    \mathbf{Q}_T = \begin{pmatrix}0 & 0.5 & 0 \\ 0.5 & 0 & 0.5 \\ 0 & 0.5 & 0\end{pmatrix},
+    \quad
+    \mathbf{I}-\mathbf{Q}_T = \begin{pmatrix}1 & -0.5 & 0 \\ -0.5 & 1 & -0.5 \\ 0 & -0.5 & 1\end{pmatrix}.
+  \]
+  Calculando la inversa:
+  $\mathbf{N} = \frac{1}{4}\begin{pmatrix}3 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 3\end{pmatrix}$.\\[4pt]
+  Tiempo esperado de absorci\'on: $\mathbf{t} = \mathbf{N}\mathbf{1}$:
+  $t_1 = (3+2+1)/4 = 3/2$... \\
+  Corrigiendo: $t_1 = 3$, $t_2 = 4$, $t_3 = 3$ (se verifica que desde el estado central
+  se espera m\'as tiempo antes de arruinarse o ganar).\\[3pt]
+  Probabilidad de ruina desde estado $k$: $h_k^{(0)} = (4-k)/4$.
+  Desde estado~$2$: $h_2^{(0)} = 0.5$.
+\end{ejemplo}
+
+\begin{center}
+\begin{tikzpicture}[>=Latex, node distance=2.0cm,
+    abs/.style={circle, draw=warnborder, fill=warnbg, line width=1pt,
+                minimum size=0.8cm, font=\small\bfseries},
+    trans/.style={circle, draw=sectionbg, fill=thmbg, line width=1pt,
+                  minimum size=0.8cm, font=\small\bfseries}]
+  \node[abs] (0) {$0$};
+  \node[trans, right of=0] (1) {$1$};
+  \node[trans, right of=1] (2) {$2$};
+  \node[trans, right of=2] (3) {$3$};
+  \node[abs, right of=3] (4) {$4$};
+  \draw[->, thick, color=sectionbg]
+    (1) edge[bend left=25] node[above,font=\tiny]{$0.5$} (2)
+    (2) edge[bend left=25] node[above,font=\tiny]{$0.5$} (3)
+    (2) edge[bend left=25] node[below,font=\tiny]{$0.5$} (1)
+    (3) edge[bend left=25] node[below,font=\tiny]{$0.5$} (2);
+  \draw[->, thick, color=warnborder]
+    (1) edge node[below,font=\tiny]{$0.5$} (0)
+    (3) edge node[below,font=\tiny]{$0.5$} (4);
+  \draw[->, thick, color=warnborder]
+    (0) edge[loop left] node[left,font=\tiny]{$1$} (0)
+    (4) edge[loop right] node[right,font=\tiny]{$1$} (4);
+  \node[font=\small\itshape, color=sectionbg!70!black] at (4,-1.4)
+    {Juego de la ruina con $N=4$: estados absorbentes $\{0,4\}$};
+\end{tikzpicture}
+\end{center}
+
+% =============================================================================
+\secheader{6}{Cadenas de Markov en Tiempo Continuo (CMTC)}
+
+\subsecheader{6.1 \textperiodcentered\ Definici\'on y propiedad de Markov continua}
+
+\begin{definicion}{Cadena de Markov en tiempo continuo (CMTC)}
+  Un proceso estoc\'astico $\{X(t)\}_{t\ge0}$ con espacio de estados discreto $\Sset$
+  es una \textbf{cadena de Markov en tiempo continuo} si satisface la propiedad de Markov:
+  \[
+    \Prob{X(t+s) = j \mid X(s) = i,\, \{X(u)\}_{0\le u < s}}
+    = \Prob{X(t+s)=j \mid X(s)=i}
+  \]
+  para todo $t, s \ge 0$ e $i,j \in \Sset$.
+  La cadena es \textbf{homog\'enea} si la probabilidad de transici\'on
+  $p_{ij}(t) = \Prob{X(t+s)=j \mid X(s)=i}$ no depende de $s$.
+\end{definicion}
+
+\subsecheader{6.2 \textperiodcentered\ Tiempos de permanencia}
+
+\begin{teorema}{Distribuci\'on exponencial de los tiempos de permanencia}
+  En una CMTC homog\'enea, el tiempo que el proceso permanece en el estado $i$ antes de saltar
+  es una variable aleatoria $\tau_i \sim \mathrm{Exp}(q_i)$, donde $q_i \ge 0$ es la
+  \textbf{tasa de salida} del estado $i$.\\[3pt]
+  Esto se sigue de la propiedad de falta de memoria de la Exponencial: la \'unica
+  distribuci\'on continua sin memoria es la Exponencial.
+\end{teorema}
+
+\begin{nota}
+  Si $q_i = 0$, el estado $i$ es absorbente (la cadena nunca sale de él).
+  El tiempo esperado en el estado $i$ es $\E{\tau_i} = 1/q_i$.
+\end{nota}
+
+\subsecheader{6.3 \textperiodcentered\ Generador infinitesimal $\generator$}
+
+\begin{definicion}{Generador infinitesimal (Q-matrix)}
+  La \textbf{Q-matrix} o \textbf{generador infinitesimal} $\generator = (q_{ij})$ tiene entradas:
+  \begin{itemize}
+    \item $q_{ij} \ge 0$ para $i \neq j$: \textbf{tasa de transici\'on} de $i$ a $j$.
+    \item $q_{ii} = -\sum_{j \neq i} q_{ij} = -q_i \le 0$: la diagonal es la tasa de salida negativa.
+  \end{itemize}
+  Propiedades: cada fila de $\generator$ suma $0$, i.e., $\generator\,\mathbf{1} = \mathbf{0}$.\\[3pt]
+  Relaci\'on con $\Pmat(t)$:
+  \[
+    \lim_{h \to 0^+} \frac{p_{ij}(h) - \delta_{ij}}{h} = q_{ij}.
+  \]
+\end{definicion}
+
+\begin{ejemplo}{Q-matrix para una cadena de 2 estados}
+  Sea $\Sset = \{0, 1\}$, tasa de ir de $0$ a $1$: $\lambda$, tasa de $1$ a $0$: $\mu$.
+  \[
+    \generator = \begin{pmatrix} -\lambda & \lambda \\ \mu & -\mu \end{pmatrix}.
+  \]
+\end{ejemplo}
+
+\begin{center}
+\begin{tikzpicture}[>=Latex, node distance=4cm,
+    state/.style={circle, draw=sectionbg, fill=thmbg, line width=1pt,
+                  minimum size=1.1cm, font=\small\bfseries}]
+  \node[state] (0) {$0$};
+  \node[state, right of=0] (1) {$1$};
+  \draw[->, thick, color=sectionbg]
+    (0) edge[bend left=25] node[above,font=\small]{$\lambda$} (1)
+    (1) edge[bend left=25] node[below,font=\small]{$\mu$} (0);
+  \node[font=\small\itshape, color=sectionbg!70!black] at (2,-1.2)
+    {CMTC de 2 estados: tasas $\lambda$ y $\mu$};
+\end{tikzpicture}
+\end{center}
+
+\subsecheader{6.4 \textperiodcentered\ Ecuaciones de Kolmogorov}
+
+\begin{teorema}{Ecuaciones de Kolmogorov (progresiva y regresiva)}
+  Sea $\mathbf{P}(t) = (p_{ij}(t))$ la matriz de probabilidades de transici\'on.
+  Bajo condiciones de regularidad:
+  \begin{align}
+    \mathbf{P}'(t) &= \mathbf{P}(t)\,\generator \quad \text{(ecuaci\'on progresiva de Kolmogorov)}\\
+    \mathbf{P}'(t) &= \generator\,\mathbf{P}(t) \quad \text{(ecuaci\'on regresiva de Kolmogorov)}
+  \end{align}
+  con condici\'on inicial $\mathbf{P}(0) = \mathbf{I}$.
+  La soluci\'on formal es la \textbf{exponencial matricial}:
+  \[
+    \mathbf{P}(t) = e^{t\generator} = \sum_{k=0}^{\infty} \frac{(t\generator)^k}{k!}.
+  \]
+\end{teorema}
+
+\begin{ejemplo}{Soluci\'on expl\'icita para 2 estados}
+  Con la Q-matrix anterior ($\lambda, \mu > 0$), los autovalores de $\generator$ son
+  $0$ y $-(\lambda+\mu)$. La soluci\'on es:
+  \[
+    \mathbf{P}(t) = \frac{1}{\lambda+\mu}
+    \begin{pmatrix} \mu + \lambda e^{-(\lambda+\mu)t} & \lambda(1 - e^{-(\lambda+\mu)t}) \\
+                    \mu(1 - e^{-(\lambda+\mu)t})    & \lambda + \mu e^{-(\lambda+\mu)t} \end{pmatrix}.
+  \]
+  Cuando $t \to \infty$: $\mathbf{P}(t) \to \frac{1}{\lambda+\mu}\begin{pmatrix}\mu & \lambda \\ \mu & \lambda\end{pmatrix}$,
+  que es la distribuci\'on estacionaria $\pi_0 = \mu/(\lambda+\mu)$, $\pi_1 = \lambda/(\lambda+\mu)$.
+\end{ejemplo}
+
+\subsecheader{6.5 \textperiodcentered\ Distribuci\'on estacionaria de una CMTC}
+
+\begin{definicion}{Distribuci\'on estacionaria (tiempo continuo)}
+  Un vector $\boldsymbol{\pi}$ es distribuci\'on estacionaria de una CMTC si:
+  \[
+    \boldsymbol{\pi}\,\generator = \mathbf{0}, \quad
+    \sum_{j \in \Sset} \pi_j = 1, \quad \pi_j \ge 0.
+  \]
+  En forma escalar: $\sum_{i \neq j} \pi_i\,q_{ij} = \pi_j\,q_j$ para todo $j$
+  (flujo de entrada = flujo de salida en cada estado).
+\end{definicion}
+
+\begin{nota}
+  El balance detallado en tiempo continuo es $\pi_i\,q_{ij} = \pi_j\,q_{ji}$.
+  Si se satisface, $\boldsymbol{\pi}$ es estacionaria y la cadena es reversible.
+\end{nota}
+
+\subsecheader{6.6 \textperiodcentered\ Cadena embebida}
+
+\begin{definicion}{Cadena de saltos (cadena embebida)}
+  Dada una CMTC $\{X(t)\}$, la \textbf{cadena de saltos} (o \emph{cadena embebida}) es el
+  proceso $\{Y_n\}_{n\ge0}$ que registra \emph{solo el estado} en el momento del $n$-\'esimo
+  salto, sin tomar en cuenta el tiempo transcurrido.\\[3pt]
+  La cadena de saltos es una CMTD con probabilidades de transici\'on:
+  \[
+    \hat{p}_{ij} = \frac{q_{ij}}{q_i} \quad (i \neq j), \qquad \hat{p}_{ii} = 0.
+  \]
+  As\'i, una CMTC puede describirse como: tiempos de espera Exp$(q_i)$ en cada estado $i$,
+  seguidos de saltos seg\'un $\hat{p}_{ij}$.
+\end{definicion}
+
+\begin{cuidado}
+  La distribuci\'on estacionaria $\boldsymbol{\pi}$ de la CMTC y la de la cadena embebida
+  $\hat{\boldsymbol{\pi}}$ \emph{no coinciden} en general. La distribuci\'on estacionaria de
+  la CMTC pondera adem\'as el tiempo de permanencia en cada estado:
+  $\pi_i \propto \hat{\pi}_i / q_i$.
+\end{cuidado}
+
+% =============================================================================
+\secheader{7}{Proceso de Nacimiento y Muerte}
+
+\subsecheader{7.1 \textperiodcentered\ Definici\'on}
+
+\begin{definicion}{Proceso de nacimiento y muerte}
+  Un proceso de nacimiento y muerte es una CMTC con espacio de estados
+  $\Sset = \{0, 1, 2, \ldots\}$ (finito o infinito numerable) donde solo se permiten
+  saltos de un estado al inmediatamente adyacente:
+  \begin{itemize}
+    \item \textbf{Tasa de nacimiento}: $\lambda_i = q_{i,i+1} \ge 0$ (salto de $i$ a $i+1$).
+    \item \textbf{Tasa de muerte}: $\mu_i = q_{i,i-1} \ge 0$ (salto de $i$ a $i-1$), con $\mu_0 = 0$.
+    \item $q_i = \lambda_i + \mu_i$ (tasa total de salida del estado $i$).
+  \end{itemize}
+  La Q-matrix tiene la estructura tridiagonal:
+  \[
+    \generator =
+    \begin{pmatrix}
+      -\lambda_0 & \lambda_0 & 0 & 0 & \cdots \\
+      \mu_1 & -(\lambda_1+\mu_1) & \lambda_1 & 0 & \cdots \\
+      0 & \mu_2 & -(\lambda_2+\mu_2) & \lambda_2 & \cdots \\
+      \vdots & & & \ddots &
+    \end{pmatrix}.
+  \]
+\end{definicion}
+
+\begin{center}
+\begin{tikzpicture}[>=Latex, node distance=2.3cm,
+    state/.style={circle, draw=sectionbg, fill=thmbg, line width=1pt,
+                  minimum size=0.85cm, font=\small\bfseries}]
+  \node[state] (0) {$0$};
+  \node[state, right of=0] (1) {$1$};
+  \node[state, right of=1] (2) {$2$};
+  \node[state, right of=2] (3) {$3$};
+  \node[right of=3, font=\large] (dots) {$\cdots$};
+  \draw[->, thick, color=sectionbg]
+    (0) edge[bend left=30] node[above,font=\small]{$\lambda_0$} (1)
+    (1) edge[bend left=30] node[above,font=\small]{$\lambda_1$} (2)
+    (2) edge[bend left=30] node[above,font=\small]{$\lambda_2$} (3)
+    (3) edge[bend left=30] node[above,font=\small]{$\lambda_3$} (dots);
+  \draw[->, thick, color=defborder]
+    (1) edge[bend left=30] node[below,font=\small]{$\mu_1$} (0)
+    (2) edge[bend left=30] node[below,font=\small]{$\mu_2$} (1)
+    (3) edge[bend left=30] node[below,font=\small]{$\mu_3$} (2);
+  \node[font=\small\itshape, color=sectionbg!70!black] at (4.5,-1.6)
+    {Proceso de nacimiento y muerte: solo saltos al estado adyacente};
+\end{tikzpicture}
+\end{center}
+
+\subsecheader{7.2 \textperiodcentered\ Balance detallado y distribuci\'on estacionaria}
+
+\begin{teorema}{Distribuci\'on estacionaria del proceso de nacimiento y muerte}
+  En un proceso de nacimiento y muerte, el balance detallado simplifica a:
+  \[
+    \pi_i\,\lambda_i = \pi_{i+1}\,\mu_{i+1}, \quad i = 0, 1, 2, \ldots
+  \]
+  (flujo entre estados $i$ e $i+1$ se equilibra en ambas direcciones).
+  Iterando la recursi\'on desde $i=0$:
+  \[
+    \pi_n = \pi_0 \prod_{k=0}^{n-1} \frac{\lambda_k}{\mu_{k+1}}, \quad n \ge 1.
+  \]
+  La constante $\pi_0$ se determina por normalizaci\'on:
+  $\pi_0 = \left(1 + \sum_{n=1}^{\infty} \prod_{k=0}^{n-1}\frac{\lambda_k}{\mu_{k+1}}\right)^{-1}$.
+  La distribuci\'on estacionaria existe si y solo si la suma converge.
+\end{teorema}
+
+\begin{demostracion}
+  Las ecuaciones de balance global para el estado $j$ son
+  $\lambda_{j-1}\pi_{j-1} + \mu_{j+1}\pi_{j+1} = (\lambda_j + \mu_j)\pi_j$.
+  En un proceso de nacimiento y muerte, se puede verificar que el balance detallado
+  $\pi_i\lambda_i = \pi_{i+1}\mu_{i+1}$ es una soluci\'on (por inducci\'on en $i$).
+  Despejando: $\pi_{i+1} = (\lambda_i/\mu_{i+1})\pi_i$, y aplicando recursivamente se
+  obtiene la f\'ormula producto.
+\end{demostracion}
+
+\subsecheader{7.3 \textperiodcentered\ Proceso de nacimiento puro: conexi\'on con Poisson}
+
+\begin{proposicion}{Proceso de Poisson como nacimiento puro}
+  Si $\mu_i = 0$ para todo $i$ (no hay muertes) y $\lambda_i = \lambda$ constante
+  (tasa de nacimiento homog\'enea), el proceso de nacimiento y muerte se reduce al
+  \textbf{Proceso de Poisson} con intensidad $\lambda$.\\[3pt]
+  En este caso no existe distribuci\'on estacionaria (el proceso crece indefinidamente):
+  $\sum_{n=0}^\infty (\lambda/0)^n$ diverge.\\[3pt]
+  Las probabilidades $p_n(t) = \Prob{X(t)=n \mid X(0)=0}$ satisfacen las ecuaciones
+  de Kolmogorov: $p_n'(t) = -\lambda p_n(t) + \lambda p_{n-1}(t)$, con soluci\'on
+  $p_n(t) = e^{-\lambda t}(\lambda t)^n/n!$ (distribuci\'on Poisson).
+\end{proposicion}
+
+\subsecheader{7.4 \textperiodcentered\ Cola M/M/1}
+
+\begin{definicion}{Cola M/M/1}
+  Una \textbf{cola M/M/1} modela un sistema de espera con:
+  \begin{itemize}
+    \item Llegadas: proceso de Poisson con tasa $\lambda$ (interarribos Exp$(\lambda)$).
+    \item Servicio: tiempo de servicio Exp$(\mu)$.
+    \item Un solo servidor, capacidad ilimitada, disciplina FIFO.
+  \end{itemize}
+  El n\'umero de clientes $X(t)$ es un proceso de nacimiento y muerte con
+  $\lambda_i = \lambda$ y $\mu_i = \mu$ para $i \ge 1$, $\mu_0 = 0$.\\[3pt]
+  El \textbf{factor de carga} es $\rho = \lambda/\mu$.
+\end{definicion}
+
+\begin{teorema}{Distribuci\'on estacionaria de M/M/1}
+  La cola M/M/1 tiene distribuci\'on estacionaria si y solo si $\rho < 1$ (la tasa de
+  llegadas es menor que la de servicio). Cuando se cumple:
+  \[
+    \pi_n = (1-\rho)\,\rho^n, \quad n = 0, 1, 2, \ldots
+  \]
+  Distribución geom\'etrica con par\'ametro $1-\rho$. Las medidas de rendimiento son:
+  \begin{align*}
+    \E{L}   &= \frac{\rho}{1-\rho} \quad \text{(n\'umero medio en el sistema)} \\
+    \E{L_q} &= \frac{\rho^2}{1-\rho} \quad \text{(n\'umero medio en cola)} \\
+    \E{W}   &= \frac{1}{\mu - \lambda} \quad \text{(tiempo medio en el sistema)} \\
+    \E{W_q} &= \frac{\rho}{\mu - \lambda} \quad \text{(tiempo medio en cola)}
+  \end{align*}
+  donde se han usado las \textbf{leyes de Little}: $\E{L} = \lambda\,\E{W}$ y
+  $\E{L_q} = \lambda\,\E{W_q}$.
+\end{teorema}
+
+\begin{demostracion}
+  Aplicando la f\'ormula del proceso de nacimiento y muerte con $\lambda_i=\lambda$,
+  $\mu_i=\mu$:
+  \[
+    \pi_n = \pi_0 \prod_{k=0}^{n-1}\frac{\lambda}{\mu} = \pi_0\,\rho^n.
+  \]
+  Normalizando: $\pi_0\sum_{n=0}^\infty \rho^n = 1 \Rightarrow \pi_0 = 1-\rho$ (requiere $\rho < 1$).\\
+  El n\'umero medio: $\E{L} = \sum_{n=0}^\infty n(1-\rho)\rho^n = (1-\rho)\cdot\frac{\rho}{(1-\rho)^2}
+  = \frac{\rho}{1-\rho}$.
+\end{demostracion}
+
+\begin{ejemplo}{Cola de un cajero autom\'atico}
+  Clientes llegan a un ATM seg\'un un Proceso de Poisson con $\lambda = 4$ clientes/hora.
+  El tiempo de servicio es Exp$(\mu=6)$ clientes/hora. Factor de carga: $\rho = 4/6 = 2/3 < 1$.
+  \begin{itemize}
+    \item Probabilidad de que el ATM est\'e vac\'io: $\pi_0 = 1 - 2/3 = 1/3 \approx 33\%$.
+    \item N\'umero medio de clientes en el sistema: $\E{L} = (2/3)/(1/3) = 2$.
+    \item Tiempo medio total en el sistema: $\E{W} = 1/(6-4) = 0.5$ horas $= 30$ min.
+    \item Tiempo medio esperando en cola: $\E{W_q} = (2/3)/(6-4) = 1/3$ hora $= 20$ min.
+  \end{itemize}
+\end{ejemplo}
+
+\begin{cuidado}
+  Si $\rho \ge 1$ la cola \emph{no tiene r\'egimen estacionario}: la l\'inea de espera crece
+  indefinidamente y el sistema se satura. La condici\'on $\rho < 1$ es indispensable para
+  que exista distribuci\'on estacionaria.
+\end{cuidado}
+
+\begin{nota}
+  \textbf{Leyes de Little (intuitivas):} En un sistema estable con tasa de entrada $\lambda$:
+  \begin{itemize}
+    \item $\E{L} = \lambda\,\E{W}$: el n\'umero promedio en el sistema es la tasa de llegadas
+          por el tiempo promedio que cada cliente pasa en el sistema.
+    \item $\E{L_q} = \lambda\,\E{W_q}$: an\'alogamente para la cola.
+  \end{itemize}
+  Las leyes de Little son universales: no dependen de la distribuci\'on de llegadas ni
+  de servicio, solo de la estabilidad del sistema.
+\end{nota}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Conexiones clave del módulo
+% ─────────────────────────────────────────────────────────────────────────────
+\vspace{10pt}
+\begin{tcolorbox}[
+    colback=sectionbg!8, colframe=sectionbg,
+    boxrule=0.8pt, arc=4pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    fonttitle=\bfseries\sffamily,
+    title={Conexiones clave del m\'odulo},
+  ]
+  \small
+  \begin{itemize}
+    \item Proceso de Poisson $\Rightarrow$ CMTC de nacimiento puro con $\lambda_i = \lambda$ constante
+    \item Balance detallado $\pi_i q_{ij} = \pi_j q_{ji}$ $\Rightarrow$ reversibilidad $\Rightarrow$ $\pi$ f\'acil de calcular
+    \item Proceso de nacimiento y muerte: $\pi_n = \pi_0\prod_{k=0}^{n-1}(\lambda_k/\mu_{k+1})$
+    \item CMTC $\leftrightarrow$ cadena embebida (saltos) + tiempos de espera Exp$(q_i)$
+    \item Recurrencia $\Leftrightarrow$ $\sum_n p_{ii}^{(n)} = \infty$
+          \hfill (criterio de recurrencia)
+    \item Teorema erg\'odico: $p_{ij}^{(n)} \to \pi_j$ para cadena erg\'odica finita
+    \item $\pi_j = 1/\muu{j}$ \hfill (la distribuci\'on estacionaria es el rec\'iproco del tiempo medio de retorno)
+    \item Cola M/M/1 estable $\Leftrightarrow$ $\rho = \lambda/\mu < 1$, con $\pi_n = (1-\rho)\rho^n$
+  \end{itemize}
+\end{tcolorbox}
+
+\end{document}
