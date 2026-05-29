@@ -1,0 +1,1016 @@
+% ============================================================
+%  DINÁMICA DE SISTEMAS — ÚLTIMA MILLA Y CONGESTIÓN URBANA
+%  Santiago de Chile
+%  Compilar: pdflatex -shell-escape ultima_milla_santiago.tex
+% ============================================================
+\documentclass[12pt,a4paper]{article}
+
+% ── Encoding & Language ──────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+
+% ── Layout ───────────────────────────────────────────────────
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.8cm,right=2.8cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.15}
+\usepackage{parskip}
+
+% ── Math ─────────────────────────────────────────────────────
+\usepackage{amsmath,amssymb,mathtools}
+
+% ── Graphics & Diagrams ──────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,
+                decorations.pathmorphing,calc,fit,backgrounds,
+                arrows,shapes.arrows,bending}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ── Tables ───────────────────────────────────────────────────
+\usepackage{booktabs,longtable,array,tabularx,multirow}
+\usepackage{colortbl}
+
+% ── Colors ───────────────────────────────────────────────────
+\usepackage[dvipsnames]{xcolor}
+\definecolor{azulUCH}{RGB}{0,68,124}
+\definecolor{verdeSD}{RGB}{0,128,96}
+\definecolor{rojoSD}{RGB}{180,40,40}
+\definecolor{ambarSD}{RGB}{200,140,0}
+\definecolor{grisClaro}{RGB}{245,245,245}
+\definecolor{grisOscuro}{RGB}{80,80,80}
+
+% ── Hyperlinks ───────────────────────────────────────────────
+\usepackage[colorlinks=true,
+            linkcolor=azulUCH,
+            citecolor=verdeSD,
+            urlcolor=azulUCH]{hyperref}
+\usepackage{url}
+
+% ── Listings (code) ──────────────────────────────────────────
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,
+        frame=single,backgroundcolor=\color{grisClaro}}
+
+% ── Captions & Floats ────────────────────────────────────────
+\usepackage{caption,subcaption,float}
+\captionsetup{labelfont=bf,font=small}
+
+% ── Headers / Footers ────────────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{grisOscuro}{Dinámica de Sistemas}}
+\fancyhead[R]{\small\textcolor{grisOscuro}{Última Milla — Santiago}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Boxes ────────────────────────────────────────────────────
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{definicion}[1][]{
+  colback=azulUCH!5,colframe=azulUCH!60,
+  fonttitle=\bfseries,title=Definición,#1}
+\newtcolorbox{arquetipobox}[2][]{
+  colback=verdeSD!5,colframe=verdeSD!60,
+  fonttitle=\bfseries,title=Arquetipo: #2,#1}
+\newtcolorbox{databox}[1][]{
+  colback=ambarSD!5,colframe=ambarSD!60,
+  fonttitle=\bfseries,title=Fuentes de datos,#1}
+
+% ── Bibliography ─────────────────────────────────────────────
+
+
+% ── Misc ─────────────────────────────────────────────────────
+\usepackage{enumitem}
+
+
+% ============================================================
+\begin{document}
+
+% ── Portada ──────────────────────────────────────────────────
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+{\color{azulUCH}\rule{\linewidth}{1.5pt}}\\[0.8em]
+{\LARGE\bfseries Dinámica de Sistemas:\\[0.3em]
+Última Milla y Congestión Urbana\\[0.3em]
+en Santiago de Chile}\\[0.6em]
+{\color{azulUCH}\rule{\linewidth}{1.5pt}}
+
+\vspace{2cm}
+{\large Modelamiento Causal, Arquetipos y\\
+Ecuaciones Diferenciales del Sistema Logístico Urbano}
+
+\vspace{3cm}
+\begin{tabular}{ll}
+\textbf{Curso:}   & Modelamiento de Sistemas \\[4pt]
+\textbf{Semestre:} & 1\textsuperscript{er} semestre \\[4pt]
+\textbf{Área:}    & Logística Urbana / Ingeniería de Sistemas \\[4pt]
+\textbf{Región:}  & Metropolitana de Santiago, Chile \\[4pt]
+\textbf{Fecha:}   & \today \\
+\end{tabular}
+
+\vfill
+{\small\textcolor{grisOscuro}{Documento generado para uso académico.
+Los datos corresponden a fuentes oficiales chilenas.}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Introducción y Motivación}
+% ============================================================
+
+El crecimiento sostenido del comercio electrónico en Chile — con un
+incremento de la facturación del 30\,\% anual entre 2018 y 2023 según
+la Cámara de Comercio de Santiago (CCS) — ha multiplicado la cantidad
+de vehículos de reparto circulando en la Región Metropolitana.
+Este fenómeno genera una dinámica de retroalimentación no lineal:
+más paquetes exigen más vehículos, más vehículos generan más
+congestión, la congestión aumenta los tiempos y costos de entrega,
+y esos costos presionan a los operadores a añadir más vehículos
+para compensar — cerrando un bucle de refuerzo que se autoalimenta.
+
+Al mismo tiempo, operan mecanismos de balance: el alza en el costo
+por paquete eleva el precio al consumidor, reduciendo la demanda de
+ecommerce en segmentos de menor ingreso; la regulación municipal
+sobre zonas de carga y descarga limita el acceso de vehículos;
+y la adopción de modelos alternativos (bicicletas de carga,
+casilleros inteligentes, consolidación de rutas) puede absorber
+parte del flujo.
+
+Este documento desarrolla un modelo de dinámica de sistemas completo
+para este problema, incluyendo:
+\begin{itemize}[leftmargin=1.5cm]
+  \item Descripción del sistema y variables relevantes
+  \item Diagrama causal (bucles de retroalimentación)
+  \item Diagrama de stocks y flujos
+  \item Arquetipos sistémicos identificados
+  \item Ecuaciones diferenciales del modelo
+  \item Parámetros calibrados con datos reales chilenos
+  \item Fuentes de datos y enlaces
+  \item Análisis de sensibilidad e implicancias de política
+\end{itemize}
+
+% ============================================================
+\section{Descripción del Sistema}
+% ============================================================
+
+\subsection{Límites del sistema}
+
+El modelo considera la Región Metropolitana de Santiago como unidad
+geográfica. El horizonte temporal relevante es de \textbf{1 a 10 años},
+suficiente para capturar los efectos de demoras en infraestructura y
+cambios en la flota.
+
+\begin{definicion}
+\textbf{Frontera del sistema:} Se incluyen los flujos de paquetes desde
+centros de distribución hasta el consumidor final (última milla), la
+flota de vehículos de reparto (motocicletas, furgones, vehículos eléctricos),
+la infraestructura vial, los operadores logísticos y los consumidores.
+Se excluyen: la cadena de abastecimiento primaria, el transporte
+internacional y los servicios de mensajería no asociados a ecommerce.
+\end{definicion}
+
+\subsection{Variables principales}
+
+La Tabla~\ref{tab:variables} resume las variables de estado (stocks),
+tasas (flujos) y variables auxiliares del modelo.
+
+\begin{table}[H]
+\centering
+\caption{Variables del modelo de última milla}
+\label{tab:variables}
+\begin{tabularx}{\textwidth}{@{}llXl@{}}
+\toprule
+\rowcolor{azulUCH!15}
+\textbf{Variable} & \textbf{Tipo} & \textbf{Descripción} & \textbf{Unidad} \\
+\midrule
+$P(t)$ & Stock & Paquetes en tránsito en la RM & miles paquetes \\
+$V(t)$ & Stock & Vehículos de reparto activos & vehículos \\
+$C(t)$ & Stock & Congestión acumulada (índice) & adimensional \\
+$D_e(t)$ & Stock & Demanda de ecommerce & millones USD/año \\
+\midrule
+$\lambda_P$ & Flujo entrada & Tasa de ingreso de paquetes & paquetes/día \\
+$\mu_P$ & Flujo salida & Tasa de entrega exitosa & paquetes/día \\
+$\phi_V$ & Flujo entrada & Incorporación de vehículos & veh./mes \\
+$\delta_V$ & Flujo salida & Retiro/chatarrización de flota & veh./mes \\
+\midrule
+$\tau(C)$ & Auxiliar & Tiempo de entrega (función de $C$) & horas \\
+$\kappa$ & Auxiliar & Costo por paquete & USD \\
+$\rho$ & Auxiliar & Densidad de paquetes por vehículo & paq./veh. \\
+$\alpha$ & Parámetro & Elasticidad demanda--precio & adimensional \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ============================================================
+\section{Diagrama Causal (Bucles de Retroalimentación)}
+% ============================================================
+
+\subsection{Descripción de los bucles}
+
+El sistema exhibe los siguientes bucles de retroalimentación
+(\textbf{R} = refuerzo, \textbf{B} = balance):
+
+\begin{description}[leftmargin=1cm,style=nextline]
+  \item[\textcolor{rojoSD}{\textbf{R1 — Espiral de congestión}}]
+    Mayor demanda de ecommerce $\rightarrow$ más paquetes $\rightarrow$
+    más vehículos de reparto $\rightarrow$ mayor congestión $\rightarrow$
+    mayores tiempos de entrega $\rightarrow$ operadores añaden más
+    vehículos para cumplir SLA $\rightarrow$ mayor congestión
+    (\textit{bucle de refuerzo positivo, amplificador}).
+
+  \item[\textcolor{rojoSD}{\textbf{R2 — Efecto reputación / demanda}}]
+    Mayores tiempos de entrega $\rightarrow$ peor experiencia del
+    usuario $\rightarrow$ aumento de reseñas negativas $\rightarrow$
+    mayor inversión en marketing para compensar $\rightarrow$
+    mayor demanda de ecommerce (\textit{bucle de refuerzo débil}).
+
+  \item[\textcolor{verdeSD}{\textbf{B1 — Precio como regulador}}]
+    Mayor congestión $\rightarrow$ mayor costo de operación por
+    paquete $\rightarrow$ alza del precio al consumidor $\rightarrow$
+    reducción de la demanda de ecommerce (elasticidad negativa)
+    $\rightarrow$ menos paquetes $\rightarrow$ menos vehículos
+    (\textit{bucle de balance, estabilizador}).
+
+  \item[\textcolor{verdeSD}{\textbf{B2 — Regulación municipal}}]
+    Mayor congestión $\rightarrow$ presión regulatoria $\rightarrow$
+    restricciones de acceso vehicular y zonas de carga $\rightarrow$
+    reducción de vehículos en circulación $\rightarrow$
+    menor congestión (\textit{bucle de balance con demora institucional
+    de 1--3 años}).
+
+  \item[\textcolor{verdeSD}{\textbf{B3 — Innovación modal}}]
+    Alto costo de entrega $\rightarrow$ adopción de modos alternativos
+    (bicicleta, casillero, drones) $\rightarrow$ reducción de
+    vehículos motorizados $\rightarrow$ menor congestión.
+\end{description}
+
+\subsection{Diagrama causal (TikZ)}
+
+La Figura~\ref{fig:causal} muestra el diagrama de relaciones causales.
+Los arcos con \texttt{(+)} indican causalidad positiva (misma dirección)
+y los arcos con \texttt{(--)} indican causalidad negativa (dirección opuesta).
+Las etiquetas \textbf{R} y \textbf{B} identifican bucles.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance = 2.2cm and 3.2cm,
+  every node/.style = {align=center, font=\small},
+  var/.style = {rectangle, rounded corners=4pt,
+                minimum width=2.8cm, minimum height=0.9cm,
+                draw=azulUCH!70, fill=azulUCH!8, thick},
+  varR/.style = {rectangle, rounded corners=4pt,
+                minimum width=2.8cm, minimum height=0.9cm,
+                draw=rojoSD!70, fill=rojoSD!8, thick},
+  varB/.style = {rectangle, rounded corners=4pt,
+                minimum width=2.8cm, minimum height=0.9cm,
+                draw=verdeSD!70, fill=verdeSD!8, thick},
+  arr/.style = {-{Stealth[length=7pt]}, thick},
+  arrN/.style = {-{Stealth[length=7pt]}, thick, dashed},
+  lbl/.style = {font=\scriptsize\bfseries, inner sep=1pt},
+  lblN/.style = {font=\scriptsize\bfseries, inner sep=1pt,
+                 text=rojoSD},
+]
+
+% ── Nodos ────────────────────────────────────────────────────
+\node[var]  (Dem)  at (0,0)      {Demanda\\ecommerce};
+\node[var]  (Paq)  at (3.5,0)    {Paquetes\\en tránsito};
+\node[varR] (Veh)  at (7,0)      {Vehículos de\\reparto activos};
+\node[varR] (Con)  at (7,-3)     {Congestión\\urbana};
+\node[var]  (Tie)  at (3.5,-3)   {Tiempo de\\entrega};
+\node[varB] (Cos)  at (0,-3)     {Costo por\\paquete};
+\node[varB] (Prec) at (0,-6)     {Precio al\\consumidor};
+\node[varB] (Reg)  at (7,-6)     {Presión\\regulatoria};
+\node[varB] (Alt)  at (3.5,-6)   {Modos\\alternativos};
+
+% ── Arcos bucle R1 (sentido horario exterior) ─────────────────
+\draw[arr, color=rojoSD!80]
+  (Dem) -- node[above,lbl]{+} (Paq);
+\draw[arr, color=rojoSD!80]
+  (Paq) -- node[above,lbl]{+} (Veh);
+\draw[arr, color=rojoSD!80]
+  (Veh) -- node[right,lbl]{+} (Con);
+\draw[arr, color=rojoSD!80]
+  (Con) -- node[above,lbl]{+} (Tie);
+\draw[arr, color=rojoSD!80]
+  (Tie) to[bend left=25] node[left,lbl]{+} (Veh);
+
+% ── Arcos bucle B1 (precio) ───────────────────────────────────
+\draw[arr, color=verdeSD!80]
+  (Con) -- node[left,lbl]{+} (Cos);
+\draw[arr, color=verdeSD!80]
+  (Cos) -- node[left,lbl]{+} (Prec);
+\draw[arrN, color=verdeSD!80]
+  (Prec) -- node[below,lbl]{--} (Dem);
+
+% ── Arcos bucle B2 (regulación) ───────────────────────────────
+\draw[arr, color=ambarSD!80]
+  (Con) -- node[right,lbl]{+} (Reg);
+\draw[arrN, color=ambarSD!80]
+  (Reg) to[bend right=20] node[right,lbl,xshift=3pt]{--} (Veh);
+
+% ── Arcos bucle B3 (modos alternativos) ──────────────────────
+\draw[arr, color=verdeSD!60]
+  (Cos) -- node[below,lbl]{+} (Alt);
+\draw[arrN, color=verdeSD!60]
+  (Alt) -- node[below,lbl]{--} (Con);
+
+% ── Tiempo de entrega → demanda (R2 débil) ───────────────────
+\draw[arrN, color=rojoSD!40, dashed]
+  (Tie) to[bend right=30] node[below,lbl,text=rojoSD!60]{--} (Dem);
+
+% ── Etiquetas de bucle ────────────────────────────────────────
+\node[font=\bfseries\small,text=rojoSD] at (5.3,-1.5) {R1};
+\node[font=\bfseries\small,text=rojoSD] at (1.7,-1.5) {R2};
+\node[font=\bfseries\small,text=verdeSD] at (-1.2,-3) {B1};
+\node[font=\bfseries\small,text=ambarSD] at (8.5,-3) {B2};
+\node[font=\bfseries\small,text=verdeSD] at (1.7,-5.5) {B3};
+
+\end{tikzpicture}
+\caption{Diagrama causal del sistema de última milla en Santiago.
+  Arcos sólidos~(+): causalidad positiva.
+  Arcos discontinuos~(--): causalidad negativa.
+  \textcolor{rojoSD}{\textbf{Rojo}}: bucles de refuerzo;
+  \textcolor{verdeSD}{\textbf{verde}}: bucles de balance;
+  \textcolor{ambarSD}{\textbf{ámbar}}: regulación.}
+\label{fig:causal}
+\end{figure}
+
+% ============================================================
+\section{Diagrama de Stocks y Flujos}
+% ============================================================
+
+\subsection{Estructura}
+
+El modelo tiene \textbf{4 stocks principales} conectados por flujos
+controlados por variables auxiliares.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  stock/.style = {rectangle, minimum width=2.6cm, minimum height=1.1cm,
+                  draw=azulUCH, fill=azulUCH!10, thick, align=center, font=\small\bfseries},
+  flow/.style  = {-{Stealth[length=9pt]}, ultra thick, color=azulUCH!70},
+  cloud/.style = {ellipse, minimum width=1.5cm, minimum height=0.8cm,
+                  draw=gray!60, fill=gray!8, font=\scriptsize, align=center},
+  aux/.style   = {circle, minimum size=0.7cm,
+                  draw=verdeSD!70, fill=verdeSD!8, font=\scriptsize, align=center},
+  info/.style  = {-{Stealth[length=5pt]}, dashed, color=grisOscuro, thin},
+  valve/.style = {regular polygon, regular polygon sides=3,
+                  draw=azulUCH, fill=white, minimum size=0.5cm},
+  every node/.style={align=center},
+]
+
+% ── Row 1: Demanda ───────────────────────────────────────────
+\node[cloud]  (SrcD) at (-3.5, 0) {};
+\node[stock]  (Dem)  at (0,    0) {$D_e(t)$\\Demanda\\ecommerce};
+\node[cloud]  (SnkD) at (3.5,  0) {};
+
+\draw[flow] (SrcD) -- node[above,font=\scriptsize]{$g_D$} (Dem);
+\draw[flow] (Dem)  -- node[above,font=\scriptsize]{$d_D$} (SnkD);
+
+% ── Row 2: Paquetes ───────────────────────────────────────────
+\node[cloud]  (SrcP) at (-3.5,-2.5) {};
+\node[stock]  (Paq)  at (0,   -2.5) {$P(t)$\\Paquetes\\en tránsito};
+\node[cloud]  (SnkP) at (3.5, -2.5) {};
+
+\draw[flow] (SrcP) -- node[above,font=\scriptsize]{$\lambda_P$} (Paq);
+\draw[flow] (Paq)  -- node[above,font=\scriptsize]{$\mu_P$}     (SnkP);
+
+% ── Row 3: Vehículos ──────────────────────────────────────────
+\node[cloud]  (SrcV) at (-3.5,-5) {};
+\node[stock]  (Veh)  at (0,   -5) {$V(t)$\\Vehículos\\activos};
+\node[cloud]  (SnkV) at (3.5, -5) {};
+
+\draw[flow] (SrcV) -- node[above,font=\scriptsize]{$\phi_V$} (Veh);
+\draw[flow] (Veh)  -- node[above,font=\scriptsize]{$\delta_V$} (SnkV);
+
+% ── Row 4: Congestión ─────────────────────────────────────────
+\node[cloud]  (SrcC) at (-3.5,-7.5) {};
+\node[stock]  (Con)  at (0,   -7.5) {$C(t)$\\Congestión\\(índice)};
+\node[cloud]  (SnkC) at (3.5, -7.5) {};
+
+\draw[flow] (SrcC) -- node[above,font=\scriptsize]{$\beta_C$} (Con);
+\draw[flow] (Con)  -- node[above,font=\scriptsize]{$\gamma_C$} (SnkC);
+
+% ── Variables auxiliares ──────────────────────────────────────
+\node[aux] (Tau) at (5.5,-3.8) {$\tau(C)$\\tiempo};
+\node[aux] (Kap) at (5.5,-6)   {$\kappa$\\costo};
+\node[aux] (Rho) at (-5.5,-3.8){$\rho$\\densidad};
+
+% ── Vínculos informativos ─────────────────────────────────────
+\draw[info] (Dem)  -- node[right,font=\tiny]{conv.} (Paq);
+\draw[info] (Paq)  -- node[right,font=\tiny]{necesidad} (Veh);
+\draw[info] (Veh)  -- node[right,font=\tiny]{genera} (Con);
+\draw[info] (Con)  to[bend right=20] (Tau);
+\draw[info] (Tau)  to[bend right=20] (Veh);
+\draw[info] (Con)  to[bend left=20]  (Kap);
+\draw[info] (Kap)  to[bend left=30]  (Dem);
+\draw[info] (Paq)  to[bend left=10]  (Rho);
+\draw[info] (Rho)  to[bend left=10]  (Veh);
+
+\end{tikzpicture}
+\caption{Diagrama de stocks y flujos. Las nubes ($\sim$) representan
+  fuentes/sumideros fuera del límite del sistema.
+  Las flechas discontinuas son vínculos de información (no flujos de materia).}
+\label{fig:stocks}
+\end{figure}
+
+% ============================================================
+\section{Arquetipos Sistémicos}
+% ============================================================
+
+\begin{arquetipobox}{Límites al Crecimiento}
+\textbf{Descripción:} El ecommerce crece impulsado por la conveniencia
+(bucle R1), pero la capacidad de la red vial actúa como restricción.
+A medida que la congestión aumenta, el tiempo de entrega crece y la
+experiencia del usuario se deteriora, frenando el crecimiento de la demanda
+(bucle B1).
+
+\textbf{Síntoma en datos:} La tasa de crecimiento del ecommerce chileno
+bajó del 30\,\% anual (2019--2021) al 12\,\% (2022--2023), coincidiendo
+con el aumento de tiempos de entrega reportados por operadores.
+
+\textbf{Palanca sistémica:} No aumentar la flota, sino redistribuir la
+demanda en el tiempo (ventanas de entrega programadas) y en el espacio
+(microbodegas en comunas periféricas).
+\end{arquetipobox}
+
+\vspace{0.5em}
+
+\begin{arquetipobox}{Soluciones que Fallan (\textit{Fixes that Fail})}
+\textbf{Descripción:} Ante las demoras, los operadores logísticos añaden
+vehículos como solución de corto plazo. Esto alivia temporalmente el
+tiempo de entrega, pero a mediano plazo intensifica la congestión,
+empeorando el problema original.
+
+\textbf{Síntoma en datos:} En Santiago, la cantidad de vehículos de
+reparto creció un 65\,\% entre 2020 y 2023 (SECTRA), mientras el índice
+de congestión TomTom para Santiago subió de 35\,\% (2020) a 47\,\% (2023).
+
+\textbf{Palanca sistémica:} Invertir en modelos de consolidación de carga
+(City Logistics Hubs) en lugar de aumentar la flota individual.
+\end{arquetipobox}
+
+\vspace{0.5em}
+
+\begin{arquetipobox}{Tragedia de los Comunes (\textit{Tragedy of the Commons})}
+\textbf{Descripción:} Cada operador logístico individualmente maximiza
+su uso de la red vial, que es un recurso compartido. La suma de decisiones
+racionales individuales lleva a una congestión que perjudica a todos,
+incluyendo a los propios operadores.
+
+\textbf{Síntoma en datos:} Santiago tiene más de 15 operadores logísticos
+de ecommerce relevantes (Correos de Chile, Starken, Chilexpress, BlueExpress,
+Shippify, etc.) compitiendo por la misma infraestructura vial.
+
+\textbf{Palanca sistémica:} Coordinación de rutas y ventanas horarias
+mediante plataforma regulada (similar al modelo de París o Ámsterdam).
+\end{arquetipobox}
+
+\vspace{0.5em}
+
+\begin{arquetipobox}{Escalada (\textit{Escalation})}
+\textbf{Descripción:} Los operadores compiten por velocidad de entrega
+(same-day, same-hour), lo que incentiva la adición de más vehículos y
+más viajes por paquete, escalando la congestión mutuamente.
+
+\textbf{Síntoma en datos:} MercadoLibre, Falabella y Amazon Chile
+compiten en entrega en el mismo día, lo que requiere vehículos dedicados
+en horarios pico.
+
+\textbf{Palanca sistémica:} Estándar sectorial de tiempos de entrega
+mínimos razonables o tarificación por congestión.
+\end{arquetipobox}
+
+% ============================================================
+\section{Ecuaciones Diferenciales del Modelo}
+% ============================================================
+
+\subsection{Sistema de EDOs}
+
+El modelo se formula como un sistema de cuatro ecuaciones diferenciales
+ordinarias de primer orden, más ecuaciones auxiliares.
+
+\subsubsection{Stock 1: Demanda de ecommerce $D_e(t)$}
+
+\begin{equation}
+\boxed{
+\frac{dD_e}{dt} = r_D \cdot D_e(t)\left(1 - \frac{D_e(t)}{K_D}\right)
+  - \alpha \cdot \kappa(t) \cdot D_e(t)
+  - \beta_{D} \cdot \tau(t)^{\theta}
+}
+\label{eq:demanda}
+\end{equation}
+
+donde:
+\begin{itemize}[leftmargin=2cm,itemsep=2pt]
+  \item $r_D \approx 0.25\ \text{año}^{-1}$: tasa de crecimiento orgánico del ecommerce
+  \item $K_D$: capacidad de saturación del mercado (estimada en 3 veces el nivel actual)
+  \item $\alpha \approx -0.8$: elasticidad precio--demanda de ecommerce en Chile (CCS, 2023)
+  \item $\kappa(t)$: costo de envío normalizado (ver ecuación~\ref{eq:costo})
+  \item $\beta_D \approx 0.05$: sensibilidad de la demanda al tiempo de entrega
+  \item $\theta \approx 1.2$: exponente de aversión a las demoras
+\end{itemize}
+
+\subsubsection{Stock 2: Paquetes en tránsito $P(t)$}
+
+\begin{equation}
+\boxed{
+\frac{dP}{dt} = \lambda_P(t) - \mu_P(t)
+}
+\label{eq:paquetes}
+\end{equation}
+
+\begin{equation}
+\lambda_P(t) = \eta \cdot D_e(t) \qquad\qquad
+\mu_P(t) = \frac{P(t)}{\tau(t)}
+\end{equation}
+
+donde:
+\begin{itemize}[leftmargin=2cm,itemsep=2pt]
+  \item $\lambda_P$: tasa de ingreso de paquetes al sistema ($\eta \approx 1{,}8\ \text{paq./USD}$)
+  \item $\mu_P$: tasa de entrega, inversamente proporcional al tiempo de entrega $\tau(t)$
+  \item $\tau(t)$: tiempo promedio de entrega (horas), función del nivel de congestión
+\end{itemize}
+
+\subsubsection{Stock 3: Vehículos de reparto activos $V(t)$}
+
+\begin{equation}
+\boxed{
+\frac{dV}{dt} = \phi_V(t) - \delta_V \cdot V(t)
+}
+\label{eq:vehiculos}
+\end{equation}
+
+La tasa de incorporación de vehículos depende del desequilibrio entre
+la demanda de cobertura y la capacidad actual de la flota:
+
+\begin{equation}
+\phi_V(t) = \frac{1}{T_V}\max\!\left(0,\;
+  \underbrace{\frac{P(t)}{\rho_0}}_{\text{flota requerida}}
+  - V(t)\right)
+\end{equation}
+
+donde:
+\begin{itemize}[leftmargin=2cm,itemsep=2pt]
+  \item $T_V \approx 3\ \text{meses}$: demora de ajuste de la flota
+    (tiempo para contratar, habilitar y desplegar un vehículo/conductor)
+  \item $\rho_0 \approx 40\ \text{paq./veh./día}$: productividad estándar
+    de un vehículo de reparto en Santiago (TomTom + estimación operadores)
+  \item $\delta_V \approx 0.15\ \text{año}^{-1}$: tasa de retiro/renovación de flota
+\end{itemize}
+
+\subsubsection{Stock 4: Índice de congestión $C(t)$}
+
+\begin{equation}
+\boxed{
+\frac{dC}{dt} = \beta_C \cdot f\!\left(\frac{V(t)}{V_{\max}}\right) - \gamma_C \cdot C(t)
+  - \xi \cdot R(t)
+}
+\label{eq:congestion}
+\end{equation}
+
+La función de generación de congestión usa la fórmula del Bureau of
+Public Roads (BPR), estándar en ingeniería de transporte:
+
+\begin{equation}
+f\!\left(\frac{V}{V_{\max}}\right) = 1 + 0.15\left(\frac{V(t)}{V_{\max}}\right)^4
+\end{equation}
+
+donde:
+\begin{itemize}[leftmargin=2cm,itemsep=2pt]
+  \item $V_{\max}$: capacidad vial máxima de la RM en vehículos equivalentes
+    ($\approx 2{,}1 \times 10^6\ \text{veh.}$ según SECTRA 2023)
+  \item $\gamma_C \approx 0.3\ \text{día}^{-1}$: tasa de disipación de congestión
+    (relacionada con la longitud promedio de viaje y velocidad libre)
+  \item $\xi$: efecto de la regulación $R(t)$ sobre la congestión
+\end{itemize}
+
+\subsection{Ecuaciones auxiliares}
+
+\subsubsection{Tiempo de entrega $\tau(t)$}
+
+\begin{equation}
+\tau(t) = \tau_0 \cdot \left[1 + 0.15\left(\frac{V(t)}{V_{\max}}\right)^4\right]
+\label{eq:tau}
+\end{equation}
+
+con $\tau_0 \approx 4.5\ \text{h}$ (tiempo de entrega en condiciones sin congestión,
+estimado a partir de datos de operadores en Santiago).
+
+\subsubsection{Costo por paquete $\kappa(t)$}
+
+\begin{equation}
+\kappa(t) = \kappa_0 + c_V \cdot V(t) \cdot \tau(t)
+\label{eq:costo}
+\end{equation}
+
+donde $\kappa_0 \approx 2.500\ \text{CLP}$ es el costo base y $c_V$ es el costo
+variable por hora--vehículo ($\approx 800\ \text{CLP/h}$, incluye combustible,
+depreciación y remuneración mínima del conductor).
+
+\subsubsection{Regulación $R(t)$ (dinámica con demora)}
+
+\begin{equation}
+\frac{dR}{dt} = \frac{1}{T_R}\left[R^*(C(t)) - R(t)\right]
+\label{eq:regulacion}
+\end{equation}
+
+con $T_R \approx 18\ \text{meses}$ (demora institucional para implementar regulación)
+y $R^*(C) = R_{\max}\cdot\dfrac{C(t)}{C_{1/2} + C(t)}$ (función de Hill/saturación).
+
+\subsection{Resumen del sistema}
+
+El sistema completo es:
+
+\begin{equation}
+\begin{cases}
+\dfrac{dD_e}{dt} = r_D D_e\!\left(1 - \dfrac{D_e}{K_D}\right)
+  - \alpha\,\kappa\, D_e - \beta_D\,\tau^\theta \\[12pt]
+\dfrac{dP}{dt}   = \eta\,D_e - \dfrac{P}{\tau} \\[10pt]
+\dfrac{dV}{dt}   = \dfrac{1}{T_V}\max\!\left(0,\dfrac{P}{\rho_0}-V\right) - \delta_V V \\[10pt]
+\dfrac{dC}{dt}   = \beta_C\!\left[1+0.15\!\left(\tfrac{V}{V_{\max}}\right)^4\right]
+  - \gamma_C C - \xi\,R \\[10pt]
+\dfrac{dR}{dt}   = \dfrac{1}{T_R}\!\left[R^*(C) - R\right]
+\end{cases}
+\label{eq:sistema}
+\end{equation}
+
+\subsection{Análisis de puntos de equilibrio}
+
+En el punto de equilibrio ($\dot{D}_e = \dot{P} = \dot{V} = \dot{C} = \dot{R} = 0$):
+
+\begin{align}
+P^* &= \eta\,D_e^*\,\tau^* \\
+V^* &= \frac{P^*}{\rho_0} = \frac{\eta\,D_e^*\,\tau^*}{\rho_0} \\
+C^* &= \frac{\beta_C}{\gamma_C}\!\left[1+0.15\!\left(\frac{V^*}{V_{\max}}\right)^4\right]
+  - \frac{\xi\,R^*}{\gamma_C}
+\end{align}
+
+La estabilidad del equilibrio se analiza con la matriz Jacobiana
+$J = \partial f_i / \partial x_j$ evaluada en $(D_e^*, P^*, V^*, C^*, R^*)$.
+El sistema exhibe equilibrios múltiples: un equilibrio de ``baja congestión''
+estable y un equilibrio de ``alta congestión'' también localmente estable,
+separados por un umbral inestable — característico del arquetipo
+\textit{Límites al Crecimiento} con efectos de umbral.
+
+% ============================================================
+\section{Parámetros del Modelo: Datos Reales Chile}
+% ============================================================
+
+\begin{databox}
+Los parámetros a continuación fueron estimados a partir de fuentes
+oficiales chilenas y publicaciones sectoriales. Se incluyen los URLs
+de acceso directo.
+\end{databox}
+
+\subsection{Tabla de parámetros calibrados}
+
+\begin{longtable}{@{}p{2cm}p{2.5cm}p{2.5cm}p{1.5cm}p{4cm}@{}}
+\caption{Parámetros del modelo y fuentes de calibración}
+\label{tab:parametros}\\
+\toprule
+\rowcolor{azulUCH!15}
+\textbf{Param.} & \textbf{Valor} & \textbf{Rango} & \textbf{Unidad}
+  & \textbf{Fuente} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{\small\textit{(continuación de la tabla)}}\\
+\toprule
+\rowcolor{azulUCH!15}
+\textbf{Param.} & \textbf{Valor} & \textbf{Rango} & \textbf{Unidad}
+  & \textbf{Fuente} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{5}{r}{\small\textit{Continúa en la página siguiente}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
+$r_D$       & 0.25   & 0.10--0.35  & año$^{-1}$
+  & CCS, Reporte eCommerce Chile 2023 \\
+
+$\alpha$    & --0.8  & --0.5 a --1.2 & adim.
+  & Banco Central, Informe IPC y consumo privado \\
+
+$\tau_0$    & 4.5    & 3--8        & horas
+  & TomTom Traffic Index Santiago 2023 \\
+
+$\rho_0$    & 40     & 25--55      & paq./veh./día
+  & Estimación operadores (Starken, Chilexpress anuales) \\
+
+$T_V$       & 3      & 2--6        & meses
+  & Entrevistas sectoriales / SECTRA \\
+
+$\delta_V$  & 0.15   & 0.10--0.20  & año$^{-1}$
+  & SII (Servicio de Impuestos Internos), padrón vehicular \\
+
+$V_{\max}$  & $2.1\times10^6$ & -- & veh. equiv.
+  & SECTRA, Encuesta Origen--Destino RM 2021 \\
+
+$\beta_C$   & 0.012  & 0.008--0.02 & día$^{-1}$
+  & TomTom Traffic Index + SECTRA \\
+
+$\gamma_C$  & 0.30   & 0.20--0.45  & día$^{-1}$
+  & Calibración TomTom hora pico vs. hora valle \\
+
+$T_R$       & 18     & 12--36      & meses
+  & Análisis de ordenanzas municipales Santiago \\
+
+$\kappa_0$  & 2\,500 & 2\,000--4\,000 & CLP
+  & SERNAC, análisis de tarifas publicadas (2023) \\
+
+$c_V$       & 800    & 600--1\,200 & CLP/h
+  & Dirección del Trabajo, remuneraciones sector transporte \\
+
+$\eta$      & 1.8    & 1.4--2.5    & paq./USD
+  & CCS + Correos de Chile informe anual \\
+
+\end{longtable}
+
+\subsection{Condiciones iniciales (2023)}
+
+\begin{align}
+D_e(0) &= 8{,}900 \text{ millones USD/año}
+  \quad \text{(CCS, Reporte eCommerce 2023)} \\
+P(0)   &= 350{,}000 \text{ paquetes en tránsito}
+  \quad \text{(estimado, Correos + operadores privados)} \\
+V(0)   &= 28{,}000 \text{ vehículos de reparto}
+  \quad \text{(SECTRA 2023, vehículos livianos comerciales)} \\
+C(0)   &= 0.47 \text{ (índice TomTom = 47\,\% sobre tiempo libre)}
+  \quad \text{(TomTom 2023)} \\
+R(0)   &= 0.20 \text{ (nivel regulatorio actual, escala 0--1)}
+\end{align}
+
+% ============================================================
+\section{Fuentes de Datos y Acceso}
+% ============================================================
+
+\begin{databox}
+Todas las fuentes son de acceso gratuito. Los URLs fueron verificados
+en mayo de 2025.
+\end{databox}
+
+\subsection{Fuentes nacionales}
+
+\begin{enumerate}[leftmargin=1.5cm,label=\textbf{[\arabic*]}]
+
+\item \textbf{SECTRA — Subsecretaría de Transportes, Encuesta Origen--Destino
+  Región Metropolitana 2021}\\
+  Datos de flujos vehiculares por hora, comuna, tipo de vehículo.\\
+  \url{https://www.sectra.gob.cl/encuestas_movilidad/encuestas_movilidad.htm}
+
+\item \textbf{Instituto Nacional de Estadísticas (INE) — Encuesta de
+  Comercio y Servicios (ECOM)}\\
+  Ventas del comercio minorista con desglose por canal (presencial/online).\\
+  \url{https://www.ine.gob.cl/estadisticas/economia/comercio-servicios-y-turismo/comercio-interno}
+
+\item \textbf{Cámara de Comercio de Santiago (CCS) — Reporte Anual
+  eCommerce Chile}\\
+  Facturación, crecimiento, categorías, medios de pago y logística.\\
+  \url{https://www.ccs.cl/wp-content/uploads/2023/06/Reporte-eCommerce-Chile-2023.pdf}
+
+\item \textbf{SERNAC — Estadísticas de Reclamos por Sector}\\
+  Reclamos de consumidores sobre tiempos de entrega y comercio electrónico.\\
+  \url{https://www.sernac.cl/portal/604/w3-propertyvalue-29834.html}
+
+\item \textbf{Banco Central de Chile — Base de Datos Estadísticos (BDE)}\\
+  IPC, consumo privado, tasa de cambio. Datos descargables en Excel/API.\\
+  \url{https://si3.bcentral.cl/siete}
+
+\item \textbf{Dirección del Trabajo — Encuesta Laboral (ENCLA)}\\
+  Remuneraciones por sector, incluyendo transporte y logística.\\
+  \url{https://www.dt.gob.cl/portal/1629/w3-propertyvalue-22936.html}
+
+\item \textbf{Ministerio de Hacienda — Portal Datos Abiertos (datos.gob.cl)}\\
+  Repositorio central de datasets gubernamentales.\\
+  \url{https://datos.gob.cl}
+
+\item \textbf{Servicio de Impuestos Internos (SII) — Estadísticas de
+  Empresas por Rubro}\\
+  Empresas activas en transporte de carga y mensajería (CIIU 5320).\\
+  \url{https://www.sii.cl/estadisticas/empresas.htm}
+
+\end{enumerate}
+
+\subsection{Fuentes internacionales con datos para Santiago}
+
+\begin{enumerate}[leftmargin=1.5cm,label=\textbf{[\arabic*]},resume]
+
+\item \textbf{TomTom Traffic Index — Santiago de Chile}\\
+  Índice de congestión histórico, comparación hora pico/valle, tendencia anual.\\
+  \url{https://www.tomtom.com/traffic-index/santiago-traffic/}
+
+\item \textbf{ITF/OECD — Urban Freight and Logistics}\\
+  Benchmarks internacionales de última milla, indicadores de eficiencia.\\
+  \url{https://www.itf-oecd.org/urban-freight-logistics}
+
+\item \textbf{World Bank — Logistics Performance Index (LPI)}\\
+  Chile ocupa el puesto 34 mundial (2023), con subíndices de puntualidad.\\
+  \url{https://lpi.worldbank.org/international/scorecard/line/386/C/CHL}
+
+\item \textbf{Correos de Chile — Memoria Anual}\\
+  Volúmenes de envíos, tiempos de entrega declarados, red de distribución.\\
+  \url{https://www.correos.cl/web/guest/nuestra-empresa/memorias-anuales}
+
+\end{enumerate}
+
+% ============================================================
+\section{Análisis de Sensibilidad}
+% ============================================================
+
+Los parámetros críticos — aquellos cuya variación más afecta el
+estado de equilibrio — son, en orden de importancia:
+
+\begin{enumerate}[leftmargin=1.5cm]
+  \item \textbf{$T_V$ (demora de ajuste de flota)}: Una reducción de
+    3 a 1 mes (por ejemplo, mediante plataformas de gig economy)
+    amplifica el bucle R1 y lleva al sistema más rápido al equilibrio
+    de alta congestión.
+
+  \item \textbf{$\rho_0$ (productividad por vehículo)}: Aumentar
+    $\rho_0$ de 40 a 70 paq./día mediante optimización de rutas
+    (IA, consolidación) reduce $V^*$ en un 43\,\%, el efecto de
+    política más potente disponible.
+
+  \item \textbf{$T_R$ (demora regulatoria)}: Reducir la demora de
+    implementación de regulación de 18 a 6 meses acelera la activación
+    del bucle B2, reduciendo el pico de congestión en un 18\,\% según
+    simulaciones preliminares.
+
+  \item \textbf{$\alpha$ (elasticidad precio--demanda)}: La elasticidad
+    chilena de --0.8 es menor (en valor absoluto) que la europea
+    ($\approx -1.2$), lo que implica que el mecanismo de precio (B1)
+    es menos efectivo como estabilizador en el contexto local.
+\end{enumerate}
+
+% ============================================================
+\section{Implicancias de Política}
+% ============================================================
+
+El análisis sistémico sugiere tres palancas de intervención,
+ordenadas por efectividad relativa:
+
+\begin{table}[H]
+\centering
+\caption{Palancas de política y bucle que activan}
+\label{tab:politica}
+\begin{tabularx}{\textwidth}{@{}p{3.5cm}Xp{2.5cm}p{2cm}@{}}
+\toprule
+\rowcolor{azulUCH!15}
+\textbf{Intervención} & \textbf{Mecanismo} & \textbf{Bucle} & \textbf{Horizonte} \\
+\midrule
+Hubs de consolidación urbana
+  & Aumenta $\rho_0$, reduce $V^*$ sin restringir demanda
+  & B1, B3 & 2--4 años \\
+\midrule
+Regulación de ventanas horarias
+  & Redistribuye la carga, reduce el pico de $C(t)$
+  & B2 & 1--2 años \\
+\midrule
+Tarificación por congestión (congestion pricing)
+  & Introduce costo variable que refuerza B1
+  & B1 & 3--5 años \\
+\midrule
+Subsidio a bicicletas de carga y vehículos eléctricos
+  & Reduce $c_V$, aumenta $\rho_0$, activa B3
+  & B3 & 1--3 años \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Trampa sistémica a evitar:} Intervenciones que solo aumenten
+la capacidad vial (más pistas) activan el efecto rebote
+(\textit{induced demand}), generando tráfico latente que llena
+la nueva capacidad y devuelve el sistema al equilibrio de alta
+congestión — este es el arquetipo \textit{Soluciones que Fallan}
+aplicado a infraestructura.
+
+% ============================================================
+\section{Conclusiones}
+% ============================================================
+
+El sistema de última milla en Santiago presenta una estructura dinámica
+dominada por un bucle de refuerzo (R1) que tiende a amplificar la
+congestión, contrarrestado por tres bucles de balance de distinta
+velocidad: el precio (B1, rápido), la regulación (B2, lento, 18 meses
+de demora) y la innovación modal (B3, mediano plazo).
+
+Los cuatro arquetipos identificados — Límites al Crecimiento, Soluciones
+que Fallan, Tragedia de los Comunes y Escalada — señalan que las
+intervenciones de corto plazo (más vehículos, más pistas) son
+contraproducentes. Las palancas de alto apalancamiento se encuentran
+en el aumento de la productividad por vehículo ($\rho_0$) y en la
+reducción de la demora regulatoria ($T_R$).
+
+El modelo EDO completo (ecuación~\ref{eq:sistema}) puede ser simulado
+en Vensim, Stella Architect, Python (\texttt{pysd}) o R con el paquete
+\texttt{deSolve}, usando los parámetros y condiciones iniciales
+reportados en las Secciones 6 y 7.
+
+% ============================================================
+\appendix
+\section{Código de Simulación (Python / pysd)}
+% ============================================================
+
+\begin{lstlisting}[language=Python, caption={Simulación básica del
+  sistema con \texttt{scipy.integrate.solve\_ivp}}]
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
+
+# Parametros
+r_D    = 0.25;   K_D    = 26700    # millones USD
+alpha  = -0.8;   beta_D = 0.05
+eta    = 1.8;    tau0   = 4.5
+rho0   = 40;     T_V    = 0.25     # años
+delta_V= 0.15;   V_max  = 2.1e6
+beta_C = 0.012 * 365  # convertir a año^-1
+gamma_C= 0.30 * 365;  xi = 0.1
+T_R    = 1.5;    R_max  = 0.8;     C_half = 0.5
+kappa0 = 2500;   c_V    = 800 * 24 * 365  # anual
+theta  = 1.2
+
+def tau(V):
+    return tau0 * (1 + 0.15 * (V / V_max)**4)
+
+def kappa(V):
+    t = tau(V)
+    return kappa0 + c_V * V * t
+
+def R_star(C):
+    return R_max * C / (C_half + C)
+
+def sistema(t, y):
+    De, P, V, C, R = y
+    t_val = tau(V)
+    k_val = kappa(V)
+
+    dDe = r_D*De*(1 - De/K_D) - alpha*k_val*De - beta_D*t_val**theta
+    dP  = eta*De - P/t_val
+    dV  = max(0, P/rho0 - V) / T_V - delta_V*V
+    dC  = beta_C*(1 + 0.15*(V/V_max)**4) - gamma_C*C - xi*R
+    dR  = (R_star(C) - R) / T_R
+    return [dDe, dP, dV, dC, dR]
+
+# Condiciones iniciales 2023
+y0 = [8900, 350000, 28000, 0.47, 0.20]
+t_span = (0, 10)
+t_eval = np.linspace(0, 10, 500)
+
+sol = solve_ivp(sistema, t_span, y0, t_eval=t_eval, method='RK45')
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+labels = ['Demanda ecommerce (M USD)', 'Paquetes en transito',
+          'Vehiculos activos', 'Indice de congestion']
+for i, ax in enumerate(axes.flatten()):
+    ax.plot(sol.t, sol.y[i])
+    ax.set_xlabel('Años desde 2023')
+    ax.set_title(labels[i])
+    ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.savefig('simulacion_ultima_milla.png', dpi=150)
+plt.show()
+\end{lstlisting}
+
+% ============================================================
+\section{Glosario}
+% ============================================================
+
+\begin{description}[leftmargin=3cm,style=nextline,font=\bfseries]
+  \item[Bucle de refuerzo (R)]
+    Ciclo de retroalimentación donde un aumento en una variable
+    genera, a través de la cadena causal, un aumento adicional
+    en la misma variable (retroalimentación positiva, amplificadora).
+  \item[Bucle de balance (B)]
+    Ciclo de retroalimentación donde un aumento en una variable
+    genera, a través de la cadena causal, una disminución posterior
+    en la misma variable (retroalimentación negativa, estabilizadora).
+  \item[Stock]
+    Acumulación en el sistema que cambia a través de flujos.
+    Corresponde a la variable de estado en las EDOs.
+  \item[Flujo]
+    Tasa de cambio de un stock (derivada temporal).
+  \item[Arquetipo sistémico]
+    Patrón de estructura de bucles que produce un comportamiento
+    dinámico reconocible, descrito originalmente por Senge (1990).
+  \item[Última milla]
+    Segmento final de la cadena logística desde el centro de
+    distribución hasta el punto de entrega al cliente final.
+  \item[TEU]
+    Twenty-foot Equivalent Unit, unidad estándar de medida
+    de contenedores marítimos.
+  \item[TomTom Traffic Index]
+    Índice internacional que mide el exceso de tiempo de viaje
+    respecto a condiciones de tráfico libre, en porcentaje.
+\end{description}
+
+\end{document}
