@@ -1,0 +1,651 @@
+% ─────────────────────────────────────────────────────────────────────────────
+%  Descomposición Lagrangiana — Apuntes Teóricos
+%  Autor: P. Hurtado · 2026
+% ─────────────────────────────────────────────────────────────────────────────
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper, top=1.8cm, bottom=2.0cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, fit, backgrounds, decorations.pathreplacing}
+
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+\setlength{\headheight}{19pt}
+
+\numberwithin{equation}{section}
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{sectionbg}{rgb}{0.16,0.26,0.52}
+\definecolor{subsecbg}{rgb}{0.38,0.50,0.75}
+\definecolor{codeblue}{rgb}{0.0,0.28,0.68}
+\definecolor{notebg}{rgb}{1.0,0.97,0.87}
+\definecolor{noteborder}{rgb}{0.80,0.65,0.25}
+\definecolor{defbg}{rgb}{0.93,0.98,0.93}
+\definecolor{defborder}{rgb}{0.25,0.60,0.30}
+\definecolor{thmbg}{rgb}{0.92,0.95,1.0}
+\definecolor{thmborder}{rgb}{0.25,0.45,0.80}
+\definecolor{exbg}{rgb}{0.96,0.96,0.96}
+\definecolor{exborder}{rgb}{0.55,0.55,0.55}
+\definecolor{warnbg}{rgb}{1.0,0.94,0.93}
+\definecolor{warnborder}{rgb}{0.80,0.25,0.20}
+\definecolor{proofbg}{rgb}{0.98,0.97,1.0}
+\definecolor{proofborder}{rgb}{0.55,0.40,0.75}
+
+\hypersetup{colorlinks=true, linkcolor=codeblue, citecolor=codeblue, urlcolor=codeblue}
+
+% ─── Cabeceras ───────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\sffamily\color{sectionbg}Descomposici\'on Lagrangiana}
+\fancyhead[R]{\footnotesize\sffamily\color{sectionbg}2025}
+\fancyfoot[C]{\footnotesize\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{subsecbg}\leaders\hrule height \headrulewidth\hfill}}
+
+% ─── tcolorbox styles ────────────────────────────────────────────────────────
+\tcbset{
+  defbox/.style={
+    enhanced, colback=defbg, colframe=defborder,
+    boxrule=0.6pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=defborder, titlerule=0pt, colupper=black,
+  },
+  thmbox/.style={
+    enhanced, colback=thmbg, colframe=thmborder,
+    boxrule=0.6pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=thmborder, titlerule=0pt,
+  },
+  exbox/.style={
+    enhanced, colback=exbg, colframe=exborder,
+    boxrule=0.4pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=exborder, titlerule=0pt,
+  },
+  notebox/.style={
+    colback=notebg, colframe=noteborder, boxrule=0.4pt, arc=3pt,
+    left=5pt, right=5pt, top=4pt, bottom=4pt, fontupper=\footnotesize\itshape,
+  },
+  warnbox/.style={
+    enhanced, colback=warnbg, colframe=warnborder,
+    boxrule=0.6pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=warnborder, titlerule=0pt,
+    title={$\triangle$\ Atenci\'on}, fontupper=\small,
+  },
+  proofbox/.style={
+    enhanced, colback=proofbg, colframe=proofborder!60,
+    boxrule=0.6pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\itshape\sffamily, coltitle=white, colbacktitle=proofborder!80, titlerule=0pt,
+    title={Demostraci\'on}, fontupper=\small,
+  },
+}
+
+% ─── Helpers ─────────────────────────────────────────────────────────────────
+\newcommand{\secheader}[2]{%
+  \refstepcounter{section}%
+  \addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}%
+  \vspace{10pt}\needspace{6cm}\noindent%
+  \begin{tcolorbox}[colback=sectionbg, colupper=white, colframe=sectionbg, sharp corners,
+    left=8pt, right=8pt, top=5pt, bottom=5pt, fontupper=\large\bfseries\sffamily]
+  Secci\'on #1:\enspace #2
+  \end{tcolorbox}\vspace{2pt}%
+}
+
+\newcommand{\subsecheader}[1]{%
+  \needspace{4cm}\vspace{6pt}\noindent%
+  \addcontentsline{toc}{subsection}{#1}%
+  \begin{tcolorbox}[colback=subsecbg!18, colframe=subsecbg!45, sharp corners, boxrule=0.4pt,
+    left=5pt, right=5pt, top=2pt, bottom=2pt, fontupper=\small\bfseries\sffamily]
+  #1
+  \end{tcolorbox}\vspace{1pt}%
+}
+
+% ─── Macros matemáticos base ─────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Nset}{\mathbb{N}}
+\newcommand{\E}[1]{\mathbb{E}\!\left[#1\right]}
+
+% ─── Macros específicos de optimización ──────────────────────────────────────
+\newcommand{\lagr}{\mathcal{L}}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\ip}[2]{\left\langle #1,\,#2 \right\rangle}
+\DeclareMathOperator{\argmin}{arg\,min}
+\DeclareMathOperator{\argmax}{arg\,max}
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\newcommand{\vopt}{v^*}
+\newcommand{\subg}{\mathbf{g}}
+
+% ─── Contadores ──────────────────────────────────────────────────────────────
+\newcounter{defcount}[section]
+\renewcommand{\thedefcount}{\thesection.\arabic{defcount}}
+\newcounter{thmcount}[section]
+\renewcommand{\thethmcount}{\thesection.\arabic{thmcount}}
+\newcounter{excount}[section]
+\renewcommand{\theexcount}{\thesection.\arabic{excount}}
+
+% ─── Entornos ────────────────────────────────────────────────────────────────
+\newenvironment{definicion}[1]{%
+  \refstepcounter{defcount}%
+  \begin{tcolorbox}[defbox, title={Definici\'on \thedefcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{teorema}[1]{%
+  \refstepcounter{thmcount}%
+  \begin{tcolorbox}[thmbox, title={Teorema \thethmcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{proposicion}[1]{%
+  \refstepcounter{thmcount}%
+  \begin{tcolorbox}[thmbox, title={Proposici\'on \thethmcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{ejemplo}[1]{%
+  \refstepcounter{excount}%
+  \begin{tcolorbox}[exbox, title={Ejemplo \theexcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{nota}{\begin{tcolorbox}[notebox]}{\end{tcolorbox}}
+\newenvironment{cuidado}{\begin{tcolorbox}[warnbox]}{\end{tcolorbox}}
+\newenvironment{demostracion}{\begin{tcolorbox}[proofbox]}{\hfill$\square$\end{tcolorbox}}
+
+% ─── Listings ────────────────────────────────────────────────────────────────
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\color{codeblue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  backgroundcolor=\color{exbg},
+  frame=single, framerule=0.4pt, framesep=3pt,
+  breaklines=true, numbers=left, numberstyle=\tiny\color{gray},
+  tabsize=4,
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{tcolorbox}[colback=sectionbg, colupper=white, colframe=sectionbg,
+    sharp corners, left=12pt, right=12pt, top=10pt, bottom=10pt]
+  {\Large\bfseries\sffamily Descomposici\'on Lagrangiana}\\[4pt]
+  {\normalsize\sffamily T\'ecnicas de Descomposici\'on en Optimizaci\'on}\\[6pt]
+  {\small\sffamily\color{white!80!sectionbg}
+    Relajaci\'on Lagrangiana \textperiodcentered\ Dual Lagrangiano \textperiodcentered\
+    M\'etodo del Subgradiente \textperiodcentered\ Recuperaci\'on Primal \textperiodcentered\
+    Aplicaciones}\\[6pt]
+  {\footnotesize\sffamily\color{white!85!sectionbg}\itshape
+    Por P. Hurtado \textperiodcentered\ 2025}
+\end{tcolorbox}
+
+\vspace{6pt}
+\tableofcontents
+\vspace{8pt}
+
+% =============================================================================
+\secheader{1}{Motivaci\'on y Contexto}
+% =============================================================================
+
+\subsecheader{Por qu\'e descomponer}
+
+Muchos problemas de optimizaci\'on de gran escala poseen una \emph{estructura de bloque}: la mayor\'ia de las restricciones involucran variables de un solo subsistema, pero existe un conjunto reducido de restricciones que \emph{acoplan} todos los subsistemas entre s\'i. Resolver el problema monol\'iticamente puede ser computacionalmente prohibitivo; la descomposici\'on explota esa estructura para reducir el problema a subproblemas m\'as peque\~nos y manejables.
+
+\begin{definicion}{Restricci\'on complicante}
+  Una restricci\'on $h_i(x)=0$ (o $\leq 0$) se denomina \emph{complicante} si, al eliminarla, el problema se descompone en subproblemas independientes. Formalmente, si $x=(x_1,\ldots,x_K)$ y la restricci\'on vincula variables de distintos bloques $x_k$, es una restricci\'on complicante.
+\end{definicion}
+
+\begin{nota}
+  La dificultad computacional de un MIP (problema entero-mixto) suele ser NP-difícil. Cuando la estructura de bloque es explotable, los subproblemas resultantes pueden resolverse en paralelo y de forma m\'as eficiente que el problema original.
+\end{nota}
+
+\subsecheader{Estructura explotable}
+
+\begin{definicion}{Estructura de bloque}
+  Se dice que el problema tiene \emph{estructura de bloque acoplada} si su matriz de restricciones puede escribirse como:
+  \[
+    \begin{pmatrix} A \\ B_1 & & \\ & B_2 & \\ & & \ddots \\ & & & B_K \end{pmatrix}
+    \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_K \end{pmatrix}
+    \begin{matrix} =b \\ =b_1 \\ =b_2 \\ \vdots \\ =b_K \end{matrix}
+  \]
+  donde $A$ son las filas de restricciones complicantes (que involucran a todos los bloques) y $B_k$ son bloques diagonales independientes.
+\end{definicion}
+
+\begin{ejemplo}{Problema de localizaci\'on de instalaciones (UFL)}
+  En el problema de localizaci\'on no capacitado, las variables $y_j\in\{0,1\}$ indican si la instalaci\'on $j$ est\'a abierta, y $x_{ij}\geq 0$ es la fracci\'on de demanda del cliente $i$ servida por la instalaci\'on $j$. La restricci\'on $\sum_j x_{ij}=1$ para cada cliente $i$ acopla todas las instalaciones y es la restricci\'on complicante natural. Al relajarla, el problema se separa por instalaci\'on.
+\end{ejemplo}
+
+% =============================================================================
+\secheader{2}{Formulaci\'on del Problema}
+% =============================================================================
+
+\subsecheader{Forma can\'onica con restricciones complicantes}
+
+\begin{definicion}{Problema primal (P)}
+  Sea el problema de optimizaci\'on:
+  \begin{align}
+    \text{(P)}\quad \min_{x} \quad & c^{\top}x \label{eq:primal}                             \\
+    \text{s.a.} \quad              & Ax = b \quad \text{(restricciones complicantes)} \notag \\
+                                   & x \in X \quad \text{(restricciones de bloque)} \notag
+  \end{align}
+  donde $c\in\R^n$, $A\in\R^{m\times n}$, $b\in\R^m$ y $X\subseteq\R^n$ es un conjunto \emph{factible} (posiblemente no convexo, e.g., $X=\{0,1\}^n$).
+\end{definicion}
+
+\begin{proposicion}{Factibilidad de X}
+  Asumimos que $X$ es no vac\'io, compacto (o que el problema es acotado sobre $X$), y que su estructura interna permite resolverlo de forma eficiente (e.g., $X$ es un politopo o admite relajaci\'on convexa tratable).
+\end{proposicion}
+
+\begin{nota}
+  Si $X = X_1\times X_2\times\cdots\times X_K$ (producto cartesiano de conjuntos por bloque) y $c=(c_1,\ldots,c_K)$, $x=(x_1,\ldots,x_K)$, entonces al eliminar las restricciones $Ax=b$, el problema se descompone en $K$ subproblemas independientes:
+  \[
+    \min_{x_k\in X_k} c_k^{\top}x_k, \quad k=1,\ldots,K.
+  \]
+\end{nota}
+
+\subsecheader{Variables de acoplamiento}
+
+\begin{definicion}{Variables de acoplamiento}
+  Las \emph{variables de acoplamiento} son aquellas que aparecen en las restricciones complicantes $Ax=b$. Su presencia en m\'ultiples bloques es la raz\'on por la que el problema no se descompone directamente.
+\end{definicion}
+
+\begin{ejemplo}{Flujo multi-commodity}
+  En un problema de flujo en red multi-commodity, cada commodity $k$ tiene su propio vector de flujo $f^k$. La restricci\'on de capacidad de arco $\sum_k f^k_{ij}\leq u_{ij}$ acopla todos los commodities a trav\'es del arco $(i,j)$: es la restricci\'on complicante. Si se relaja, cada commodity se resuelve con su propio problema de shortest-path.
+\end{ejemplo}
+
+% =============================================================================
+\secheader{3}{Relajaci\'on Lagrangiana}
+% =============================================================================
+
+\subsecheader{Construcci\'on de la funci\'on Lagrangiana}
+
+\begin{definicion}{Funci\'on Lagrangiana}
+  Dados los \emph{multiplicadores Lagrangianos} $\lambda\in\R^m$, la \emph{funci\'on Lagrangiana} de (P) es:
+  \[
+    \lagr(x,\lambda) = c^{\top}x + \lambda^{\top}(Ax-b) = (c+A^{\top}\lambda)^{\top}x - \lambda^{\top}b.
+  \]
+  Observar que $\lagr$ es lineal en $\lambda$ para $x$ fijo, y lineal en $x$ para $\lambda$ fijo.
+\end{definicion}
+
+\begin{proposicion}{Validez de la relajaci\'on}
+  Para todo $\lambda\in\R^m$ y todo $x\in X$ que satisfaga $Ax=b$:
+  \[
+    \lagr(x,\lambda) = c^{\top}x + \lambda^{\top}\underbrace{(Ax-b)}_{=0} = c^{\top}x.
+  \]
+  Por lo tanto, $\min_{x\in X,\,Ax=b}\lagr(x,\lambda) \leq \min_{x\in X,\,Ax=b}c^{\top}x = v(\text{P})$.
+\end{proposicion}
+
+\begin{cuidado}
+  La relajaci\'on Lagrangiana \emph{no} es la misma que la relajaci\'on lineal (LP relaxation). La relajaci\'on LP relaja la integridad de $x$; la relajaci\'on Lagrangiana relaja las restricciones complicantes $Ax=b$ incorpor\'andolas a la funci\'on objetivo, manteniendo $x\in X$ (que puede incluir integridad).
+\end{cuidado}
+
+\subsecheader{Problema Lagrangiano (subproblema)}
+
+\begin{definicion}{Subproblema Lagrangiano LR($\lambda$)}
+  Para un $\lambda$ fijo, el \emph{problema Lagrangiano} es:
+  \[
+    \text{LR}(\lambda):\quad q(\lambda) = \min_{x\in X}\,\lagr(x,\lambda) = \min_{x\in X}\left[(c+A^{\top}\lambda)^{\top}x\right] - \lambda^{\top}b.
+  \]
+  Si $X=X_1\times\cdots\times X_K$ y $c$, $A$ son conformes con esa partici\'on:
+  \[
+    q(\lambda) = \sum_{k=1}^K \min_{x_k\in X_k}\left[(c_k+A_k^{\top}\lambda)^{\top}x_k\right] - \lambda^{\top}b,
+  \]
+  donde el problema se descompone en $K$ subproblemas independientes.
+\end{definicion}
+
+\begin{proposicion}{Cota inferior v\'alida}\label{prop:cota}
+  Para todo $\lambda\in\R^m$: $q(\lambda)\leq v(\text{P})$.
+\end{proposicion}
+
+\begin{demostracion}
+  Sea $x^*$ una soluci\'on \'optima de (P). Entonces $x^*\in X$ y $Ax^*=b$. Por lo tanto:
+  \[
+    q(\lambda) = \min_{x\in X}\lagr(x,\lambda) \leq \lagr(x^*,\lambda) = c^{\top}x^* + \lambda^{\top}(Ax^*-b) = c^{\top}x^* = v(\text{P}).
+  \]
+\end{demostracion}
+
+% =============================================================================
+\secheader{4}{Dual Lagrangiano}
+% =============================================================================
+
+\subsecheader{Funci\'on dual Lagrangiana}
+
+\begin{definicion}{Funci\'on dual $q(\lambda)$}
+  La \emph{funci\'on dual Lagrangiana} es $q:\R^m\to\R\cup\{-\infty\}$ definida por:
+  \[
+    q(\lambda) = \inf_{x\in X}\,\lagr(x,\lambda).
+  \]
+\end{definicion}
+
+\begin{proposicion}{Concavidad de $q$}
+  $q(\lambda)$ es una funci\'on \emph{c\'oncava} de $\lambda$, independientemente de si $X$ es convexo o no.
+\end{proposicion}
+
+\begin{demostracion}
+  Para $\lambda_1, \lambda_2\in\R^m$ y $\alpha\in[0,1]$:
+  \begin{align*}
+    q(\alpha\lambda_1+(1-\alpha)\lambda_2) & = \inf_{x\in X}\,\lagr(x,\alpha\lambda_1+(1-\alpha)\lambda_2)                          \\
+                                           & = \inf_{x\in X}\left[\alpha\lagr(x,\lambda_1)+(1-\alpha)\lagr(x,\lambda_2)\right]      \\
+                                           & \geq \alpha\inf_{x\in X}\lagr(x,\lambda_1) + (1-\alpha)\inf_{x\in X}\lagr(x,\lambda_2) \\
+                                           & = \alpha\, q(\lambda_1) + (1-\alpha)\,q(\lambda_2).
+  \end{align*}
+  Esto prueba que $q$ es c\'oncava (el \'infimo de funciones afines en $\lambda$ es c\'oncavo).
+\end{demostracion}
+
+\begin{nota}
+  $q$ es c\'oncava pero generalmente \emph{no diferenciable}: puede tener kinks donde la soluci\'on \'optima del subproblema cambia. Sin embargo, $q$ es subdifferentiable en todos los puntos de su dominio efectivo.
+\end{nota}
+
+\subsecheader{Problema Dual Lagrangiano}
+
+\begin{definicion}{Problema Dual (D)}
+  El \emph{problema dual Lagrangiano} busca la mejor cota inferior:
+  \[
+    \text{(D)}\quad v(\text{D}) = \max_{\lambda\in\R^m}\,q(\lambda) = \max_{\lambda\in\R^m}\,\min_{x\in X}\,\lagr(x,\lambda).
+  \]
+\end{definicion}
+
+\begin{teorema}{Dualidad d\'ebil}
+  Siempre se cumple $v(\text{D})\leq v(\text{P})$.
+\end{teorema}
+
+\begin{demostracion}
+  Inmediata de la Proposici\'on~\ref{prop:cota}: $q(\lambda)\leq v(\text{P})$ para todo $\lambda$, y por ende $v(\text{D})=\max_\lambda q(\lambda)\leq v(\text{P})$.
+\end{demostracion}
+
+\begin{definicion}{Brecha de dualidad}
+  La \emph{brecha de dualidad} es $v(\text{P})-v(\text{D})\geq 0$.
+\end{definicion}
+
+\subsecheader{Condiciones de dualidad fuerte}
+
+\begin{teorema}{Dualidad fuerte para LP}
+  Si $X$ es un poliedro (i.e., (P) es un programa lineal), entonces $v(\text{D})=v(\text{P})$ (no hay brecha de dualidad).
+\end{teorema}
+
+\begin{proposicion}{Cota de la relajaci\'on Lagrangiana para MIP}
+  Para un MIP donde $X$ contiene restricciones de integridad, la relajaci\'on Lagrangiana puede ser \emph{m\'as fuerte} que la relajaci\'on LP:
+  \[
+    v(\text{LP-relax})\leq v(\text{D})\leq v(\text{P}).
+  \]
+  La desigualdad $v(\text{LP-relax})\leq v(\text{D})$ se tiene cuando las restricciones complicantes relajadas son las que generan la brecha integridad-LP.
+\end{proposicion}
+
+\begin{cuidado}
+  En general, $v(\text{D})<v(\text{P})$ para MIP (brecha de dualidad positiva). Esto significa que incluso resolviendo el dual exactamente, no obtenemos directamente la soluci\'on \'optima primal del MIP; se necesita una heur\'istica primal adicional.
+\end{cuidado}
+
+\begin{ejemplo}{Comparaci\'on de cotas — Knapsack 2D}
+  Considere un problema de knapsack con $n=5$ \'items, 2 restricciones de capacidad y $x\in\{0,1\}^5$. Al relajar la segunda restricci\'on de capacidad con $\lambda$:
+  \begin{center}
+    \begin{tabular}{lcc}
+      \toprule
+      M\'etodo                 & Cota inferior & Observaci\'on            \\
+      \midrule
+      LP-relajaci\'on          & 42.1          & Soluciones fraccionarias \\
+      Relajaci\'on Lagrangiana & 44.3          & Mantiene integridad en X \\
+      Soluci\'on MIP \'optima  & 45.0          & Brecha LR: 1.5\%         \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  La relajaci\'on Lagrangiana aporta una cota m\'as ajustada que la LP-relajaci\'on.
+\end{ejemplo}
+
+% =============================================================================
+\secheader{5}{M\'etodo del Subgradiente}
+% =============================================================================
+
+\subsecheader{Subdifferential de la funci\'on dual}
+
+\begin{definicion}{Subgradiente de $q$}
+  Un vector $\subg\in\R^m$ es un \emph{subgradiente} de $q$ en $\lambda$ si:
+  \[
+    q(\lambda')\leq q(\lambda)+\subg^{\top}(\lambda'-\lambda)\quad\forall\,\lambda'\in\R^m.
+  \]
+  El conjunto de todos los subgradientes en $\lambda$ es el \emph{subdifferential} $\partial q(\lambda)$.
+\end{definicion}
+
+\begin{proposicion}{C\'alculo del subgradiente}
+  Si $x^*(\lambda)\in\argmin_{x\in X}\lagr(x,\lambda)$, entonces $\subg = Ax^*(\lambda)-b$ es un subgradiente de $q$ en $\lambda$.
+\end{proposicion}
+
+\begin{demostracion}
+  Para cualquier $\lambda'\in\R^m$:
+  \begin{align*}
+    q(\lambda') & = \min_{x\in X}\,\lagr(x,\lambda') \leq \lagr(x^*(\lambda),\lambda')                                                                  \\
+                & = (c+A^{\top}\lambda')^{\top}x^*(\lambda)-\lambda'^{\top}b                                                                            \\
+                & = (c+A^{\top}\lambda)^{\top}x^*(\lambda)-\lambda^{\top}b + (A^{\top}(\lambda'-\lambda))^{\top}x^*(\lambda)-(\lambda'-\lambda)^{\top}b \\
+                & = q(\lambda) + \lambda^{\top}b + (Ax^*(\lambda)-b)^{\top}(\lambda'-\lambda).
+  \end{align*}
+  Identificando con la definici\'on: $\subg = Ax^*(\lambda)-b$.
+\end{demostracion}
+
+\begin{nota}
+  El subgradiente $g^k = Ax^k-b$ mide el \emph{grado de infactibilidad} de la soluci\'on $x^k$ del subproblema respecto a las restricciones complicantes. Si $g^k=0$, la soluci\'on es factible para (P).
+\end{nota}
+
+\subsecheader{Algoritmo del subgradiente}
+
+\begin{definicion}{Iteraci\'on del subgradiente}
+  En la iteraci\'on $k$, el multiplicador se actualiza como:
+  \[
+    \lambda^{k+1} = \lambda^k + t_k\,\subg^k, \quad \subg^k = Ax^k-b.
+  \]
+  Dado que maximizamos $q$ (c\'oncava), nos \emph{movemos en la direcci\'on del subgradiente} (ascenso).
+\end{definicion}
+
+\begin{definicion}{Reglas de paso $t_k$}
+  Existen tres reglas cl\'asicas:
+  \begin{enumerate}
+    \item \textbf{Paso fijo}: $t_k=\alpha>0$ (converge a un entorno del \'optimo, no exactamente).
+    \item \textbf{Paso decreciente}: $\sum_{k=0}^{\infty}t_k=\infty$ y $\sum_{k=0}^{\infty}t_k^2<\infty$, e.g., $t_k=c/\sqrt{k+1}$ (convergencia garantizada a $v(\text{D})$).
+    \item \textbf{Paso de Polyak}: $t_k = \dfrac{\alpha_k\bigl(\overline{v}-q(\lambda^k)\bigr)}{\|\subg^k\|^2}$, donde $\overline{v}$ es una cota superior de $v(\text{P})$ y $\alpha_k\in(0,2]$.
+  \end{enumerate}
+\end{definicion}
+
+\begin{nota}
+  El paso de Polyak es el m\'as usado en la pr\'actica. Requiere conocer (o estimar) una cota superior $\overline{v}\geq v(\text{P})$, que se obtiene de heur\'isticas primales. Con $\alpha_k\equiv 1$ el m\'etodo es el de Shor (1985).
+\end{nota}
+
+El pseudoc\'odigo del algoritmo es:
+
+\begin{tcolorbox}[colback=exbg, colframe=exborder, boxrule=0.4pt, arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt, title={\small\bfseries\sffamily Algoritmo del Subgradiente},
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=exborder]
+  \begin{algorithmic}[1]
+    \State Inicializar $\lambda^0\leftarrow \mathbf{0}$, $\text{LB}\leftarrow -\infty$, $\text{UB}\leftarrow +\infty$, $k\leftarrow 0$
+    \Repeat
+    \State Resolver $x^k\leftarrow \argmin_{x\in X}(c+A^{\top}\lambda^k)^{\top}x$
+    \State $q^k\leftarrow (c+A^{\top}\lambda^k)^{\top}x^k - (\lambda^k)^{\top}b$
+    \State $\text{LB}\leftarrow \max(\text{LB},\,q^k)$
+    \State Calcular/actualizar cota superior $\text{UB}$ con heur\'istica primal sobre $x^k$
+    \State $\subg^k\leftarrow Ax^k - b$
+    \State $t_k\leftarrow \alpha_k\cdot(\text{UB}-q^k)/\|\subg^k\|^2$ \quad\textit{(paso de Polyak)}
+    \State $\lambda^{k+1}\leftarrow \lambda^k + t_k\,\subg^k$
+    \State $k\leftarrow k+1$
+    \Until{$|\text{UB}-\text{LB}|/|\text{LB}|<\varepsilon$ \textbf{o} $\|\subg^k\|<\delta$ \textbf{o} $k\geq K_{\max}$}
+  \end{algorithmic}
+\end{tcolorbox}
+
+\subsecheader{Convergencia}
+
+\begin{teorema}{Convergencia del m\'etodo del subgradiente}
+  Con paso decreciente $t_k=c/\sqrt{k}$:
+  \[
+    \limsup_{k\to\infty}\, q(\lambda^k) = v(\text{D}).
+  \]
+  Con paso de Polyak ($\alpha_k\to 0$, $\sum\alpha_k=\infty$): la secuencia $\{q(\lambda^k)\}$ converge a $v(\text{D})$.
+\end{teorema}
+
+\begin{proposicion}{No monotonicidad}
+  La secuencia $\{q(\lambda^k)\}$ \emph{no} es monot\'onamente creciente en general. Es posible que $q(\lambda^{k+1})<q(\lambda^k)$. Por eso se registra $\text{LB}=\max_k q(\lambda^k)$.
+\end{proposicion}
+
+\begin{cuidado}
+  El m\'etodo del subgradiente puede zigzaguear y converger lentamente. En instancias grandes, miles de iteraciones pueden ser necesarias. Los \emph{bundle methods} son una alternativa que acumula informaci\'on subgradiente para estabilizar la convergencia.
+\end{cuidado}
+
+% =============================================================================
+\secheader{6}{Recuperaci\'on de Soluci\'on Primal}
+% =============================================================================
+
+\subsecheader{El problema de la brecha primal-dual}
+
+\begin{nota}
+  La soluci\'on $x^k=x^*(\lambda^k)$ del subproblema Lagrangiano satisface $x^k\in X$ pero generalmente \emph{no} satisface las restricciones complicantes $Ax^k=b$. Esto es: $x^k$ es infactible para (P).
+\end{nota}
+
+\begin{proposicion}{Condici\'on de optimalidad primal}
+  Si existe $\lambda^*$ tal que: (1) $x^*(\lambda^*)\in X$, (2) $Ax^*(\lambda^*)=b$, y (3) $\lambda^{*\top}(Ax^*(\lambda^*)-b)=0$ (complementariedad), entonces $x^*(\lambda^*)$ es \'optima para (P) y $v(\text{D})=v(\text{P})$ (no hay brecha).
+\end{proposicion}
+
+\subsecheader{T\'ecnicas de recuperaci\'on}
+
+\begin{definicion}{Promediado de soluciones}
+  La heur\'istica de promediado define:
+  \[
+    \bar{x}^K = \frac{1}{K}\sum_{k=1}^K x^k \quad\text{o}\quad \bar{x}^K = \frac{\sum_k t_k x^k}{\sum_k t_k}.
+  \]
+  Bajo condiciones de regularidad (Nedic \& Bertsekas, 2001), $\bar{x}^K$ converge al \'optimo dual, pero puede ser infactible o fraccionario para MIP.
+\end{definicion}
+
+\begin{definicion}{Proyecci\'on al conjunto factible}
+  Dada $\bar{x}$, se resuelve el problema de factibilizaci\'on:
+  \[
+    \min_{x:\,Ax=b,\,x\in X}\|\,x-\bar{x}\,\|^2.
+  \]
+  Esto proyecta $\bar{x}$ al conjunto factible de (P), obteniendo una soluci\'on primal candidata.
+\end{definicion}
+
+\begin{nota}
+  En la pr\'actica, la cota superior (UB) se obtiene aplicando una heur\'istica primal ad-hoc a cada soluci\'on $x^k$: e.g., asignaci\'on greedy, rounding, o resoluci\'on de un MIP peque\~no con $x^k$ como punto de inicio.
+\end{nota}
+
+% =============================================================================
+\secheader{7}{Interpretaci\'on Econ\'omica}
+% =============================================================================
+
+\subsecheader{Los multiplicadores como precios}
+
+\begin{definicion}{Precio sombra}
+  El multiplicador \'optimo $\lambda_i^*$ es el \emph{precio sombra} del recurso $i$: si el RHS $b_i$ aumenta en una unidad, el valor \'optimo $v(\text{D})$ aumenta en aproximadamente $\lambda_i^*$.
+\end{definicion}
+
+\begin{proposicion}{Complementariedad}
+  En el \'optimo dual $\lambda^*$ (cuando no hay brecha), se satisface la condici\'on de complementariedad:
+  \[
+    \lambda_i^*\,(Ax^*)_i - \lambda_i^*\,b_i = 0 \quad \forall\,i.
+  \]
+  Es decir: si la restricci\'on $i$ es inactiva en $x^*$, entonces $\lambda_i^*=0$.
+\end{proposicion}
+
+\subsecheader{Descomposici\'on por agentes}
+
+\begin{nota}
+  Cuando $X=X_1\times\cdots\times X_K$, el subproblema Lagrangiano se descompone en $K$ subproblemas independientes. Cada subproblema $k$ optimiza:
+  \[
+    \min_{x_k\in X_k}(c_k+A_k^{\top}\lambda)^{\top}x_k,
+  \]
+  que puede interpretarse como la decisi\'on \'optima del \emph{agente} $k$ bajo los \emph{precios} $\lambda$. El coordinador central actualiza $\lambda$ seg\'un el subgradiente (desequilibrio de recursos), y cada agente responde optimizando bajo los nuevos precios.
+\end{nota}
+
+\begin{ejemplo}{Sistema el\'ectrico desacoplado}
+  En un sistema el\'ectrico con $N$ generadores y $T$ per\'iodos, relajando las restricciones de balance de potencia $\sum_n p_{nt}=D_t$, el multiplicador $\lambda_t$ es el \emph{precio de la energ\'ia} en el per\'iodo $t$. Cada generador $n$ resuelve su propio problema de \emph{unit commitment} con costos modificados $(c_n-\lambda_t)$, de forma totalmente independiente.
+\end{ejemplo}
+
+% =============================================================================
+\secheader{8}{Aplicaciones}
+% =============================================================================
+
+\subsecheader{Localizaci\'on de instalaciones (UFL)}
+
+\begin{definicion}{Formulaci\'on UFL}
+  \[
+    \min\;\sum_j f_j y_j + \sum_{i,j}c_{ij}x_{ij}\quad
+    \text{s.a.}\;\sum_j x_{ij}=1\;\forall i,\; x_{ij}\leq y_j\;\forall i,j,\; y_j\in\{0,1\},\;x_{ij}\geq 0.
+  \]
+  Al relajar $\sum_j x_{ij}=1$ con multiplicadores $\lambda_i$, el subproblema se descompone por instalaci\'on $j$:
+  \[
+    \min_{y_j\in\{0,1\}}\;\left[f_j y_j + \sum_i\max(0,c_{ij}-\lambda_i)\right].
+  \]
+\end{definicion}
+
+\subsecheader{Ruteo de veh\'iculos (VRP)}
+
+\begin{nota}
+  En VRP, al relajar las restricciones de cobertura de clientes con multiplicadores $\lambda_i$ (uno por cliente), los subproblemas son problemas de \emph{shortest path} independientes por veh\'iculo. El subgradiente mide cu\'antos clientes quedan sin cubrir (o cubiertos en exceso).
+\end{nota}
+
+\subsecheader{Unit Commitment en sistemas de potencia}
+
+\begin{definicion}{Formulaci\'on UC}
+  El problema de unit commitment minima el costo de operaci\'on de $N$ generadores en $T$ per\'iodos, sujeto a restricciones de ramping, m\'inimo tiempo encendido/apagado y balance de potencia:
+  \[
+    \sum_n p_{nt}=D_t\quad\forall t\quad\text{(restricci\'on complicante)}.
+  \]
+  Al relajar el balance con $\lambda_t$, cada unidad $n$ resuelve un MILP peque\~no con costo por per\'iodo $(c_n-\lambda_t)p_{nt}$.
+\end{definicion}
+
+% =============================================================================
+\secheader{9}{Limitaciones y Alternativas}
+% =============================================================================
+
+\subsecheader{Limitaciones del m\'etodo del subgradiente}
+
+\begin{cuidado}
+  \begin{itemize}
+    \item Convergencia lenta en la pr\'actica: puede requerir miles de iteraciones.
+    \item No se garantiza la factibilidad de la soluci\'on primal sin una heur\'istica adicional.
+    \item La brecha de dualidad puede ser no nula para MIP: $v(\text{D})<v(\text{P})$.
+    \item El m\'etodo del subgradiente no verifica optimalidad local; puede estancarse sin haber llegado al \'optimo dual.
+  \end{itemize}
+\end{cuidado}
+
+\subsecheader{Alternativas y extensiones}
+
+\begin{definicion}{Bundle methods (m\'etodos de haz)}
+  Los \emph{bundle methods} acumulan los subgradientes de iteraciones anteriores para construir un \emph{modelo lineal por partes} de $q$. Resuelven un QP en cada iteraci\'on para obtener una direcci\'on de ascenso estabilizada. Convergen m\'as r\'apido que el subgradiente puro, pero con mayor costo por iteraci\'on.
+\end{definicion}
+
+\begin{definicion}{Descomposici\'on de Dantzig-Wolfe}
+  Es el dual de la descomposici\'on Lagrangiana en cierto sentido: trabaja en el espacio primal mediante \emph{generaci\'on de columnas}. El problema maestro es el problema dual en variables de precio, y los subproblemas generan columnas (puntos extremos de $\conv(X_k)$). Cuando los subproblemas son LPs, ambas descomposiciones son equivalentes.
+\end{definicion}
+
+\begin{proposicion}{Relaci\'on entre descomposiciones}
+  Para problemas con estructura de bloque y $X$ poliedro, la descomposici\'on Lagrangiana (resolviendo el dual) y la descomposici\'on de Dantzig-Wolfe (generaci\'on de columnas en el primal) producen la misma cota $v(\text{D})=v(\text{LP-relax})$.
+\end{proposicion}
+
+\begin{nota}
+  La descomposici\'on de Benders (ver apunte complementario) puede verse como la ``dual'' de la descomposici\'on Lagrangiana cuando se fijan variables complicantes (binarias) en el maestro y el subproblema es un LP.
+\end{nota}
+
+\vspace{12pt}
+\begin{tcolorbox}[colback=sectionbg!8, colframe=sectionbg!40, boxrule=0.5pt, arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+  {\small\sffamily\bfseries Referencias principales:}\\[3pt]
+  {\footnotesize
+    \textbullet\ Held \& Karp (1970) — Uso de relajaci\'on Lagrangiana en TSP.\\
+    \textbullet\ Fisher (1981) — ``The Lagrangian Relaxation Method for Solving Integer Programming Problems''. \textit{Management Science}.\\
+    \textbullet\ Shor (1985) — \textit{Minimization Methods for Non-Differentiable Functions}. Springer.\\
+    \textbullet\ Nedic \& Bertsekas (2001) — Convergencia del m\'etodo del subgradiente. \textit{Mathematical Programming}.\\
+    \textbullet\ Lemaréchal (2001) — Bundle methods. Handbook of Applied Optimization.
+  }
+\end{tcolorbox}
+
+\end{document}

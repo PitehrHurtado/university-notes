@@ -1,0 +1,619 @@
+% ─────────────────────────────────────────────────────────────────────────────
+%  Descomposición de Benders — Apuntes Teóricos
+%  Autor: P. Hurtado · 2026
+% ─────────────────────────────────────────────────────────────────────────────
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper, top=1.8cm, bottom=2.0cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, fit, backgrounds, decorations.pathreplacing}
+
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+\setlength{\headheight}{19pt}
+
+\numberwithin{equation}{section}
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{sectionbg}{rgb}{0.16,0.26,0.52}
+\definecolor{subsecbg}{rgb}{0.38,0.50,0.75}
+\definecolor{codeblue}{rgb}{0.0,0.28,0.68}
+\definecolor{notebg}{rgb}{1.0,0.97,0.87}
+\definecolor{noteborder}{rgb}{0.80,0.65,0.25}
+\definecolor{defbg}{rgb}{0.93,0.98,0.93}
+\definecolor{defborder}{rgb}{0.25,0.60,0.30}
+\definecolor{thmbg}{rgb}{0.92,0.95,1.0}
+\definecolor{thmborder}{rgb}{0.25,0.45,0.80}
+\definecolor{exbg}{rgb}{0.96,0.96,0.96}
+\definecolor{exborder}{rgb}{0.55,0.55,0.55}
+\definecolor{warnbg}{rgb}{1.0,0.94,0.93}
+\definecolor{warnborder}{rgb}{0.80,0.25,0.20}
+\definecolor{proofbg}{rgb}{0.98,0.97,1.0}
+\definecolor{proofborder}{rgb}{0.55,0.40,0.75}
+
+\hypersetup{colorlinks=true, linkcolor=codeblue, citecolor=codeblue, urlcolor=codeblue}
+
+% ─── Cabeceras ───────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\sffamily\color{sectionbg}Descomposici\'on de Benders}
+\fancyhead[R]{\footnotesize\sffamily\color{sectionbg}2025}
+\fancyfoot[C]{\footnotesize\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{subsecbg}\leaders\hrule height \headrulewidth\hfill}}
+
+% ─── tcolorbox styles ────────────────────────────────────────────────────────
+\tcbset{
+  defbox/.style={
+    enhanced, colback=defbg, colframe=defborder,
+    boxrule=0.6pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=defborder, titlerule=0pt, colupper=black,
+  },
+  thmbox/.style={
+    enhanced, colback=thmbg, colframe=thmborder,
+    boxrule=0.6pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=thmborder, titlerule=0pt,
+  },
+  exbox/.style={
+    enhanced, colback=exbg, colframe=exborder,
+    boxrule=0.4pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=exborder, titlerule=0pt,
+  },
+  notebox/.style={
+    colback=notebg, colframe=noteborder, boxrule=0.4pt, arc=3pt,
+    left=5pt, right=5pt, top=4pt, bottom=4pt, fontupper=\footnotesize\itshape,
+  },
+  warnbox/.style={
+    enhanced, colback=warnbg, colframe=warnborder,
+    boxrule=0.6pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=warnborder, titlerule=0pt,
+    title={$\triangle$\ Atenci\'on}, fontupper=\small,
+  },
+  proofbox/.style={
+    enhanced, colback=proofbg, colframe=proofborder!60,
+    boxrule=0.6pt, arc=3pt, left=7pt, right=7pt, top=5pt, bottom=5pt,
+    fonttitle=\small\itshape\sffamily, coltitle=white, colbacktitle=proofborder!80, titlerule=0pt,
+    title={Demostraci\'on}, fontupper=\small,
+  },
+}
+
+% ─── Helpers ─────────────────────────────────────────────────────────────────
+\newcommand{\secheader}[2]{%
+  \refstepcounter{section}%
+  \addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}%
+  \vspace{10pt}\needspace{6cm}\noindent%
+  \begin{tcolorbox}[colback=sectionbg, colupper=white, colframe=sectionbg, sharp corners,
+    left=8pt, right=8pt, top=5pt, bottom=5pt, fontupper=\large\bfseries\sffamily]
+  Secci\'on #1:\enspace #2
+  \end{tcolorbox}\vspace{2pt}%
+}
+
+\newcommand{\subsecheader}[1]{%
+  \needspace{4cm}\vspace{6pt}\noindent%
+  \addcontentsline{toc}{subsection}{#1}%
+  \begin{tcolorbox}[colback=subsecbg!18, colframe=subsecbg!45, sharp corners, boxrule=0.4pt,
+    left=5pt, right=5pt, top=2pt, bottom=2pt, fontupper=\small\bfseries\sffamily]
+  #1
+  \end{tcolorbox}\vspace{1pt}%
+}
+
+% ─── Macros matemáticos ──────────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\ip}[2]{\left\langle #1,\,#2 \right\rangle}
+\DeclareMathOperator{\argmin}{arg\,min}
+\DeclareMathOperator{\argmax}{arg\,max}
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+
+% ─── Contadores ──────────────────────────────────────────────────────────────
+\newcounter{defcount}[section]
+\renewcommand{\thedefcount}{\thesection.\arabic{defcount}}
+\newcounter{thmcount}[section]
+\renewcommand{\thethmcount}{\thesection.\arabic{thmcount}}
+\newcounter{excount}[section]
+\renewcommand{\theexcount}{\thesection.\arabic{excount}}
+
+% ─── Entornos ────────────────────────────────────────────────────────────────
+\newenvironment{definicion}[1]{%
+  \refstepcounter{defcount}%
+  \begin{tcolorbox}[defbox, title={Definici\'on \thedefcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{teorema}[1]{%
+  \refstepcounter{thmcount}%
+  \begin{tcolorbox}[thmbox, title={Teorema \thethmcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{proposicion}[1]{%
+  \refstepcounter{thmcount}%
+  \begin{tcolorbox}[thmbox, title={Proposici\'on \thethmcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{ejemplo}[1]{%
+  \refstepcounter{excount}%
+  \begin{tcolorbox}[exbox, title={Ejemplo \theexcount\ \textperiodcentered\ #1}]%
+}{\end{tcolorbox}}
+
+\newenvironment{nota}{\begin{tcolorbox}[notebox]}{\end{tcolorbox}}
+\newenvironment{cuidado}{\begin{tcolorbox}[warnbox]}{\end{tcolorbox}}
+\newenvironment{demostracion}{\begin{tcolorbox}[proofbox]}{\hfill$\square$\end{tcolorbox}}
+
+% ─── Listings ────────────────────────────────────────────────────────────────
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\color{codeblue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  backgroundcolor=\color{exbg},
+  frame=single, framerule=0.4pt, framesep=3pt,
+  breaklines=true, numbers=left, numberstyle=\tiny\color{gray},
+  tabsize=4, language=Python,
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{tcolorbox}[colback=sectionbg, colupper=white, colframe=sectionbg,
+    sharp corners, left=12pt, right=12pt, top=10pt, bottom=10pt]
+  {\Large\bfseries\sffamily Descomposici\'on de Benders}\\[4pt]
+  {\normalsize\sffamily T\'ecnicas de Descomposici\'on en Optimizaci\'on}\\[6pt]
+  {\small\sffamily\color{white!80!sectionbg}
+    Problema Maestro \textperiodcentered\ Subproblema \textperiodcentered\
+    Cortes de Optimalidad y Factibilidad \textperiodcentered\
+    Algoritmo Cl\'asico \textperiodcentered\ Callbacks de Gurobi \textperiodcentered\ Extensiones}\\[6pt]
+  {\footnotesize\sffamily\color{white!85!sectionbg}\itshape
+    Por P. Hurtado \textperiodcentered\ 2025}
+\end{tcolorbox}
+
+\vspace{6pt}
+\tableofcontents
+\vspace{8pt}
+
+% =============================================================================
+\secheader{1}{Motivaci\'on}
+% =============================================================================
+
+\subsecheader{Variables complicantes en MIP}
+
+\begin{definicion}{Variables complicantes}
+  En un problema de optimizaci\'on mixto-entero, las \emph{variables complicantes} son aquellas que, al ser fijadas (en general, las variables binarias/enteras), dejan un subproblema m\'as f\'acil de resolver (t\'ipicamente un LP). La idea de Benders es iterar sobre los valores de estas variables, resolviendo el subproblema resultante en cada iteraci\'on.
+\end{definicion}
+
+\begin{ejemplo}{Localizaci\'on-Transporte}
+  En un problema de localizaci\'on de instalaciones con costos de transporte, las variables $y_j\in\{0,1\}$ (abrir instalaci\'on $j$) son las variables complicantes. Al fijar $y^*$, el subproblema de transporte en $x$ es un LP de flujo, resoluble en tiempo polinomial.
+\end{ejemplo}
+
+\begin{nota}
+  La descomposici\'on de Benders (Benders, 1962) es especialmente \'util cuando: (1) las variables complicantes son pocas respecto al total de variables, y (2) el subproblema resultante tiene estructura explotable (LP, flujo en red, etc.).
+\end{nota}
+
+% =============================================================================
+\secheader{2}{Problema Maestro y Subproblema}
+% =============================================================================
+
+\subsecheader{Formulaci\'on general}
+
+\begin{definicion}{Problema original}
+  Consideramos el problema:
+  \begin{align}
+    \min_{x,y}\quad  & c^{\top}x + f^{\top}y \label{eq:original} \\
+    \text{s.a.}\quad & Ax + By \geq b \notag                     \\
+                     & x \geq 0,\quad y\in Y \notag
+  \end{align}
+  donde $x\in\R^n$ son las variables continuas (de \emph{recourse}) e $y\in Y\subseteq\R^p$ son las variables complicantes (tipicamente enteras: $Y\subseteq\mathbb{Z}^p$).
+\end{definicion}
+
+\begin{definicion}{Subproblema SP($y^*$)}
+  Para un valor fijo $y^*\in Y$, el \emph{subproblema} en $x$ es:
+  \begin{align}
+    \text{SP}(y^*):\quad \min_{x\geq 0}\quad & c^{\top}x \label{eq:sp} \\
+    \text{s.a.}\quad                         & Ax \geq b - By^* \notag
+  \end{align}
+  Este es un LP en $x$ (asumiendo $A$, $c$ fijas).
+\end{definicion}
+
+\begin{definicion}{Dual del subproblema DSP($y^*$)}
+  El dual de SP($y^*$) es:
+  \begin{align}
+    \text{DSP}(y^*):\quad \max_{u\geq 0}\quad & u^{\top}(b-By^*) \label{eq:dsp} \\
+    \text{s.a.}\quad                          & A^{\top}u \leq c \notag
+  \end{align}
+  La regi\'on factible del dual $\mathcal{U}=\{u\geq 0: A^{\top}u\leq c\}$ es \emph{independiente} de $y^*$.
+\end{definicion}
+
+\begin{proposicion}{Independencia del poliedro dual}
+  El poliedro $\mathcal{U}=\{u\geq 0: A^{\top}u\leq c\}$ no depende de $y^*$. Por lo tanto, sus puntos extremos $\{u^1,\ldots,u^P\}$ y sus rayos extremos $\{r^1,\ldots,r^Q\}$ son fijos para todas las iteraciones del algoritmo.
+\end{proposicion}
+
+\begin{demostracion}
+  La factibilidad del dual $A^{\top}u\leq c$, $u\geq 0$ depende \'unicamente de las matrices $A$ y $c$, que no var\'ian al cambiar $y^*$. Por lo tanto, la geometr\'ia del poliedro factible del dual es invariante.
+\end{demostracion}
+
+\subsecheader{Funci\'on de recourse}
+
+\begin{definicion}{Funci\'on de recourse $Q(y)$}
+  La \emph{funci\'on de recourse} es:
+  \[
+    Q(y) = \min_{x\geq 0}\{c^{\top}x : Ax\geq b-By\} = \max_{u\in\mathcal{U}}\,u^{\top}(b-By).
+  \]
+\end{definicion}
+
+\begin{proposicion}{Convexidad de $Q(y)$}
+  $Q(y)$ es una funci\'on \emph{convexa} de $y$ (sobre el dominio donde SP($y$) es factible).
+\end{proposicion}
+
+\begin{demostracion}
+  $Q(y)=\max_{u\in\mathcal{U}}\,u^{\top}(b-By)$ es el m\'aximo de funciones afines en $y$, que es una funci\'on convexa.
+\end{demostracion}
+
+\begin{nota}
+  La convexidad de $Q(y)$ implica que los \emph{cortes de Benders} son planos de soporte de $Q$: cada corte es una cota inferior lineal v\'alida de $Q(y)$ para todo $y$.
+\end{nota}
+
+% =============================================================================
+\secheader{3}{Cortes de Optimalidad y Factibilidad}
+% =============================================================================
+
+\subsecheader{Cortes de optimalidad}
+
+\begin{definicion}{Corte de optimalidad}
+  Para cada punto extremo \'optimo $u^p\in\mathcal{U}$ de DSP($y^k$), el \emph{corte de optimalidad} es:
+  \[
+    \eta \geq (u^p)^{\top}(b-By) \quad\forall y\in Y,
+  \]
+  donde $\eta$ es la variable surrogate que representa el costo del subproblema en el problema maestro.
+\end{definicion}
+
+\begin{proposicion}{Validez del corte de optimalidad}
+  El corte $(u^p)^{\top}(b-By)\leq\eta$ es v\'alido: para todo $y$ tal que SP($y$) es factible y acotado, $Q(y)\geq (u^p)^{\top}(b-By)$.
+\end{proposicion}
+
+\begin{demostracion}
+  Por dualidad fuerte LP: si SP($y$) es factible y acotado, $Q(y) = \max_{u\in\mathcal{U}}u^{\top}(b-By)\geq (u^p)^{\top}(b-By)$ para cualquier $u^p\in\mathcal{U}$.
+\end{demostracion}
+
+\begin{nota}
+  En cada iteraci\'on solo se agrega el corte del punto extremo \'optimo de DSP($y^k$). La selecci\'on del corte m\'as violado (el que m\'as aleja $\eta$ de su valor actual) es la estrategia est\'andar.
+\end{nota}
+
+\subsecheader{Cortes de factibilidad}
+
+\begin{definicion}{Corte de factibilidad}
+  Cuando DSP($y^k$) es no acotado (equivalentemente, SP($y^k$) es infactible), existe un rayo extremo $r^q\in\mathcal{U}$ tal que $(r^q)^{\top}(b-By^k)>0$. El \emph{corte de factibilidad} es:
+  \[
+    (r^q)^{\top}(b-By)\leq 0 \quad\forall y\in Y.
+  \]
+  Este corte elimina valores de $y$ para los cuales SP($y$) es infactible.
+\end{definicion}
+
+\begin{proposicion}{Validez del corte de factibilidad}
+  Si $r^q$ es un rayo extremo de $\mathcal{U}$ (es decir, $A^{\top}r^q\leq 0$, $r^q\geq 0$) y $(r^q)^{\top}(b-By^k)>0$, entonces para cualquier $y$ tal que SP($y$) es factible se tiene $(r^q)^{\top}(b-By)\leq 0$.
+\end{proposicion}
+
+\begin{demostracion}
+  Por el lema de Farkas: SP($y$) es factible si y solo si para todo rayo extremo $r$ del dual $(r)^{\top}(b-By)\leq 0$. Por contrarec\'iproco, si $(r^q)^{\top}(b-By)>0$ entonces SP($y$) es infactible.
+\end{demostracion}
+
+\begin{cuidado}
+  En la pr\'actica, cuando SP($y^k$) es infactible en Gurobi, se extrae el \emph{dual de Farkas} (\texttt{constr.FarkasDual}) habilitando \texttt{model.setParam("InfUnbdInfo", 1)} antes de resolver. El vector resultante satisface $A^{\top}r\leq 0$, $r\geq 0$, y corresponde a un rayo extremo de $\mathcal{U}$.
+\end{cuidado}
+
+\subsecheader{Representaci\'on del problema completo}
+
+\begin{teorema}{Descomposici\'on de Benders (Benders, 1962)}
+  El problema original~\eqref{eq:original} es equivalente al siguiente \emph{problema maestro}:
+  \begin{align}
+    \min_{y\in Y,\,\eta}\quad & f^{\top}y + \eta \label{eq:master}                                                                      \\
+    \text{s.a.}\quad          & \eta \geq (u^p)^{\top}(b-By)       & \forall p\in\mathcal{P} & \quad\text{(cortes optimalidad)} \notag  \\
+                              & 0 \geq (r^q)^{\top}(b-By)          & \forall q\in\mathcal{Q} & \quad\text{(cortes factibilidad)} \notag \\
+                              & \eta \geq -\infty \notag
+  \end{align}
+  donde $\mathcal{P}$ es el conjunto de puntos extremos de $\mathcal{U}$ y $\mathcal{Q}$ el de rayos extremos.
+\end{teorema}
+
+% =============================================================================
+\secheader{4}{Algoritmo Cl\'asico de Benders}
+% =============================================================================
+
+\subsecheader{Descripci\'on del algoritmo}
+
+\begin{tcolorbox}[colback=exbg, colframe=exborder, boxrule=0.4pt, arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    title={\small\bfseries\sffamily Algoritmo de Benders (versi\'on cl\'asica)},
+    fonttitle=\small\bfseries\sffamily, coltitle=white, colbacktitle=exborder]
+  \begin{algorithmic}[1]
+    \State Inicializar: $\text{LB}\leftarrow-\infty$, $\text{UB}\leftarrow+\infty$, $\mathcal{P}\leftarrow\emptyset$, $\mathcal{Q}\leftarrow\emptyset$, $k\leftarrow 1$
+    \Repeat
+    \State \textbf{Resolver RMP} (Restricted Master Problem): obtener $y^k$, $\eta^k$
+    \State $\text{LB}\leftarrow f^{\top}y^k+\eta^k$
+    \State \textbf{Resolver SP$(y^k)$} y su dual DSP$(y^k)$
+    \If{DSP$(y^k)$ es acotado (SP factible)}
+    \State $u^k\leftarrow$ soluci\'on \'optima de DSP$(y^k)$
+    \State $\text{UB}\leftarrow\min\!\left(\text{UB},\;f^{\top}y^k+(u^k)^{\top}(b-By^k)\right)$
+    \State Agregar corte de optimalidad: $\eta\geq(u^k)^{\top}(b-By)$
+    \State $\mathcal{P}\leftarrow\mathcal{P}\cup\{u^k\}$
+    \Else
+    \State $r^k\leftarrow$ rayo extremo de DSP$(y^k)$ (dual de Farkas)
+    \State Agregar corte de factibilidad: $(r^k)^{\top}(b-By)\leq 0$
+    \State $\mathcal{Q}\leftarrow\mathcal{Q}\cup\{r^k\}$
+    \EndIf
+    \State $k\leftarrow k+1$
+    \Until{$|\text{UB}-\text{LB}|\leq\varepsilon\cdot|\text{LB}|$}
+    \State \Return $y^k$, $x^*$ = soluci\'on \'optima de SP$(y^k)$
+  \end{algorithmic}
+\end{tcolorbox}
+
+\begin{proposicion}{Monotonicidad de las cotas}
+  La cota inferior LB es \emph{no decreciente} a lo largo de las iteraciones (se agregan restricciones al RMP, que solo puede empeorar o mantener el objetivo del maestro). La cota superior UB puede no ser monot\'ona si $y^k$ cambia entre iteraciones.
+\end{proposicion}
+
+\begin{teorema}{Convergencia finita}
+  El algoritmo de Benders converge en un n\'umero finito de iteraciones, dado que el n\'umero de puntos extremos y rayos extremos de $\mathcal{U}$ es finito (aunque potencialmente exponencial).
+\end{teorema}
+
+% =============================================================================
+\secheader{5}{Aspectos Computacionales}
+% =============================================================================
+
+\subsecheader{Arranque en fr\'io y calentamiento}
+
+\begin{nota}
+  El RMP inicial (sin cortes) es muy d\'ebil: $\eta$ est\'a sin restricci\'on inferior, lo que lleva a convergencia lenta. Estrategias de \emph{warm-start}: (1) resolver la relajaci\'on LP del problema original y usar las soluciones duales como cortes iniciales; (2) aplicar heur\'isticas para generar varios $y^0$ buenos y agregar sus cortes antes del primer ciclo.
+\end{nota}
+
+\subsecheader{Degeneraci\'on dual y cortes de Magnanti-Wong}
+
+\begin{cuidado}
+  Cuando DSP($y^k$) tiene m\'ultiples soluciones \'optimas (degeneraci\'on dual), los distintos puntos extremos \'optimos generan cortes de diferente fortaleza para el RMP actual. Un corte d\'ebil lleva a convergencia lenta.
+\end{cuidado}
+
+\begin{definicion}{Corte de Pareto-\'optimo (Magnanti \& Wong, 1981)}
+  Entre todos los puntos extremos \'optimos de DSP($y^k$), se elige aquel que maximiza $(u)^{\top}(b-By^0)$ donde $y^0$ es un punto interior del conv\'ex hull de soluciones factibles del maestro (e.g., el promedio de soluciones anteriores). Este corte es el m\'as fuerte respecto al interior del maestro.
+\end{definicion}
+
+\begin{nota}
+  En la pr\'actica, calcular el corte de Magnanti-Wong requiere resolver un LP auxiliar en $u$ con la restricci\'on de que $u$ sea \'optima dual de DSP($y^k$) y maximice $(u)^{\top}(b-By^0)$. El esfuerzo extra suele compensarse con una convergencia significativamente m\'as r\'apida.
+\end{nota}
+
+% =============================================================================
+\secheader{6}{Implementaci\'on con Callbacks de Gurobi}
+% =============================================================================
+
+\subsecheader{Lazy constraints vs. cortes en callback}
+
+\begin{definicion}{Callback de Gurobi}
+  Gurobi permite intervenir durante el proceso de Branch and Bound mediante la funci\'on \texttt{model.optimize(callback)}. El argumento es una funci\'on (o clase callable) que recibe informaci\'on del nodo actual y puede agregar cortes.
+\end{definicion}
+
+\begin{nota}
+  El punto de entrada m\'as importante para cortes de Benders es \texttt{GRB.Callback.MIPSOL}: se activa cada vez que Gurobi encuentra una \emph{soluci\'on entera candidata}. En ese punto se resuelve SP($y^k$) y se agregan los cortes correspondientes como \emph{lazy constraints}.
+\end{nota}
+
+\begin{proposicion}{Protocolo de callbacks para Benders}
+  Para implementar Benders con callbacks en Gurobi:
+  \begin{enumerate}
+    \item Configurar \texttt{master.setParam("LazyConstraints", 1)} antes de \texttt{optimize()}.
+    \item Dentro del callback, cuando \texttt{self.where == GRB.Callback.MIPSOL}: extraer $y^k$ con \texttt{self.cbGetSolution(y\_vars)}, resolver SP($y^k$), y agregar cortes con \texttt{self.cbCut(lhs\_expr, GRB.GREATER\_EQUAL, rhs)}.
+  \end{enumerate}
+\end{proposicion}
+
+\subsecheader{Extracci\'on de informaci\'on dual de Gurobi}
+
+\begin{definicion}{Variables duales y rayo de Farkas}
+  Para un LP resuelto en Gurobi:
+  \begin{itemize}
+    \item \texttt{constr.Pi}: precio sombra = variable dual $u_i$.
+    \item \texttt{constr.FarkasDual}: componente del rayo de Farkas $r_i$ (solo disponible si \texttt{model.setParam("InfUnbdInfo", 1)} fue configurado antes de \texttt{optimize()} y el modelo es infactible).
+    \item \texttt{var.RC}: costo reducido.
+  \end{itemize}
+\end{definicion}
+
+\begin{cuidado}
+  \texttt{InfUnbdInfo = 1} debe configurarse \emph{antes} de llamar a \texttt{optimize()}. Si el modelo es infactible y \texttt{InfUnbdInfo = 0}, Gurobi no calcula el certificado de infactibilidad y \texttt{FarkasDual} retorna \texttt{None}.
+\end{cuidado}
+
+\begin{ejemplo}{Esqueleto de callback para Benders en Python}
+  \begin{lstlisting}[language=Python, caption={Callback de Benders con Gurobi}]
+import gurobipy as gp
+from gurobipy import GRB
+
+class BendersCallback:
+    def __init__(self, y_vars, eta_var, data):
+        self.y_vars = y_vars
+        self.eta_var = eta_var
+        self.data = data
+        self.n_opt_cuts = 0
+        self.n_feas_cuts = 0
+
+    def __call__(self):
+        if self.where == GRB.Callback.MIPSOL:
+            y_val = {i: self.cbGetSolution(self.y_vars[i])
+                     for i in self.data['I']}
+            eta_val = self.cbGetSolution(self.eta_var)
+            obj_sp, u, r = self._solve_subproblem(y_val)
+            if obj_sp == float('inf'):  # infactible
+                expr = gp.LinExpr()
+                # construir (r^q)^T (b - By) <= 0
+                self.cbCut(expr, GRB.LESS_EQUAL, 0)
+                self.n_feas_cuts += 1
+            elif obj_sp > eta_val + 1e-4:  # corte violado
+                expr = gp.LinExpr()
+                # construir eta >= (u^p)^T (b - By)
+                self.cbCut(expr, GRB.GREATER_EQUAL, rhs)
+                self.n_opt_cuts += 1
+
+    def _solve_subproblem(self, y_val):
+        sp = gp.Model()
+        sp.setParam("OutputFlag", 0)
+        sp.setParam("InfUnbdInfo", 1)
+        # ... construir SP(y_val) ...
+        sp.optimize()
+        if sp.Status == GRB.INFEASIBLE:
+            r = [c.FarkasDual for c in sp.getConstrs()]
+            return float('inf'), None, r
+        u = [c.Pi for c in sp.getConstrs()]
+        return sp.ObjVal, u, None
+
+# Uso:
+# master.setParam("LazyConstraints", 1)
+# cb = BendersCallback(y_vars, eta_var, data)
+# master.optimize(cb)
+\end{lstlisting}
+\end{ejemplo}
+
+% =============================================================================
+\secheader{7}{An\'alisis de Convergencia}
+% =============================================================================
+
+\subsecheader{Diagrama de convergencia}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=10cm, height=5.5cm,
+        xlabel={Iteraci\'on $k$}, ylabel={Cota},
+        ymin=30, ymax=80,
+        xmin=0, xmax=12,
+        legend pos=south east,
+        grid=both, grid style={line width=0.2pt, draw=gray!30},
+        tick label style={font=\small},
+        label style={font=\small},
+      ]
+      \addplot[color=warnborder, thick, mark=square*, mark size=2pt]
+      coordinates {(1,75)(2,68)(3,61)(4,55)(5,50)(6,47)(7,44)(8,42)(9,41)(10,40.5)(11,40.2)(12,40)};
+      \addplot[color=defborder, thick, mark=*, mark size=2pt]
+      coordinates {(1,20)(2,28)(3,34)(4,36)(5,37.5)(6,38.5)(7,39)(8,39.5)(9,39.8)(10,39.9)(11,40)(12,40)};
+      \legend{UB (cota superior), LB (cota inferior)}
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+\begin{proposicion}{Monotonicidad de LB}
+  La cota inferior LB es no decreciente porque en cada iteraci\'on se agregan restricciones al RMP, lo que solo puede aumentar o mantener el objetivo del RMP.
+\end{proposicion}
+
+\begin{nota}
+  El criterio de parada $|\text{UB}-\text{LB}|\leq\varepsilon\cdot|\text{LB}|$ garantiza una $(1+\varepsilon)$-optimalidad. En la pr\'actica se usan $\varepsilon=10^{-4}$ a $10^{-6}$.
+\end{nota}
+
+% =============================================================================
+\secheader{8}{Extensiones}
+% =============================================================================
+
+\subsecheader{Generalized Benders Decomposition (Geoffrion, 1972)}
+
+\begin{definicion}{GBD}
+  Cuando el subproblema SP($y$) es un \emph{programa convexo} (no necesariamente LP), la descomposici\'on generalizada de Benders reemplaza los cortes lineales por \emph{cortes de soporte convexo}:
+  \[
+    \eta \geq Q(y^k) + \nabla Q(y^k)^{\top}(y-y^k),
+  \]
+  donde $\nabla Q(y^k)$ es el subgradiente de $Q$ en $y^k$ (obtenido del multiplicador dual del subproblema convexo).
+\end{definicion}
+
+\begin{cuidado}
+  GBD requiere que el subproblema sea convexo (y diferenciable para usar $\nabla Q$). No aplica directamente si SP($y$) es un MIP.
+\end{cuidado}
+
+\subsecheader{M\'etodo L-shaped (Van Slyke \& Wets, 1969)}
+
+\begin{definicion}{M\'etodo L-shaped}
+  Extensi\'on de Benders para \emph{programas estoc\'asticos de dos etapas}: la primera etapa decide $y$ (e.g., inversi\'on en capacidad) y la segunda etapa decide $x^s$ para cada escenario $s$ con probabilidad $p_s$. El problema de segunda etapa es:
+  \[
+    Q(y) = \sum_s p_s Q_s(y), \quad Q_s(y) = \min_{x_s\geq 0}\{c_s^{\top}x_s : A_s x_s\geq b_s-B_s y\}.
+  \]
+\end{definicion}
+
+\begin{proposicion}{Corte de optimalidad del L-shaped}
+  Para una soluci\'on $y^k$, el corte de optimalidad agrega:
+  \[
+    \eta \geq \sum_s p_s\left[(u^{k,s})^{\top}(b_s-B_sy^k) - (u^{k,s})^{\top}B_s(y-y^k)\right] = \sum_s p_s (u^{k,s})^{\top}(b_s-B_sy),
+  \]
+  donde $u^{k,s}$ es la soluci\'on dual de SP$_s(y^k)$. Los escenarios son \emph{independientes}: se resuelven en paralelo.
+\end{proposicion}
+
+\subsecheader{Multi-cut Benders}
+
+\begin{definicion}{Multi-cut}
+  En lugar de una \'unica variable surrogate $\eta$, el \emph{multi-cut} usa una variable $\eta_s$ por escenario y agrega cortes individuales:
+  \[
+    \eta_s \geq (u^{k,s})^{\top}(b_s-B_sy) \quad \forall s, \forall k.
+  \]
+  El objetivo del maestro es $f^{\top}y + \sum_s p_s \eta_s$.
+\end{definicion}
+
+\begin{nota}
+  Multi-cut genera cortes m\'as finos por iteraci\'on pero aumenta el tama\~no del RMP. El trade-off depende del n\'umero de escenarios: para $|S|$ grande, el RMP crece r\'apidamente y puede volverse el cuello de botella.
+\end{nota}
+
+% =============================================================================
+\secheader{9}{Aplicaciones}
+% =============================================================================
+
+\subsecheader{Problema de Transporte con Costos Fijos (FCTP)}
+
+\begin{ejemplo}{FCTP — Aplicaci\'on completa}
+  Considere $I=3$ or\'igenes, $J=4$ destinos, con costos fijos $f_{ij}$ de abrir la ruta $(i,j)$ y costos variables de transporte $c_{ij}$. Las variables binarias $y_{ij}\in\{0,1\}$ son las complicantes. Al fijar $y^*$, el subproblema es un LP de transporte cl\'asico. A continuaci\'on se muestra una tabla de iteraciones t\'ipica:
+  \begin{center}
+    \begin{tabular}{ccccc}
+      \toprule
+      Iter. & LB        & UB   & Gap (\%) & Tipo de corte \\
+      \midrule
+      1     & $-\infty$ & 1248 & —        & Optimalidad   \\
+      2     & 1102      & 1210 & 9.1      & Optimalidad   \\
+      3     & 1150      & 1195 & 3.9      & Optimalidad   \\
+      4     & 1170      & 1182 & 1.0      & Optimalidad   \\
+      5     & 1178      & 1178 & 0.0      & Convergido    \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{ejemplo}
+
+\subsecheader{Planning de capacidad bajo incertidumbre}
+
+\begin{ejemplo}{Two-stage stochastic planning}
+  Primera etapa: decidir qu\'e instalaciones construir ($z_i\in\{0,1\}$, costo fijo $f_i$, capacidad $\text{cap}_i$). Segunda etapa: para cada escenario de demanda $d^s$, asignar demanda a instalaciones ($x_{ij}^s\geq 0$, costo unit. $c_{ij}$). Si la demanda no puede ser satisfecha en el escenario $s$, el subproblema es infactible y se agrega un corte de factibilidad que obliga a abrir m\'as instalaciones o aumentar capacidad.
+\end{ejemplo}
+
+\subsecheader{Dise\~no de redes de distribuci\'on}
+
+\begin{nota}
+  En problemas de dise\~no de redes, las variables de dise\~no de arcos son las complicantes. Al fijarlas, el subproblema de flujo es un LP separable por commodity (o por escenario en el caso estoc\'astico). Los cortes de Benders se construyen directamente de los precios sombra del subproblema de flujo.
+\end{nota}
+
+\vspace{12pt}
+\begin{tcolorbox}[colback=sectionbg!8, colframe=sectionbg!40, boxrule=0.5pt, arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+  {\small\sffamily\bfseries Referencias principales:}\\[3pt]
+  {\footnotesize
+    \textbullet\ Benders, J.F. (1962) — ``Partitioning procedures for solving mixed-variables programming problems''. \textit{Numerische Mathematik}.\\
+    \textbullet\ Geoffrion, A.M. (1972) — ``Generalized Benders Decomposition''. \textit{Journal of Optimization Theory and Applications}.\\
+    \textbullet\ Van Slyke, R. \& Wets, R. (1969) — ``L-shaped linear programs''. \textit{SIAM Journal on Applied Mathematics}.\\
+    \textbullet\ Magnanti, T.L. \& Wong, R.T. (1981) — ``Accelerating Benders decomposition: algorithmic enhancement and model selection criteria''. \textit{Operations Research}.\\
+    \textbullet\ Rahmaniani et al. (2017) — ``The Benders Decomposition Algorithm: A Literature Review''. \textit{European Journal of Operational Research}.
+  }
+\end{tcolorbox}
+
+\end{document}
