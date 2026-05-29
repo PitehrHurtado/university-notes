@@ -1,0 +1,41 @@
+resources/benders/benders_02_transporte_cargos_fijos.py
+  s_8a1a50f58a715f::t_7fa084a48964d4 1-320
+resources/lagrangiana/lagrangian_03_unit_commitment.py
+  s_8a1a50f58a715f::t_0275ef099c73be 1-404
+resources/benders/benders_descomposicion.tex
+  h_3c68aad87535c3 61,188,365-366,582-588
+  s_8a1a50f58a715f::t_a2d23c93e788cd 1-60,62-187,189-364,367-580,589-619
+resources/lagrangiana/lagrangian_02_facility_location.py
+  s_8a1a50f58a715f::t_8bf6e271384a13 1-292
+resources/benders/benders_03_estocastico_dos_etapas.py
+  s_8a1a50f58a715f::t_763d0db5da8970 1-394
+resources/lagrangiana/lagrangian_01_knapsack_subgradiente.py
+  s_8a1a50f58a715f::t_431532ae571060 1-211
+resources/lagrangiana/lagrangian_descomposicion.tex
+  s_8a1a50f58a715f::t_34d1d72e8a56fa 1-60,62-195,197-241,246-247,249-282,284-308,310-311,313-342,345,347-386,388-397,404-406,408-420,422-428,437-449,451-458,460-482,484-524,526-532,534-554,556-601,603-616,618-646,648-651
+  s_8a1a50f58a715f::t_c0ec705b0a7444 312
+  h_3c68aad87535c3 61,196,242-245,343-344,346,399-403,429-436
+resources/benders/benders_01_lp_bloque.py
+  s_8a1a50f58a715f::t_accdf0d7b71c75 1-266
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "fcb9ff65ddc669fef89709d9496246455fea640e",
+  "prompts": {},
+  "humans": {
+    "h_3c68aad87535c3": {
+      "author": "PitehrHurtado <pitehr.hurtado.c@mail.pucv.cl>"
+    }
+  },
+  "sessions": {
+    "s_8a1a50f58a715f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a7fd2b9d-3f9f-4e08-a89d-cb9096c0e1db",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitehrHurtado <pitehr.hurtado.c@mail.pucv.cl>"
+    }
+  }
+}
