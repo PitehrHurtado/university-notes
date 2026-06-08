@@ -511,6 +511,45 @@
   los estados absorbentes. Esta forma es central para tiempos de absorci\'on (Secci\'on~5).
 \end{nota}
 
+\subsecheader{2.6 \textperiodcentered\ Propiedades estructurales de $\Pmat$}
+
+\begin{proposicion}{Propiedades de $\Pmat$ y sus potencias}
+  \begin{enumerate}
+    \item \textbf{Estocasticidad hereditaria:} $\Pmat^n$ es estoc\'astica por filas $\forall\,n\ge0$. En particular $\Pmat^0=\mathbf{I}$.
+    \item \textbf{Potencias = $n$-pasos:} $(\Pmat^n)_{ij}=\pijn{i}{j}{n}$.
+    \item \textbf{Evoluci\'on de la distribuci\'on:} $\boldsymbol{\mu}^{(n)}=\boldsymbol{\mu}^{(0)}\Pmat^n$.
+    \item \textbf{Autovalor trivial:} $\lambda=1$ es autovalor de $\Pmat$ con vector propio derecho $\mathbf{1}$. $\boldsymbol{\pi}$ estacionaria $\Leftrightarrow$ $\boldsymbol{\pi}\Pmat=\boldsymbol{\pi}$ (autovector izquierdo con $\lambda=1$).
+    \item \textbf{Cota espectral:} $|\lambda|\le1$ para todo autovalor $\lambda$ de $\Pmat$.
+  \end{enumerate}
+\end{proposicion}
+
+\begin{demostracion}
+  \textbf{(1)} Inducci\'on sobre $n$. Base $n=0$: $\Pmat^0=\mathbf{I}$, claramente estoc\'astica.
+  Paso inductivo: dado $\Pmat^{n-1}$ estoc\'astica,
+  $(\Pmat^n)_{ij}=\sum_k(\Pmat^{n-1})_{ik}\pij{k}{j}\ge0$ y
+  $\sum_j(\Pmat^n)_{ij}=\sum_k(\Pmat^{n-1})_{ik}\underbrace{\sum_j\pij{k}{j}}_{=1}=1$.\\[4pt]
+  \textbf{(2)} Tambi\'en por inducci\'on. Para $n=1$: $(\Pmat)_{ij}=\pij{i}{j}=\pijn{i}{j}{1}$
+  por definici\'on. Para $n\ge2$, supuesto $(\Pmat^{n-1})_{ij}=\pijn{i}{j}{n-1}$, por
+  Chapman-Kolmogorov:
+  \[
+    (\Pmat^n)_{ij}=\sum_k(\Pmat^{n-1})_{ik}\pij{k}{j}
+    =\sum_k\pijn{i}{k}{n-1}\pijn{k}{j}{1}=\pijn{i}{j}{n}.
+  \]
+  \textbf{(3)} Por (2): $(\boldsymbol{\mu}^{(0)}\Pmat^n)_j=\sum_i\mu_i^{(0)}(\Pmat^n)_{ij}
+  =\sum_i\Prob{X_0=i}\,\pijn{i}{j}{n}=\Prob{X_n=j}=\mu_j^{(n)}$.\\[4pt]
+  \textbf{(4)} $(\Pmat\mathbf{1})_i=\sum_j\pij{i}{j}=1$ para todo $i$, luego $\mathbf{1}$ es autovector derecho de $\lambda=1$.\\[4pt]
+  \textbf{(5)} Sea $\Pmat\mathbf{v}=\lambda\mathbf{v}$ con $\|\mathbf{v}\|_\infty=1$ y $|v_{i^*}|=1$.
+  Entonces $|\lambda|=|(\Pmat\mathbf{v})_{i^*}|=\bigl|\sum_j p_{i^*j}v_j\bigr|\le\sum_j p_{i^*j}|v_j|\le1$.
+\end{demostracion}
+
+\begin{nota}
+  \textbf{Teorema de Perron-Frobenius (versi\'on estoc\'astica).}
+  Para $\Pmat$ irreducible y aperi\'odica: $\lambda=1$ es el \'unico autovalor con $|\lambda|=1$
+  y tiene multiplicidad algebraica $1$. Los dem\'as autovalores satisfacen $|\lambda_k|<1$,
+  lo que controla la \emph{velocidad de convergencia} a la distribuci\'on estacionaria
+  (ver \S4.6).
+\end{nota}
+
 % =============================================================================
 \secheader{3}{Clasificaci\'on de Estados}
 
@@ -523,6 +562,18 @@
   Dos estados $i$ y $j$ se \textbf{comunican} ($i \leftrightarrow j$) si $i \to j$ y $j \to i$.
   La comunicaci\'on es una relaci\'on de equivalencia en $\Sset$.
 \end{definicion}
+
+\begin{demostracion}
+  Verificamos las tres propiedades de relaci\'on de equivalencia.\\[3pt]
+  \textbf{Reflexividad} ($i\leftrightarrow i$): por convenio $\pijn{i}{i}{0}=1>0$, as\'i que $i\to i$.\\[3pt]
+  \textbf{Simetr\'ia} ($i\leftrightarrow j\Rightarrow j\leftrightarrow i$): inmediata de la definici\'on
+  (``$i\to j$ y $j\to i$'' es sim\'etrica en $i$ y $j$).\\[3pt]
+  \textbf{Transitividad} ($i\leftrightarrow j$ y $j\leftrightarrow k\Rightarrow i\leftrightarrow k$):
+  existen $r,s\ge0$ con $\pijn{i}{j}{r}>0$ y $\pijn{j}{k}{s}>0$.
+  Por Chapman-Kolmogorov:
+  $\pijn{i}{k}{r+s}\ge\pijn{i}{j}{r}\cdot\pijn{j}{k}{s}>0$, luego $i\to k$.
+  An\'alogamente $k\to i$, de modo que $i\leftrightarrow k$. $\square$
+\end{demostracion}
 
 \begin{definicion}{Clase de comunicaci\'on}
   Las clases de equivalencia de $\leftrightarrow$ se llaman \textbf{clases de comunicaci\'on}.
@@ -576,7 +627,69 @@
 \end{tikzpicture}
 \end{center}
 
-\subsecheader{3.2 \textperiodcentered\ Estados recurrentes y transitorios}
+\subsecheader{3.2 \textperiodcentered\ N\'umero de visitas a un estado}
+
+\begin{definicion}{N\'umero de visitas}
+  Dado un estado $i\in\Sset$, el \textbf{n\'umero total de visitas} a $i$ a lo largo de la
+  trayectoria (contando desde $n=1$) es la variable aleatoria
+  \[
+    N(i) \;=\; \sum_{n=1}^{\infty} \ind_{\{X_n = i\}}.
+  \]
+  Si la cadena parte de $X_0=i$, entonces $N(i)$ cuenta cu\'antas veces el proceso
+  \emph{regresa} a $i$.
+\end{definicion}
+
+\begin{proposicion}{Esperanza de visitas}
+  \[
+    \E{N(i)\mid X_0=i} \;=\; \sum_{n=1}^{\infty} \pijn{i}{i}{n}.
+  \]
+  En consecuencia: $i$ recurrente $\Longleftrightarrow$ $\E{N(i)\mid X_0=i}=\infty$.
+\end{proposicion}
+
+\begin{demostracion}
+  Por linealidad y el teorema de Tonelli (sumandos no negativos):
+  \[
+    \E{N(i)\mid X_0=i}=\E{\sum_{n=1}^\infty\ind_{\{X_n=i\}}\;\Big|\;X_0=i}
+    =\sum_{n=1}^\infty\Prob{X_n=i\mid X_0=i}=\sum_{n=1}^\infty\pijn{i}{i}{n}.\quad\square
+  \]
+\end{demostracion}
+
+\begin{proposicion}{Distribuci\'on geom\'etrica de $N(i)$}
+  Para todo $k\ge0$:
+  \[
+    \Prob{N(i)\ge k\mid X_0=i} = \fij{i}{i}^{\,k},
+  \]
+  donde $\fij{i}{i}=\Prob{\exists\,n\ge1: X_n=i\mid X_0=i}$ es la probabilidad de retorno.
+  Es decir, $N(i)\mid\{X_0=i\}$ tiene distribuci\'on \textbf{Geom\'etrica} con par\'ametro
+  $\fij{i}{i}$.
+  \begin{itemize}
+    \item Si $\fij{i}{i}<1$ (transitorio): $\E{N(i)\mid X_0=i}=\dfrac{\fij{i}{i}}{1-\fij{i}{i}}<\infty$.
+    \item Si $\fij{i}{i}=1$ (recurrente): $\Prob{N(i)=\infty\mid X_0=i}=1$.
+  \end{itemize}
+\end{proposicion}
+
+\begin{demostracion}
+  Por la \textbf{propiedad de Markov fuerte} aplicada en el tiempo de parada $T_i^{(k)}$
+  ($k$-\'esimo retorno a $i$): dado que la cadena regres\'o a $i$, el proceso
+  reiniciado desde $i$ es independiente del pasado. As\'i:
+  \[
+    \Prob{N(i)\ge k\mid X_0=i}=\Prob{N(i)\ge k-1\mid X_0=i}\cdot\fij{i}{i},\quad k\ge1.
+  \]
+  Con $\Prob{N(i)\ge0}=1$, por inducci\'on: $\Prob{N(i)\ge k\mid X_0=i}=\fij{i}{i}^k$. $\square$
+\end{demostracion}
+
+\begin{nota}
+  Combinando ambas proposiciones:
+  \[
+    i \text{ recurrente} \;\Longleftrightarrow\; \fij{i}{i}=1
+    \;\Longleftrightarrow\; N(i)=\infty\;\text{c.s.}
+    \;\Longleftrightarrow\; \sum_{n=1}^\infty\pijn{i}{i}{n}=\infty.
+  \]
+  Para un estado \emph{transitorio}, la cadena lo visita un n\'umero \emph{finito} de veces
+  casi seguramente, y luego lo abandona para siempre.
+\end{nota}
+
+\subsecheader{3.3 \textperiodcentered\ Estados recurrentes y transitorios}
 
 \begin{definicion}{Probabilidad de retorno}
   Define $f_{ii} = \Prob{X_n = i \text{ para alg\'un } n \ge 1 \mid X_0 = i}$, la
@@ -595,6 +708,18 @@
   El estado $i$ es transitorio si y solo si $\displaystyle\sum_{n=0}^{\infty}\pijn{i}{i}{n} < \infty$,
   en cuyo caso el n\'umero esperado de visitas a $i$ es finito.
 \end{teorema}
+
+\begin{demostracion}
+  Usamos los resultados de \S3.2.\\[3pt]
+  \textbf{Paso 1.} Por la Proposici\'on de esperanza de visitas:
+  $\E{N(i)\mid X_0=i}=\sum_{n=1}^\infty\pijn{i}{i}{n}$.\\[3pt]
+  \textbf{Paso 2.} Por la Proposici\'on de distribuci\'on geom\'etrica: $N(i)\mid\{X_0=i\}\sim\mathrm{Geom}(\fij{i}{i})$, luego
+  \[
+    \E{N(i)\mid X_0=i}=\begin{cases}\dfrac{\fij{i}{i}}{1-\fij{i}{i}}<\infty & \text{si }\fij{i}{i}<1,\\[6pt]+\infty & \text{si }\fij{i}{i}=1.\end{cases}
+  \]
+  \textbf{Paso 3.} Uniendo: $\fij{i}{i}=1\Leftrightarrow\E{N(i)}=\infty\Leftrightarrow\sum_n\pijn{i}{i}{n}=\infty$.
+  Esto es exactamente el enunciado. $\square$
+\end{demostracion}
 
 \begin{proposicion}{Recurrencia en cadenas finitas irreducibles}
   En una cadena de Markov con espacio de estados \emph{finito} e \emph{irreducible},
@@ -621,10 +746,78 @@
   La recurrencia nula solo aparece en cadenas con espacio de estados \emph{infinito numerable}.
   El ejemplo m\'as conocido es la caminata aleatoria sim\'etrica en $\mathbb{Z}$: todos los
   estados son recurrentes (vuelve con probabilidad $1$), pero el tiempo esperado de retorno
-  al origen es $\infty$.
+  al origen es $\infty$. Ver Ejemplo~\ref{ex:paseo} (\S3.8) para el an\'alisis completo.
 \end{cuidado}
 
-\subsecheader{3.3 \textperiodcentered\ Periodicidad}
+\subsecheader{3.4 \textperiodcentered\ Recurrencia como propiedad de clase}
+
+\begin{teorema}{Recurrencia se propaga por comunicaci\'on}
+  Si $i\leftrightarrow j$, entonces $i$ recurrente $\Longleftrightarrow$ $j$ recurrente.
+  Dentro de una clase de comunicaci\'on, \emph{todos} los estados son recurrentes o
+  \emph{todos} son transitorios.
+\end{teorema}
+
+\begin{demostracion}
+  Como $i\leftrightarrow j$, existen $r,s\ge1$ con $\alpha:=\pijn{i}{j}{r}>0$ y
+  $\beta:=\pijn{j}{i}{s}>0$. Para todo $n\ge0$, por Chapman-Kolmogorov:
+  \[
+    \pijn{j}{j}{r+n+s} \;\ge\; \pijn{j}{i}{s}\cdot\pijn{i}{i}{n}\cdot\pijn{i}{j}{r}
+    = \alpha\beta\cdot\pijn{i}{i}{n}.
+  \]
+  Sumando sobre $n$: si $i$ es recurrente ($\sum_n\pijn{i}{i}{n}=\infty$), entonces
+  $\sum_n\pijn{j}{j}{n}=\infty$, luego $j$ recurrente. El rec\'iproco es sim\'etrico. $\square$
+\end{demostracion}
+
+\begin{proposicion}{Estados transitorios en clases abiertas}
+  Si una clase de comunicaci\'on $C$ tiene salida (existe $i\in C$, $j\notin C$ con $\pij{i}{j}>0$),
+  entonces todos los estados de $C$ son transitorios.
+\end{proposicion}
+
+\begin{demostracion}
+  Partiendo de $i\in C$, con probabilidad $\pij{i}{j}>0$ la cadena alcanza $j\notin C$.
+  Desde $j$, el retorno a $i$ puede ser imposible o tener probabilidad $<1$,
+  luego $\fij{i}{i}<1$: $i$ es transitorio. Por el teorema anterior, toda la clase $C$ es transitoria. $\square$
+\end{demostracion}
+
+\subsecheader{3.5 \textperiodcentered\ Clasificaci\'on completa de estados}
+
+\begin{teorema}{Clasificaci\'on tripartita}
+  En una cadena de Markov irreducible, exactamente uno de los tres casos:
+  \begin{enumerate}
+    \item \textbf{Transitoria:} todos los estados son transitorios ($\fij{i}{i}<1$, $\E{N(i)}<\infty$).
+    \item \textbf{Recurrente nula:} todos recurrentes con $\muu{i}=\infty$ para todo $i$.
+    \item \textbf{Recurrente positiva:} todos recurrentes con $\muu{i}<\infty$ para todo $i$.
+  \end{enumerate}
+  Adem\'as: la cadena es recurrente positiva $\Longleftrightarrow$ admite distribuci\'on
+  estacionaria $\boldsymbol{\pi}$ con $\pi_i>0$. En ese caso $\pi_i=1/\muu{i}$.
+\end{teorema}
+
+\begin{demostracion}
+  La clasificaci\'on se propaga en la clase irreducible por el teorema anterior.
+  Que todos tengan $\muu{i}<\infty$ o todos $\muu{i}=\infty$ se sigue de la cota
+  $\muu{j}\le(1/\alpha\beta)\muu{i}$ obtenida de la desigualdad
+  $\pijn{j}{j}{r+n+s}\ge\alpha\beta\,\pijn{i}{i}{n}$.\\[4pt]
+  \textbf{Lema de Kac (positivo $\Rightarrow$ existe $\boldsymbol{\pi}$).}
+  Para $i$ recurrente positivo, definir
+  $\pi_j = \E{\#\{0\le n < T_i : X_n=j\}\mid X_0=i}/\muu{i}$.
+  Se puede verificar que $\boldsymbol{\pi}\Pmat=\boldsymbol{\pi}$ y $\sum_j\pi_j=1$,
+  con $\pi_j=1/\muu{j}>0$ (por irreducibilidad). $\square$\\[3pt]
+  \textbf{Rec\'iproco.} Si $\exists\,\boldsymbol{\pi}$ estacionaria con $\pi_i>0$,
+  el Teorema Erg\'odico (\S4.3) implica que $X_n=i$ para infinitos $n$ (recurrencia)
+  y la frecuencia de visita es $\pi_i>0$, luego $\muu{i}=1/\pi_i<\infty$. $\square$
+\end{demostracion}
+
+\begin{proposicion}{Finito e irreducible implica recurrencia positiva}
+  Toda cadena con $|\Sset|<\infty$ irreducible es recurrente positiva.
+\end{proposicion}
+
+\begin{demostracion}
+  En espacio finito la cadena no puede escapar al infinito, as\'i que al menos un estado
+  es recurrente. Por irreducibilidad, todos lo son. Si alguno fuera recurrente nulo,
+  $\pi_i=1/\muu{i}=0$ para todo $i$, por lo que $\sum_i\pi_i=0\ne1$: contradicci\'on. $\square$
+\end{demostracion}
+
+\subsecheader{3.6 \textperiodcentered\ Periodicidad}
 
 \begin{definicion}{Periodo de un estado}
   El \textbf{periodo} del estado $i$ es el m\'aximo com\'un divisor de los tiempos en los
@@ -641,15 +834,50 @@
   Por tanto, el periodo es una propiedad de la clase de comunicaci\'on, no del estado individual.
 \end{proposicion}
 
+\begin{demostracion}
+  Sean $r,s\ge1$ con $\pijn{i}{j}{r}>0$ y $\pijn{j}{i}{s}>0$.\\[3pt]
+  \textbf{Paso 1: $d(j)\mid d(i)$.}
+  Para cualquier $n$ con $\pijn{i}{i}{n}>0$, por Chapman-Kolmogorov:
+  \[
+    \pijn{j}{j}{r+n+s}\ge\pijn{j}{i}{s}\cdot\pijn{i}{i}{n}\cdot\pijn{i}{j}{r}>0,
+  \]
+  luego $r+n+s\in\{m:\pijn{j}{j}{m}>0\}$ y por tanto $d(j)\mid(r+n+s)$.
+  Tomando dos valores $n_1,n_2$ con $\pijn{i}{i}{n_k}>0$: $d(j)\mid(r+n_1+s)$ y $d(j)\mid(r+n_2+s)$,
+  de donde $d(j)\mid(n_1-n_2)$.
+  Como $d(i)=\gcd\{n:\pijn{i}{i}{n}>0\}$ es la m\'inima combinaci\'on lineal entera positiva
+  de ese conjunto, y $d(j)$ divide todas las diferencias de sus elementos: $d(j)\mid d(i)$.\\[3pt]
+  \textbf{Paso 2: $d(i)\mid d(j)$.}
+  Mismo argumento intercambiando $i$ y $j$ (con $r'=s$, $s'=r$).\\[3pt]
+  \textbf{Conclusi\'on:} $d(j)\mid d(i)$ y $d(i)\mid d(j)$ implican $d(i)=d(j)$. $\square$
+\end{demostracion}
+
 \begin{ejemplo}{Periodicidad}
   \begin{itemize}
     \item Cadena $1 \to 2 \to 1$ (dos estados en ciclo): $d(1) = d(2) = 2$ (peri\'odica).
     \item Cadena del clima (con autoloops): $d(S) = d(L) = 1$ (aperi\'odica).
-    \item Caminata aleatoria en $\mathbb{Z}$ (pasos $\pm 1$): $d(0) = 2$ (peri\'odica).
+    \item Caminata aleatoria en $\mathbb{Z}$ (pasos $\pm 1$): $d(0) = 2$ (peri\'odica). Ver \S3.8.
   \end{itemize}
 \end{ejemplo}
 
-\subsecheader{3.4 \textperiodcentered\ Cadenas erg\'odicas}
+\begin{proposicion}{Convergencia en m\'ultiplos del per\'iodo}
+  Sea $\{X_n\}$ irreducible con per\'iodo $d$ y distribuci\'on estacionaria $\boldsymbol{\pi}$.
+  Para todo $i,j\in\Sset$:
+  \[
+    \lim_{n\to\infty} \pijn{i}{j}{nd} = d\cdot\pi_j.
+  \]
+  Para cadenas peri\'odicas no existe el l\'imite $\pijn{i}{j}{n}$, pero la \textbf{media de Ces\`aro} converge:
+  \[
+    \frac{1}{N}\sum_{n=0}^{N-1}\pijn{i}{j}{n} \;\xrightarrow{N\to\infty}\; \pi_j.
+  \]
+\end{proposicion}
+
+\begin{demostracion}
+  La convergencia de Ces\`aro es consecuencia directa del Teorema Erg\'odico (\S4.3):
+  $\frac{1}{N}\sum_{n=0}^{N-1}\pijn{i}{j}{n}=\E{\frac{1}{N}\sum_{n=0}^{N-1}\ind_{\{X_n=j\}}\mid X_0=i}\to\pi_j$
+  por convergencia dominada (el integrando est\'a acotado por $1$). $\square$
+\end{demostracion}
+
+\subsecheader{3.7 \textperiodcentered\ Cadenas erg\'odicas}
 
 \begin{definicion}{Cadena erg\'odica}
   Una cadena de Markov es \textbf{erg\'odica} si es:
@@ -665,6 +893,157 @@
   La erg\'odicidad es la condici\'on que garantiza la convergencia de $\Pmat^n$ a una
   distribuci\'on estacionaria \'unica (ver Secci\'on~4).
   En $\Sset$ finito, irreducibilidad + aperiodicidad $\Rightarrow$ erg\'odicidad.
+\end{nota}
+
+\subsecheader{3.8 \textperiodcentered\ Ejemplo: Paseo aleatorio sim\'etrico en $\mathbb{Z}$}
+\label{ex:paseo}
+
+\begin{ejemplo}{Paseo aleatorio sim\'etrico en $\mathbb{Z}$}
+  \textbf{Definici\'on.}
+  Sean $\xi_1,\xi_2,\ldots$ i.i.d.\ con $\Prob{\xi_k=+1}=\Prob{\xi_k=-1}=\tfrac{1}{2}$.
+  Define $X_0=0$, $X_n=\xi_1+\cdots+\xi_n$. El espacio de estados es $\mathbb{Z}$ con
+  $\pij{i}{i+1}=\pij{i}{i-1}=\tfrac{1}{2}$ (y $0$ en otro caso).
+
+  \begin{center}
+  \begin{tikzpicture}[>=Latex, node distance=1.8cm,
+      state/.style={circle, draw=sectionbg, fill=thmbg, line width=0.8pt,
+                    minimum size=0.7cm, font=\small\bfseries}]
+    \foreach \x in {-2,-1,0,1,2}
+      \node[state] (n\x) at (\x*1.8,0) {$\x$};
+    \foreach \x [count=\xi] in {-2,-1,0,1} {
+      \pgfmathtruncatemacro{\xn}{\x+1}
+      \draw[->, thick, color=sectionbg, bend left=22]
+        (n\x) edge node[above,font=\tiny]{$\frac{1}{2}$} (n\xn);
+      \draw[->, thick, color=defborder, bend left=22]
+        (n\xn) edge node[below,font=\tiny]{$\frac{1}{2}$} (n\x);
+    }
+    \node[left=0.2cm of n-2, font=\normalsize\itshape, color=gray] {$\cdots$};
+    \node[right=0.2cm of n2, font=\normalsize\itshape, color=gray] {$\cdots$};
+    \node[font=\small\itshape, color=sectionbg!70!black] at (0,-1.1)
+      {Paseo aleatorio sim\'etrico en $\mathbb{Z}$};
+  \end{tikzpicture}
+  \end{center}
+
+  \textbf{Paso 1: Irreducibilidad.}
+  Para $j>i$: $j$ es accesible desde $i$ en $j-i$ pasos hacia la derecha.
+  Por simetr\'ia $i$ es accesible desde $j$. Luego $i\leftrightarrow j$ para todo par.
+
+  \textbf{Paso 2: Per\'iodo $d(0)=2$.}
+  Solo se puede regresar al origen en n\'umero \emph{par} de pasos (se necesitan
+  exactamente tantos $+1$ como $-1$). As\'i $\pijn{0}{0}{2k+1}=0$ para todo $k$, y
+  $\pijn{0}{0}{2k}>0$ para $k\ge1$. Luego $d(0)=\gcd\{2,4,6,\ldots\}=2$.
+
+  \textbf{Paso 3: F\'ormula exacta para $\pijn{0}{0}{2n}$.}
+  Regresar en $2n$ pasos requiere exactamente $n$ pasos $+1$ y $n$ pasos $-1$:
+  \[
+    \pijn{0}{0}{2n} = \binom{2n}{n}\frac{1}{4^n}.
+  \]
+
+  \textbf{Paso 4: Aproximaci\'on de Stirling ($n!\approx\sqrt{2\pi n}(n/e)^n$).}
+  \[
+    \binom{2n}{n}\frac{1}{4^n}
+    = \frac{(2n)!}{(n!)^2\,4^n}
+    \approx \frac{\sqrt{4\pi n}\,(2n/e)^{2n}}{2\pi n\,(n/e)^{2n}\,4^n}
+    = \frac{\sqrt{4\pi n}}{2\pi n} = \frac{1}{\sqrt{\pi n}}.
+  \]
+  M\'as precisamente: $\binom{2n}{n}/4^n\sim 1/\sqrt{\pi n}$ cuando $n\to\infty$.
+
+  \textbf{Paso 5: Recurrencia del estado $0$.}
+  \[
+    \sum_{n=1}^\infty \pijn{0}{0}{2n}
+    = \sum_{n=1}^\infty\frac{\binom{2n}{n}}{4^n}
+    \;\sim\;\sum_{n=1}^\infty\frac{1}{\sqrt{\pi n}} = \infty,
+  \]
+  pues $\sum n^{-1/2}$ diverge (criterio integral: $\int_1^\infty x^{-1/2}\,dx=\infty$).
+  Por el criterio de recurrencia: estado $0$ es recurrente.
+  Por irreducibilidad: \emph{todos} los estados son recurrentes.
+
+  \textbf{Paso 6: Recurrencia nula.}
+  Usando la identidad $\sum_{n=0}^\infty\binom{2n}{n}x^n=1/\sqrt{1-4x}$ ($|x|<1/4$):
+  \[
+    P_{00}(z) := \sum_{n=0}^\infty\pijn{0}{0}{2n}z^n
+    = \sum_{n=0}^\infty\binom{2n}{n}\Bigl(\frac{z}{4}\Bigr)^n
+    = \frac{1}{\sqrt{1-z}}, \quad |z|<1.
+  \]
+  Por la identidad $P_{00}(z)=1/(1-F_{00}(z))$ (\S3.9):
+  $F_{00}(z)=1-\sqrt{1-z}\xrightarrow{z\to1^-}1$, confirmando $f_{00}=1$ (recurrente).
+  Pero
+  \[
+    \muu{0} = F'_{00}(1^-) = \lim_{z\to1^-}\frac{1}{2\sqrt{1-z}} = +\infty.
+  \]
+  El estado $0$ (y por irreducibilidad, todos) son \textbf{recurrentes nulos}.
+
+  \textbf{Conclusi\'on.}
+  \begin{itemize}
+    \item \textbf{Irreducible}, \textbf{peri\'odico} ($d=2$), \textbf{recurrente nulo}.
+    \item Vuelve a cualquier estado con probabilidad $1$, pero en tiempo esperado infinito.
+    \item \textbf{Sin distribuci\'on estacionaria:} $\pi_i=1/\muu{i}=0$ y no es normalizable.
+  \end{itemize}
+\end{ejemplo}
+
+\begin{cuidado}
+  Recurrente no significa regreso \emph{r\'apido}. El paseo sim\'etrico en $\mathbb{Z}$
+  vuelve al origen c.s., pero $\muu{0}=\infty$. En contraste, toda cadena irreducible
+  en espacio finito es recurrente \emph{positiva} con tiempos de retorno finitos.
+\end{cuidado}
+
+\subsecheader{3.9 \textperiodcentered\ Funciones generatrices para tiempos de primer paso}
+
+\begin{definicion}{Funciones generatrices de transici\'on y de primer paso}
+  Para $i,j\in\Sset$ y $|z|\le1$:
+  \begin{align*}
+    P_{ij}(z) &= \sum_{n=0}^{\infty}\pijn{i}{j}{n}z^n
+    \quad\text{(generatriz de transici\'on),}\\[4pt]
+    F_{ij}(z) &= \sum_{n=1}^{\infty}\fij{i}{j}^{(n)}z^n
+    \quad\text{(generatriz de primer paso).}
+  \end{align*}
+  Evaluando en $z=1$: $F_{ij}(1)=\fij{i}{j}$ (prob.\ total de alcanzar $j$ desde $i$).
+\end{definicion}
+
+\begin{proposicion}{Identidades entre $P_{ij}$ y $F_{ij}$}
+  \begin{align}
+    P_{ii}(z) &= \frac{1}{1-F_{ii}(z)}, \label{eq:Pii-Fii}\\[4pt]
+    P_{ij}(z) &= F_{ij}(z)\cdot P_{jj}(z), \quad i\ne j. \label{eq:Pij-Fij}
+  \end{align}
+\end{proposicion}
+
+\begin{demostracion}
+  \textbf{Caso diagonal.} Condicionando sobre el primer retorno a $i$ (instante $k$):
+  \[
+    \pijn{i}{i}{n}=\sum_{k=1}^n\fij{i}{i}^{(k)}\pijn{i}{i}{n-k},\quad n\ge1;\qquad\pijn{i}{i}{0}=1.
+  \]
+  Multiplicando por $z^n$ y sumando: $P_{ii}(z)=1+F_{ii}(z)P_{ii}(z)$, de donde \eqref{eq:Pii-Fii}.
+  An\'alogamente para \eqref{eq:Pij-Fij}. $\square$
+\end{demostracion}
+
+\begin{proposicion}{Criterio de recurrencia v\'ia generatrices}
+  \begin{itemize}
+    \item $i$ recurrente $\Longleftrightarrow$ $F_{ii}(1)=1$ $\Longleftrightarrow$ $P_{ii}(z)\to\infty$ cuando $z\to1^-$.
+    \item $i$ recurrente positivo $\Longleftrightarrow$ $\muu{i}=F'_{ii}(1^-)<\infty$. Entonces $\pi_i=1/\muu{i}$.
+    \item $i$ recurrente nulo $\Longleftrightarrow$ $F_{ii}(1)=1$ pero $F'_{ii}(1^-)=+\infty$.
+  \end{itemize}
+\end{proposicion}
+
+\begin{demostracion}
+  De la identidad $P_{ii}(z)=1/(1-F_{ii}(z))$:
+  \begin{itemize}
+    \item Si $F_{ii}(1)<1$: $(1-F_{ii}(1))>0$, luego $P_{ii}(1)=1/(1-F_{ii}(1))<\infty$, es decir,
+          $\sum_n\pijn{i}{i}{n}<\infty$: estado transitorio.
+    \item Si $F_{ii}(1)=1$: el denominador $\to0$ cuando $z\to1^-$, luego $P_{ii}(z)\to+\infty$:
+          $\sum_n\pijn{i}{i}{n}=\infty$: estado recurrente.
+    \item Para distinguir positivo/nulo: derivando $P_{ii}(z)=1/(1-F_{ii}(z))$,
+          $P'_{ii}(z)=F'_{ii}(z)/(1-F_{ii}(z))^2$. El tiempo medio de retorno es
+          $\muu{i}=\sum_n n\,\fij{i}{i}^{(n)}=F'_{ii}(1^-)$. Si $\muu{i}<\infty$: positivo;
+          si $\muu{i}=\infty$: nulo. $\square$
+  \end{itemize}
+\end{demostracion}
+
+\begin{nota}
+  La relaci\'on $P_{ii}(z)=1/(1-F_{ii}(z))$ es el puente algebraico entre las
+  \emph{probabilidades de transici\'on} (directas de calcular v\'ia $\Pmat^n$) y
+  las \emph{probabilidades de primer paso} (que caracterizan recurrencia).
+  Se usa de forma central en el an\'alisis del paseo aleatorio (\S3.8) y en la
+  teor\'ia de renovaci\'on.
 \end{nota}
 
 % =============================================================================
@@ -731,6 +1110,26 @@
   matriz cuyas filas son todas iguales a $\boldsymbol{\pi}$.
 \end{teorema}
 
+\begin{demostracion}
+  \textbf{Descomposici\'on espectral (caso $|\Sset|<\infty$).}\\[3pt]
+  \textbf{Paso 1.} Por la cota espectral (\S2.6, propiedad 5), los autovalores $\lambda_k$ de $\Pmat$
+  satisfacen $|\lambda_k|\le1$. Para una cadena erg\'odica (irreducible + aperi\'odica + finita),
+  el Teorema de Perron-Frobenius garantiza que $\lambda_1=1$ es simple y $|\lambda_k|<1$ para $k\ge2$.\\[3pt]
+  \textbf{Paso 2.} Si $\Pmat$ es diagonalizable con $\Pmat=\sum_{k=1}^s\lambda_k\mathbf{v}_k\mathbf{u}_k^\top$
+  (donde $\mathbf{v}_k$, $\mathbf{u}_k$ son vectores propios derechos e izquierdos), entonces:
+  \[
+    \Pmat^n = \sum_{k=1}^s \lambda_k^n\,\mathbf{v}_k\mathbf{u}_k^\top.
+  \]
+  \textbf{Paso 3.} El t\'ermino $k=1$ da $\lambda_1^n=1$ con $\mathbf{v}_1=\mathbf{1}$ y
+  $\mathbf{u}_1^\top=\boldsymbol{\pi}$, produciendo $\mathbf{1}\boldsymbol{\pi}=\boldsymbol{\Pi}$.
+  Los t\'erminos $k\ge2$ tienen $|\lambda_k^n|=|\lambda_k|^n\to0$, luego:
+  \[
+    \Pmat^n - \boldsymbol{\Pi} = \sum_{k=2}^s\lambda_k^n\,\mathbf{v}_k\mathbf{u}_k^\top
+    \xrightarrow{n\to\infty} 0,
+  \]
+  es decir, $\pijn{i}{j}{n}=(\Pmat^n)_{ij}\to\pi_j$ para todo par $i,j$. $\square$
+\end{demostracion}
+
 \begin{nota}
   Este teorema garantiza que, sin importar d\'onde comience la cadena, la distribuci\'on
   marginal converge a $\boldsymbol{\pi}$.
@@ -747,6 +1146,13 @@
   La proporci\'on de tiempo que la cadena pasa en el estado $j$ converge (c.s.) a $\pi_j$.
   Adem\'as, $\pi_j = 1/\muu{j}$ (rec\'iproco del tiempo medio de retorno).
 \end{teorema}
+
+\begin{demostracion}
+  Demostraci\'on completa en \S4.5 via la Ley Fuerte de los Grandes N\'umeros.
+  Esquema: los tiempos entre retornos a $j$ son i.i.d.\ con media $\muu{j}$
+  (propiedad de Markov fuerte), luego la LFGN da $V_j(N)/N\to1/\muu{j}$ c.s.,
+  que coincide con $\pi_j$ por la unicidad de la distribuci\'on estacionaria.
+\end{demostracion}
 
 \subsecheader{4.4 \textperiodcentered\ Reversibilidad y balance detallado}
 
@@ -777,8 +1183,156 @@
   \emph{suficiente} para estacionariedad, no necesaria.
 \end{cuidado}
 
+\subsecheader{4.5 \textperiodcentered\ Demostraci\'on del Teorema Erg\'odico}
+
+\begin{demostracion}
+  (del Teorema de frecuencias de visita, \S4.3.)\\[4pt]
+  Sea $\{X_n\}$ irreducible y recurrente positiva. Fijamos $j\in\Sset$ y sea
+  $0<T_j^{(1)}<T_j^{(2)}<\cdots$ la sucesi\'on de tiempos de retorno a $j$ (partiendo de $X_0=j$).
+  Por la \textbf{propiedad de Markov fuerte}, los tiempos entre retornos
+  $\Delta_k=T_j^{(k)}-T_j^{(k-1)}$ son \textbf{i.i.d.}\ con media
+  $\muu{j}=\E{\Delta_1}<\infty$.\\[4pt]
+  Sea $V_j(N)=\#\{n\in\{0,\ldots,N-1\}:X_n=j\}$.
+  La relaci\'on $T_j^{(V_j(N))}\le N-1<T_j^{(V_j(N)+1)}$ divide por $V_j(N)$:
+  \[
+    \frac{T_j^{(V_j(N))}}{V_j(N)} \;\le\; \frac{N-1}{V_j(N)} \;<\;
+    \frac{T_j^{(V_j(N)+1)}}{V_j(N)}.
+  \]
+  Por la \textbf{Ley Fuerte de los Grandes N\'umeros} aplicada a $\{\Delta_k\}$:
+  $T_j^{(k)}/k\to\muu{j}$ c.s., luego los dos extremos tienden a $\muu{j}$.
+  Por tanto $N/V_j(N)\to\muu{j}$ c.s., es decir:
+  \[
+    \frac{V_j(N)}{N} = \frac{1}{N}\sum_{n=0}^{N-1}\ind_{\{X_n=j\}}
+    \;\xrightarrow{N\to\infty}\; \frac{1}{\muu{j}} = \pi_j \quad\text{c.s.} \qquad\square
+  \]
+\end{demostracion}
+
+\begin{nota}
+  La propiedad de Markov fuerte convierte los tiempos de retorno en una sucesi\'on i.i.d.,
+  permitiendo aplicar la LFGN. El Teorema Erg\'odico vale para cadenas peri\'odicas
+  tambi\'en (no requiere aperiodicidad).
+\end{nota}
+
+\subsecheader{4.6 \textperiodcentered\ Velocidad de convergencia y brecha espectral}
+
+\begin{teorema}{Convergencia exponencial para cadenas finitas erg\'odicas}
+  Sea $\{X_n\}$ erg\'odica con $|\Sset|=s$ y autovalores $1=\lambda_1>|\lambda_2|\ge\cdots\ge|\lambda_s|$.
+  Entonces existe $C>0$ tal que:
+  \[
+    \max_{i,j\in\Sset}\bigl|\pijn{i}{j}{n}-\pi_j\bigr| \;\le\; C\,\rho^n,
+    \qquad \rho := |\lambda_2| < 1.
+  \]
+\end{teorema}
+
+\begin{demostracion}
+  Si $\Pmat$ es diagonalizable: $\Pmat=V\Lambda V^{-1}$ con $\Lambda=\mathrm{diag}(\lambda_1,\ldots,\lambda_s)$,
+  luego $\Pmat^n=V\Lambda^n V^{-1}$.
+  La componente de $\lambda_1=1$ da $\boldsymbol{\Pi}$ (l\'imite); los restantes $s-1$ t\'erminos
+  decaen a tasa $\rho^n$. $\square$
+\end{demostracion}
+
+\begin{definicion}{Brecha espectral y tiempo de mezcla}
+  La \textbf{brecha espectral} es $\gamma=1-\rho\in(0,1]$.
+  El \textbf{tiempo de mezcla} con precisi\'on $\varepsilon>0$ es
+  $t_{\mathrm{mix}}(\varepsilon)=\min\bigl\{n:\max_{i,j}|\pijn{i}{j}{n}-\pi_j|\le\varepsilon\bigr\}$.
+  De la cota: $t_{\mathrm{mix}}(\varepsilon)\le\lceil\log(C/\varepsilon)/\log(1/\rho)\rceil$.
+\end{definicion}
+
+\begin{ejemplo}{Brecha espectral de la cadena del clima}
+  $\Pmat=\bigl(\begin{smallmatrix}0.8&0.2\\0.4&0.6\end{smallmatrix}\bigr)$:
+  $\operatorname{tr}(\Pmat)=1.4$, $\det(\Pmat)=0.40$.
+  Autovalores: $\lambda_1=1$, $\lambda_2=0.4$. Brecha espectral $\gamma=0.6$.\\
+  Convergencia: $|\pijn{i}{j}{n}-\pi_j|\le C\cdot0.4^n\to0$ exponencialmente.
+  En $n=10$ pasos: $0.4^{10}\approx10^{-4}$, pr\'acticamente en r\'egimen estacionario.
+\end{ejemplo}
+
+\subsecheader{4.7 \textperiodcentered\ Algoritmo de Metropolis-Hastings}
+
+\begin{nota}
+  \textbf{Motivaci\'on (MCMC).} A menudo se desea muestrear de una distribuci\'on objetivo
+  $\boldsymbol{\pi}$ difícil de evaluar directamente (por ejemplo en inferencia bayesiana).
+  El truco: construir una cadena de Markov \emph{reversible} con $\boldsymbol{\pi}$ como
+  estacionaria.
+\end{nota}
+
+\begin{definicion}{Algoritmo de Metropolis-Hastings}
+  Dada una cadena \emph{propuesta} con $q_{ij}$ (cualquier matriz estoc\'astica) y objetivo
+  $\boldsymbol{\pi}$, la cadena resultante tiene:
+  \[
+    p_{ij} = q_{ij}\cdot\min\!\left(1,\;\frac{\pi_j\,q_{ji}}{\pi_i\,q_{ij}}\right), \quad i\ne j;
+    \qquad p_{ii} = 1-\sum_{k\ne i}p_{ik} \quad\text{(rechazo)}.
+  \]
+\end{definicion}
+
+\begin{proposicion}{Correctitud: balance detallado respecto a $\boldsymbol{\pi}$}
+  $\pi_i\,p_{ij}=\pi_j\,p_{ji}$ para todo $i\ne j$, luego $\boldsymbol{\pi}$ es estacionaria.
+\end{proposicion}
+
+\begin{demostracion}
+  $\pi_i\,p_{ij}=\pi_i\,q_{ij}\cdot\min(1,\pi_j q_{ji}/\pi_i q_{ij})
+  =\min(\pi_i q_{ij},\pi_j q_{ji})=\pi_j\,p_{ji}$
+  (por simetr\'ia de $\min$). $\square$
+\end{demostracion}
+
+\begin{nota}
+  Metropolis-Hastings es la base de los m\'etodos \textbf{MCMC} (Markov Chain Monte Carlo):
+  permite simular distribuciones de alta dimensi\'on sin conocer la constante de normalizaci\'on,
+  siendo fundamental en estad\'istica bayesiana, f\'isica estad\'istica y machine learning.
+  El \textbf{muestreo de Gibbs} es el caso especial en que la tasa de aceptaci\'on es $1$
+  (siempre se acepta la propuesta).
+\end{nota}
+
 % =============================================================================
 \secheader{5}{Tiempos de Primer Paso y Absorci\'on}
+
+\subsecheader{5.0 \textperiodcentered\ Funciones arm\'onicas y ecuaci\'on de Poisson}
+
+\begin{definicion}{Funci\'on arm\'onica}
+  Sea $A\subseteq\Sset$ (frontera). Una funci\'on $h:\Sset\to\mathbb{R}$ es
+  \textbf{arm\'onica} en $\Sset\setminus A$ si:
+  \[
+    h(i)=\sum_{j\in\Sset}\pij{i}{j}\,h(j)=\E{h(X_1)\mid X_0=i}
+    \quad\forall\,i\in\Sset\setminus A.
+  \]
+  Es decir, $h(i)$ es el valor esperado de $h$ en el siguiente paso.
+  An\'alogamente, $h$ es \textbf{superarm\'onica} si $h(i)\ge\E{h(X_1)\mid X_0=i}$
+  (el proceso $\{h(X_n)\}$ es supermartingala).
+\end{definicion}
+
+\begin{teorema}{Principio del m\'aximo discreto}
+  Si $h$ es arm\'onica en todo $\Sset$ (sin frontera) y $|\Sset|<\infty$,
+  entonces $h$ es constante en cada clase de comunicaci\'on cerrada.
+\end{teorema}
+
+\begin{demostracion}
+  Sea $i^*=\arg\max_{i\in C}h(i)$ en una clase cerrada $C$.
+  Como $h(i^*)=\sum_j\pij{i^*}{j}h(j)$ y $h(j)\le h(i^*)$ para $j\in C$
+  (la clase es cerrada, luego $\pij{i^*}{j}=0$ si $j\notin C$), la igualdad
+  requiere $h(j)=h(i^*)$ para todo $j$ con $\pij{i^*}{j}>0$.
+  Por irreducibilidad de $C$, esto se extiende a toda la clase. $\square$
+\end{demostracion}
+
+\begin{proposicion}{Problemas de absorci\'on como problemas arm\'onicos}
+  \begin{enumerate}
+    \item Las \textbf{probabilidades de absorci\'on} $h_i^{(a)}=\Prob{X_{T_A}=a\mid X_0=i}$
+          son arm\'onicas en $\Sset\setminus A$, con condiciones de frontera $h_a^{(a)}=1$
+          y $h_b^{(a)}=0$ ($b\in A$, $b\ne a$).
+    \item El \textbf{tiempo esperado de absorci\'on} $t_i=\E{T_A\mid X_0=i}$ satisface la
+          \textbf{ecuaci\'on de Poisson} (arm\'onica inhomog\'enea):
+          \[
+            t_i = 1 + \sum_{j\notin A}\pij{i}{j}\,t_j, \quad i\notin A,
+            \qquad t_a=0 \;\forall\,a\in A.
+          \]
+  \end{enumerate}
+\end{proposicion}
+
+\begin{demostracion}
+  \textbf{(1)} Por la propiedad de Markov en el primer paso:
+  $h_i^{(a)}=\sum_j\pij{i}{j}h_j^{(a)}$ (armonicidad).\\[3pt]
+  \textbf{(2)} Condicionando en $X_1$:
+  $t_i=1+\sum_j\pij{i}{j}\E{T_A\mid X_0=j}=1+\sum_{j\notin A}\pij{i}{j}t_j$
+  (los t\'erminos $j\in A$ contribuyen $0$ porque $t_a=0$). $\square$
+\end{demostracion}
 
 \subsecheader{5.1 \textperiodcentered\ Tiempo de primer paso}
 
@@ -804,6 +1358,24 @@
   en $k$ pasos, y luego regresar de $j$ a $j$ en los $n-k$ restantes.
 \end{proposicion}
 
+\begin{demostracion}
+  Particionamos el evento $\{X_n=j\}\cap\{X_0=i\}$ seg\'un el instante del primer arribo a $j$:
+  \[
+    \{X_n=j,\,X_0=i\} = \bigsqcup_{k=1}^{n}\{T_j=k,\,X_n=j,\,X_0=i\},
+  \]
+  donde $T_j=\min\{m\ge1:X_m=j\}$ (uniones disjuntas por el valor de $T_j$).
+  Para cada $k\in\{1,\ldots,n\}$, condicionando en $\{T_j=k,X_0=i\}$ y aplicando la
+  \textbf{propiedad de Markov fuerte} en el tiempo $T_j=k$:
+  \[
+    \Prob{X_n=j\mid T_j=k,\,X_0=i}=\Prob{X_{n-k}=j\mid X_0=j}=\pijn{j}{j}{n-k}.
+  \]
+  Luego, por probabilidad total:
+  \[
+    \pijn{i}{j}{n}=\Prob{X_n=j\mid X_0=i}
+    =\sum_{k=1}^{n}\underbrace{\Prob{T_j=k\mid X_0=i}}_{=\fij{i}{j}^{(k)}}\cdot\pijn{j}{j}{n-k}.\quad\square
+  \]
+\end{demostracion}
+
 \subsecheader{5.2 \textperiodcentered\ Tiempo medio de retorno y estacionariedad}
 
 \begin{teorema}{Tiempo medio de retorno y distribuci\'on estacionaria}
@@ -814,6 +1386,21 @@
   \]
   Los estados m\'as frecuentemente visitados tienen tiempo medio de retorno m\'as corto.
 \end{teorema}
+
+\begin{demostracion}
+  \textbf{Paso 1.} Fijamos $j$ y suponemos $X_0=j$.
+  Por la \textbf{propiedad de Markov fuerte}, los tiempos entre retornos consecutivos
+  $\Delta_k=T_j^{(k)}-T_j^{(k-1)}$ son i.i.d.\ con media $\muu{j}<\infty$.\\[3pt]
+  \textbf{Paso 2.} Sea $V_j(N)=\#\{0\le n<N:X_n=j\}$. Como se demuestra en \S4.5,
+  la Ley Fuerte de los Grandes N\'umeros aplicada a los $\Delta_k$ da:
+  \[
+    \frac{V_j(N)}{N}\xrightarrow{N\to\infty}\frac{1}{\muu{j}}\quad\text{c.s.}
+  \]
+  \textbf{Paso 3.} Por el Teorema Erg\'odico (\S4.3), esa misma frecuencia converge a $\pi_j$.
+  Por unicidad del l\'imite: $\pi_j=1/\muu{j}$.\\[3pt]
+  \textbf{Validez para $X_0\ne j$:} desde cualquier estado inicial, la cadena alcanza $j$
+  en tiempo finito (recurrencia positiva) y la frecuencia a largo plazo es la misma. $\square$
+\end{demostracion}
 
 \begin{ejemplo}{Tiempo de retorno en la cadena del clima}
   Con $\pi_S = 2/3$ y $\pi_L = 1/3$:
@@ -844,6 +1431,22 @@
   con condici\'on de frontera $h_a^{(a)} = 1$ y $h_b^{(a)} = 0$ para $b \in A$, $b \neq a$.
 \end{teorema}
 
+\begin{demostracion}
+  Condicionamos en el primer paso desde $i\notin A$:
+  \begin{align*}
+    h_i^{(a)}
+    &= \Prob{X_{T_A}=a\mid X_0=i}\\[3pt]
+    &= \sum_{j\in\Sset}\pij{i}{j}\,\Prob{X_{T_A}=a\mid X_1=j}
+       \quad\text{(probabilidad total sobre el primer paso)}\\[3pt]
+    &= \underbrace{\pij{i}{a}\cdot1}_{\text{si } j=a\in A}
+       + \underbrace{\sum_{b\in A,\,b\ne a}\pij{i}{b}\cdot0}_{\text{si }j\in A,j\ne a}
+       + \underbrace{\sum_{k\notin A}\pij{i}{k}\,h_k^{(a)}}_{\text{si }j\notin A}\\[3pt]
+    &= \pij{i}{a} + \sum_{k\notin A}\pij{i}{k}\,h_k^{(a)}.
+  \end{align*}
+  El segundo t\'ermino usa la \textbf{propiedad de Markov}: si $X_1=k\notin A$,
+  la probabilidad de absorci\'on en $a$ es la misma que partiendo de $k$. $\square$
+\end{demostracion}
+
 \subsecheader{5.4 \textperiodcentered\ Tiempo esperado de absorci\'on: matriz fundamental}
 
 \begin{definicion}{Forma can\'onica y matriz fundamental}
@@ -868,6 +1471,25 @@
   donde $\mathbf{1}$ es el vector de unos. Las probabilidades de absorci\'on en cada
   estado absorbente forman la matriz $\mathbf{B} = \mathbf{N}\,\mathbf{R}$.
 \end{proposicion}
+
+\begin{demostracion}
+  \textbf{Paso 1: $\mathbf{N}=(\mathbf{I}-\mathbf{Q}_T)^{-1}$.}
+  Sea $\mathbf{m}_{ij}=\E{V_j\mid X_0=i}$ el n\'umero esperado de visitas al estado
+  transitorio $j$ antes de la absorci\'on. Condicionando en el primer paso:
+  \[
+    m_{ij}=\delta_{ij}+\sum_{k\notin A}(Q_T)_{ik}\,m_{kj}.
+  \]
+  En notaci\'on matricial: $\mathbf{M}=\mathbf{I}+\mathbf{Q}_T\mathbf{M}$, de donde
+  $(\mathbf{I}-\mathbf{Q}_T)\mathbf{M}=\mathbf{I}$ y $\mathbf{M}=(\mathbf{I}-\mathbf{Q}_T)^{-1}=\mathbf{N}$.
+  (La inversa existe porque $\mathbf{Q}_T^n\to\mathbf{0}$: todos los estados transitorios
+  tienen absorci\'on casi segura.)\\[3pt]
+  \textbf{Paso 2: $\mathbf{t}=\mathbf{N}\mathbf{1}$.}
+  El tiempo de absorci\'on es la suma de las visitas a todos los estados transitorios:
+  $T_A=\sum_{j\notin A}V_j$. Por linealidad:
+  \[
+    t_i=\E{T_A\mid X_0=i}=\sum_{j\notin A}\E{V_j\mid X_0=i}=\sum_j\mathbf{N}_{ij}=(\mathbf{N}\mathbf{1})_i.\quad\square
+  \]
+\end{demostracion}
 
 \begin{ejemplo}{Juego de la ruina ($N=4$)}
   Un jugador tiene $k$ fichas ($k \in \{0,1,2,3,4\}$) y en cada ronda gana o pierde una
@@ -914,6 +1536,103 @@
     {Juego de la ruina con $N=4$: estados absorbentes $\{0,4\}$};
 \end{tikzpicture}
 \end{center}
+
+\subsecheader{5.5 \textperiodcentered\ Juego de la ruina: caso general $p\ne\tfrac{1}{2}$}
+
+\begin{ejemplo}{Ruina del apostador con probabilidad $p$ arbitraria}
+  \textbf{Planteamiento.} Jugador con $k$ fichas ($1\le k\le N-1$), gana con prob.\ $p$,
+  pierde con $q=1-p$. Sea $h_k=\Prob{\text{ruina}\mid X_0=k}$.
+  Por armonicidad (\S5.0):
+  \[
+    h_k = p\,h_{k+1}+q\,h_{k-1}, \quad k=1,\ldots,N-1,
+    \qquad h_0=1,\quad h_N=0.
+  \]
+
+  \textbf{Ecuaci\'on de diferencias.} La ecuaci\'on caracter\'istica $q r^2 - r + p=0$
+  tiene ra\'ices $r=1$ y $r=\rho:=q/p$.
+
+  \textbf{Caso $p=q=\tfrac{1}{2}$} (ra\'iz doble $r=1$): $h_k=A+Bk$.
+  Con $h_0=1$, $h_N=0$:
+  \[
+    \boxed{h_k = \frac{N-k}{N}.}
+  \]
+
+  \textbf{Caso $p\ne q$} (ra\'ices distintas): $h_k=A+B\rho^k$.
+  Con $A+B=1$ y $A+B\rho^N=0$:
+  \[
+    \boxed{h_k = \frac{\rho^k - \rho^N}{1-\rho^N},\qquad \rho=\frac{q}{p}.}
+  \]
+
+  \textbf{Tiempo esperado de absorci\'on.} La ecuaci\'on de Poisson da $t_k=1+p\,t_{k+1}+q\,t_{k-1}$,
+  $t_0=t_N=0$. Soluciones:
+  \[
+    t_k = \begin{cases}
+      k(N-k) & p=\tfrac{1}{2},\\[4pt]
+      \dfrac{k}{q-p} - \dfrac{N}{q-p}\cdot\dfrac{1-\rho^k}{1-\rho^N} & p\ne\tfrac{1}{2}.
+    \end{cases}
+  \]
+
+  \begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{@{}c c c@{}}
+      \toprule
+      $p$ & $h_5^{(N=10)}$ & $t_5^{(N=10)}$\\
+      \midrule
+      $0.4$ ($\rho=1.5$) & $\dfrac{1.5^5-1.5^{10}}{1-1.5^{10}}\approx 0.870$ & $\approx 19.5$ \\[4pt]
+      $0.5$ & $0.500$ & $25.0$ \\[4pt]
+      $0.6$ ($\rho=2/3$) & $\dfrac{(2/3)^5-(2/3)^{10}}{1-(2/3)^{10}}\approx 0.130$ & $\approx 19.5$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \textbf{L\'imite $N\to\infty$ (rival con capital infinito):}
+  \[
+    h_k \;\xrightarrow{N\to\infty}\;
+    \begin{cases}
+      1 & \text{si } p\le\tfrac{1}{2},\\
+      \bigl(\tfrac{q}{p}\bigr)^k & \text{si } p>\tfrac{1}{2}.
+    \end{cases}
+  \]
+  Si $p>1/2$: probabilidad positiva de sobrevivir indefinidamente. Si $p\le1/2$: la ruina es cierta.
+\end{ejemplo}
+
+\subsecheader{5.6 \textperiodcentered\ Modelo de Ehrenfest (difusi\'on entre urnas)}
+
+\begin{ejemplo}{Modelo de Ehrenfest}
+  \textbf{Planteamiento.} $N$ bolas en dos urnas $A$ y $B$. En cada paso se elige una
+  bola al azar y se transfiere a la otra urna. Estado: $X_n=$ n\'umero de bolas en $A$.
+
+  \textbf{Transiciones:} $\pij{k}{k+1}=(N-k)/N$ y $\pij{k}{k-1}=k/N$.
+  Proceso de nacimiento y muerte discreto.
+
+  \textbf{Irreducibilidad y per\'iodo.} Irreducible (todo $k$ alcanzable desde cualquier
+  otro). Peri\'odico con $d=2$ (la paridad de $X_n$ cambia en cada paso, pues $\pij{k}{k}=0$).
+
+  \textbf{Distribuci\'on estacionaria (balance detallado).}
+  $\pi_k\,(N-k)/N=\pi_{k+1}\,(k+1)/N$ implica $\pi_{k+1}/\pi_k=(N-k)/(k+1)=\binom{N}{k+1}/\binom{N}{k}$.
+  Iterando desde $\pi_0$:
+  \[
+    \pi_k=\binom{N}{k}\pi_0.
+    \quad\text{Normalizando: }\sum_{k=0}^N\binom{N}{k}\pi_0=2^N\pi_0=1.
+  \]
+  \[
+    \boxed{\pi_k=\binom{N}{k}\frac{1}{2^N}\;\sim\;\mathrm{Binomial}\!\left(N,\tfrac{1}{2}\right).}
+  \]
+
+  \textbf{Tiempo de retorno al estado $0$:}
+  $\muu{0}=1/\pi_0=2^N$.
+  Para $N=100$: $\muu{0}=2^{100}\approx10^{30}$ pasos.
+  A $10^{10}$ pasos/seg: $\approx3\times10^{12}$ a\~nos de espera.
+
+  \textbf{Brecha espectral.} Los autovalores de $\Pmat$ son $\lambda_k=1-2k/N$ ($k=0,\ldots,N$).
+  Brecha espectral $\gamma=2/N$; tiempo de mezcla $t_{\mathrm{mix}}=O(N\log N)$.
+
+  \textbf{Segunda ley de la termodin\'amica.} La cadena es recurrente positiva
+  (espacio finito e irreducible), luego matem\'aticamente regresa al estado $0$.
+  Pero $\muu{0}=2^N$ es \emph{inobservable} para $N\sim10^{23}$ (n\'umero de Avogadro).
+  La irreversibilidad termodin\'amica no es imposibilidad matem\'atica, sino
+  probabilidad astronómicamente peque\~na.
+\end{ejemplo}
 
 % =============================================================================
 \secheader{6}{Cadenas de Markov en Tiempo Continuo (CMTC)}
