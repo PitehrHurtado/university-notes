@@ -1,0 +1,37 @@
+semestre_01/modelos_estocasticos/resumen/module_02.tex
+  s_0fe1b85afc541d::t_18dc643404ac88 630-692
+  s_0fe1b85afc541d::t_2e0ce02580d585 1288-1336
+  s_0fe1b85afc541d::t_f8ccf8fe061a47 527-540
+  s_0fe1b85afc541d::t_f0f2bb382c3fb5 837-853
+  s_0fe1b85afc541d::t_f5f88e05f94a1b 1150-1156
+  s_0fe1b85afc541d::t_f8a0e39e6b8d65 1475-1493
+  s_0fe1b85afc541d::t_d79267df56f1f9 1027-1040
+  s_0fe1b85afc541d::t_67177efc0b461f 1113-1132
+  s_0fe1b85afc541d::t_21a7806f39a5df 898-1026,1041-1048
+  s_0fe1b85afc541d::t_56c85a552db405 749,752-820
+  s_0fe1b85afc541d::t_643de1d112c0f5 1186-1284
+  s_0fe1b85afc541d::t_5254af081cf6c7 858,862-880
+  s_0fe1b85afc541d::t_dba2b7b4447ec6 1361-1378
+  s_0fe1b85afc541d::t_c8dad05d6c3eb0 514-526,541-552
+  s_0fe1b85afc541d::t_e3fdcc8a46d2b0 712-723
+  s_0fe1b85afc541d::t_0c27e6afd64fcc 1434-1449
+  s_0fe1b85afc541d::t_1080372eb5250d 1540-1636
+  s_0fe1b85afc541d::t_eadf550120a757 1390-1404
+  s_0fe1b85afc541d::t_7fa6ba6a6dfdd7 566-577
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "45bd4a82dd3bc4176bf01af5b756894cd89c9cf3",
+  "prompts": {},
+  "sessions": {
+    "s_0fe1b85afc541d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c9a033ae-160e-4acf-a58e-fa344d971e55",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitehrHurtado <pitehr.hurtado.c@mail.pucv.cl>"
+    }
+  }
+}
