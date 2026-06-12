@@ -1,0 +1,1060 @@
+% ─────────────────────────────────────────────────────────────────────────────
+%  Guía Módulo 02 — Cadenas de Markov: Ejercicio Genética Poblacional
+%  Autor: P. Hurtado · 2026
+% ─────────────────────────────────────────────────────────────────────────────
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper, top=1.8cm, bottom=2.0cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{enumitem}
+
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, fit, backgrounds, decorations.pathreplacing}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\setlength{\headheight}{19pt}
+\allowdisplaybreaks
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{sectionbg}{rgb}{0.16,0.26,0.52}
+\definecolor{subsecbg}{rgb}{0.38,0.50,0.75}
+\definecolor{codeblue}{rgb}{0.0,0.28,0.68}
+\definecolor{notebg}{rgb}{1.0,0.97,0.87}
+\definecolor{noteborder}{rgb}{0.80,0.65,0.25}
+\definecolor{exbg}{rgb}{0.96,0.96,0.96}
+\definecolor{exborder}{rgb}{0.55,0.55,0.55}
+
+\hypersetup{colorlinks=true, linkcolor=codeblue, citecolor=codeblue, urlcolor=codeblue}
+
+% ─── Cabeceras ───────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\sffamily\color{sectionbg}Gu\'ia M\'odulo 02 --- Modelos Estoc\'asticos}
+\fancyhead[R]{\footnotesize\sffamily\color{sectionbg}2026}
+\fancyfoot[C]{\footnotesize\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{subsecbg}\leaders\hrule height \headrulewidth\hfill}}
+
+% ─── tcolorbox styles ────────────────────────────────────────────────────────
+\tcbset{
+  notebox/.style={
+    breakable,
+    colback=notebg, colframe=noteborder, boxrule=0.4pt, arc=3pt,
+    left=5pt, right=5pt, top=4pt, bottom=4pt, fontupper=\footnotesize\itshape,
+  },
+}
+
+% ─── Macros ──────────────────────────────────────────────────────────────────
+\newcommand{\Prob}[1]{\mathbb{P}\!\left(#1\right)}
+\newcommand{\E}[1]{\mathbb{E}\!\left[#1\right]}
+\newcommand{\Pmat}{\mathbf{P}}
+\newcommand{\pij}[2]{p_{\,#1#2}}
+
+% ─── Encabezado de parte ─────────────────────────────────────────────────────
+\newcommand{\parteheader}[1]{%
+  \vspace{8pt}\needspace{4cm}\noindent
+  \begin{tcolorbox}[
+    colback=subsecbg!18, colframe=subsecbg!55,
+    sharp corners, boxrule=0.4pt,
+    left=6pt, right=6pt, top=3pt, bottom=3pt,
+    fontupper=\small\bfseries\sffamily,
+  ]
+  #1
+  \end{tcolorbox}\vspace{2pt}%
+}
+
+% ─── Entorno enunciado ───────────────────────────────────────────────────────
+\newenvironment{enunciado}[1]{%
+  \begin{tcolorbox}[
+    breakable,
+    colback=sectionbg!8, colframe=sectionbg,
+    boxrule=0.8pt, arc=3pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+    fonttitle=\normalsize\bfseries\sffamily, coltitle=white, colbacktitle=sectionbg, titlerule=0pt,
+    title={#1},
+  ]%
+}{\end{tcolorbox}}
+
+\newenvironment{nota}{\begin{tcolorbox}[notebox]}{\end{tcolorbox}}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{tcolorbox}[
+    colback=sectionbg, colupper=white, colframe=sectionbg,
+    sharp corners, left=12pt, right=12pt, top=10pt, bottom=10pt,
+  ]
+  {\Large\bfseries\sffamily Cadenas de Markov: Gen\'etica Poblacional}\\[4pt]
+  {\normalsize\sffamily Gu\'ia M\'odulo 02 --- Modelos Estoc\'asticos}\\[6pt]
+  {\small\sffamily\color{white!80!sectionbg}
+    Espacio de estados \textperiodcentered\ Probabilidades de transici\'on
+    \textperiodcentered\ Clasificaci\'on \textperiodcentered\ Absorci\'on}\\[6pt]
+  {\footnotesize\sffamily\color{white!85!sectionbg}\itshape
+    Por P.~Hurtado \textperiodcentered\ 2026}
+\end{tcolorbox}
+
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{Problema 1 \textperiodcentered\ Modelo de Wright--Fisher (2 individuos)}
+  Considere una poblaci\'on con s\'olo dos individuos que en cada generaci\'on producen
+  dos nuevos individuos y despu\'es mueren (el tama\~no de la poblaci\'on es, por tanto,
+  constante igual a dos). Cada individuo porta dos genes que determinan el color de
+  los ojos. Estos genes pueden ser los dos recesivos, los dos dominantes o tener un
+  gen recesivo y uno dominante. Llamaremos
+  \[
+    X = \text{Gen Dominante}, \qquad Y = \text{Gen Recesivo.}
+  \]
+  Cada uno de los padres transmite a sus descendientes un s\'olo gen. Adem\'as, es
+  igualmente probable que se transmita cualquiera de los dos genes que porta el
+  progenitor a sus descendientes.
+
+  \smallskip
+  \begin{enumerate}[label=\alph*)]
+    \item Defina una cadena de Markov donde el estado del sistema sea la cadena
+          gen\'etica de los dos individuos de la poblaci\'on. Dibuje el grafo asociado
+          y calcule las probabilidades de transici\'on.
+    \item Defina las clases, los tipos de estados en cada clase y su correspondiente
+          per\'iodo.
+    \item ?`Cu\'al es la probabilidad que, en el largo plazo, s\'olo haya individuos
+          con genes recesivos si originalmente se parte con dos individuos id\'enticos
+          con carga gen\'etica $(X,Y)$?
+  \end{enumerate}
+\end{enunciado}
+
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════════
+%  PARTE a)
+% ═══════════════════════════════════════════════════════════════════════════
+\parteheader{Parte a) \textperiodcentered\ Espacio de estados, grafo y matriz de transici\'on}
+
+\textbf{Espacio de estados.}\quad
+Cada individuo puede tener tres genotipos: $XX$, $XY$ o $YY$. El estado de la
+poblaci\'on es el par \emph{no ordenado} de genotipos de los dos individuos; hay
+seis estados posibles:
+
+\begin{center}
+  \begin{tabular}{cll}
+    \toprule
+    Estado & Par gen\'etico & Descripci\'on                                     \\
+    \midrule
+    $E_0$  & $\{XX,\,XX\}$  & Ambos homocigotos dominantes                      \\
+    $E_1$  & $\{XX,\,XY\}$  & Uno homocigoto dominante, uno heterocigoto        \\
+    $E_2$  & $\{XX,\,YY\}$  & Uno homocigoto dominante, uno homocigoto recesivo \\
+    $E_3$  & $\{XY,\,XY\}$  & Ambos heterocigotos                               \\
+    $E_4$  & $\{XY,\,YY\}$  & Uno heterocigoto, uno homocigoto recesivo         \\
+    $E_5$  & $\{YY,\,YY\}$  & Ambos homocigotos recesivos                       \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\medskip
+\textbf{Mecanismo de reproducci\'on.}\quad
+Dados dos padres $P_1$ y $P_2$, cada hijo recibe un gen elegido
+\emph{uniformemente} de $P_1$ y un gen elegido \emph{uniformemente} de $P_2$.
+Los dos hijos se producen de forma \emph{independiente}.
+
+\medskip
+\textbf{C\'alculo de probabilidades de transici\'on.}\quad
+Se analiza cada estado de origen:
+
+\medskip
+\noindent\textit{Desde $E_0 = \{XX,XX\}$:}\quad
+Ambos padres tienen genotipo $XX$, por lo que siempre transmiten $X$. Todo hijo
+es necesariamente $XX$.
+\[
+  \pij{E_0}{E_0} = 1.
+\]
+
+\noindent\textit{Desde $E_5 = \{YY,YY\}$:}\quad An\'alogo al anterior. Todo hijo es $YY$.
+\[
+  \pij{E_5}{E_5} = 1.
+\]
+
+\noindent\textit{Desde $E_1 = \{XX,XY\}$:}\quad
+$P_1 = XX$ siempre env\'ia $X$. $P_2 = XY$ env\'ia $X$ con prob.\ $\tfrac{1}{2}$ e
+$Y$ con prob.\ $\tfrac{1}{2}$. El genotipo de cada hijo es:
+\[
+  XX \text{ con prob.\ } \tfrac{1}{2},\qquad XY \text{ con prob.\ } \tfrac{1}{2}.
+\]
+Con dos hijos independientes, la distribuci\'on del par resultante es:
+\begin{align*}
+  \pij{E_1}{E_0} & = \left(\tfrac{1}{2}\right)^2 = \tfrac{1}{4},         \\
+  \pij{E_1}{E_1} & = 2\cdot\tfrac{1}{2}\cdot\tfrac{1}{2} = \tfrac{1}{2}, \\
+  \pij{E_1}{E_3} & = \left(\tfrac{1}{2}\right)^2 = \tfrac{1}{4}.
+\end{align*}
+
+\noindent\textit{Desde $E_4 = \{XY,YY\}$:}\quad
+$P_1 = XY$ env\'ia $X$ o $Y$ con prob.\ $\tfrac{1}{2}$ cada uno. $P_2 = YY$ siempre
+env\'ia $Y$. Cada hijo es $XY$ con prob.\ $\tfrac{1}{2}$ o $YY$ con prob.\ $\tfrac{1}{2}$.
+Par resultado:
+\[
+  \pij{E_4}{E_3} = \tfrac{1}{4},\qquad \pij{E_4}{E_4} = \tfrac{1}{2},\qquad
+  \pij{E_4}{E_5} = \tfrac{1}{4}.
+\]
+
+\noindent\textit{Desde $E_2 = \{XX,YY\}$:}\quad
+$P_1 = XX$ siempre env\'ia $X$; $P_2 = YY$ siempre env\'ia $Y$. Todo hijo es
+$XY$ con certeza.
+\[
+  \pij{E_2}{E_3} = 1.
+\]
+
+\noindent\textit{Desde $E_3 = \{XY,XY\}$:}\quad
+Cada padre $XY$ env\'ia $X$ o $Y$ con prob.\ $\tfrac{1}{2}$. El genotipo de cada
+hijo sigue:
+\[
+  \Prob{\text{hijo}=XX} = \tfrac{1}{4},\quad
+  \Prob{\text{hijo}=XY} = \tfrac{1}{2},\quad
+  \Prob{\text{hijo}=YY} = \tfrac{1}{4}.
+\]
+Para el par de dos hijos independientes:
+\begin{align*}
+  \pij{E_3}{E_0} & = \left(\tfrac{1}{4}\right)^2 = \tfrac{1}{16},         \\[2pt]
+  \pij{E_3}{E_1} & = 2\cdot\tfrac{1}{4}\cdot\tfrac{1}{2} = \tfrac{4}{16}, \\[2pt]
+  \pij{E_3}{E_2} & = 2\cdot\tfrac{1}{4}\cdot\tfrac{1}{4} = \tfrac{2}{16}, \\[2pt]
+  \pij{E_3}{E_3} & = \left(\tfrac{1}{2}\right)^2 = \tfrac{4}{16},         \\[2pt]
+  \pij{E_3}{E_4} & = 2\cdot\tfrac{1}{2}\cdot\tfrac{1}{4} = \tfrac{4}{16}, \\[2pt]
+  \pij{E_3}{E_5} & = \left(\tfrac{1}{4}\right)^2 = \tfrac{1}{16}.
+\end{align*}
+
+\medskip
+\textbf{Matriz de transici\'on.}\quad
+Ordenando los estados como $E_0,E_1,E_2,E_3,E_4,E_5$:
+
+\[
+  \Pmat =
+  \begin{pmatrix}
+    1             & 0             & 0             & 0             & 0             & 0             \\[4pt]
+    \tfrac{1}{4}  & \tfrac{1}{2}  & 0             & \tfrac{1}{4}  & 0             & 0             \\[4pt]
+    0             & 0             & 0             & 1             & 0             & 0             \\[4pt]
+    \tfrac{1}{16} & \tfrac{4}{16} & \tfrac{2}{16} & \tfrac{4}{16} & \tfrac{4}{16} & \tfrac{1}{16} \\[4pt]
+    0             & 0             & 0             & \tfrac{1}{4}  & \tfrac{1}{2}  & \tfrac{1}{4}  \\[4pt]
+    0             & 0             & 0             & 0             & 0             & 1
+  \end{pmatrix}
+\]
+
+\medskip
+\textbf{Grafo de transici\'on.}
+
+\begin{center}
+  \begin{tikzpicture}[
+      every node/.style={circle, draw=sectionbg, fill=sectionbg!10,
+          minimum size=1.0cm, font=\small\sffamily},
+      every edge/.style={draw, -Stealth, thick},
+      lbl/.style={draw=none, fill=none, font=\footnotesize, inner sep=2pt},
+    ]
+
+    % Dos filas: absorbentes a la izquierda, transitoria al centro y derecha
+    %   Fila superior: E0 — E1 — E2
+    %   Fila inferior: E5 — E4 — E3
+    \node (E0) at (0,   2.6) {$E_0$};
+    \node (E1) at (3.6, 2.6) {$E_1$};
+    \node (E2) at (7.2, 3.9) {$E_2$};
+    \node (E5) at (0,   0)   {$E_5$};
+    \node (E4) at (3.6, 0)   {$E_4$};
+    \node (E3) at (7.2, 1.3)   {$E_3$};
+
+    % ── Auto-lazos ──────────────────────────────────────────────────────
+    \draw (E0) edge[loop left,  looseness=5] node[lbl, left]  {$1$}             (E0);
+    \draw (E5) edge[loop left,  looseness=5] node[lbl, left]  {$1$}             (E5);
+    \draw (E1) edge[loop above, looseness=5] node[lbl, above] {$\tfrac{1}{2}$}  (E1);
+    \draw (E3) edge[loop right, looseness=5] node[lbl, right] {$\tfrac{4}{16}$} (E3);
+    \draw (E4) edge[loop below, looseness=5] node[lbl, below] {$\tfrac{1}{2}$}  (E4);
+
+    % ── Fila superior: E1 → E0 ──────────────────────────────────────────
+    \draw (E1) edge
+      node[lbl, above] {$\tfrac{1}{4}$} (E0);
+
+    % ── Columna derecha: E2 ↔ E3 (bend left separa los dos sentidos) ───
+    \draw (E2) edge[bend left=12]
+      node[lbl, right=3pt] {$1$}             (E3);
+    \draw (E3) edge[bend left=12]
+      node[lbl, left=3pt]  {$\tfrac{2}{16}$} (E2);
+
+    % ── Diagonal: E3 ↔ E1 (bend left separa los dos sentidos) ──────────
+    \draw (E3) edge[bend left=12]
+      node[lbl, above, pos=0.42] {$\tfrac{4}{16}$} (E1);
+    \draw (E1) edge[bend left=12]
+      node[lbl, below, pos=0.42] {$\tfrac{1}{4}$}  (E3);
+
+    % ── Larga diagonal: E3 → E0 (arco por encima del diagrama) ─────────
+    \draw (E3) edge[out=128, in=18]
+      node[lbl, above, pos=0.42] {$\tfrac{1}{16}$} (E0);
+
+    % ── Fila inferior: E3 ↔ E4 (bend left separa los dos sentidos) ─────
+    \draw (E3) edge[bend left=12]
+      node[lbl, above] {$\tfrac{4}{16}$} (E4);
+    \draw (E4) edge[bend left=12]
+      node[lbl, below] {$\tfrac{1}{4}$}  (E3);
+
+    % ── Fila inferior: E4 → E5 ──────────────────────────────────────────
+    \draw (E4) edge
+      node[lbl, below] {$\tfrac{1}{4}$} (E5);
+
+    % ── Larga inferior: E3 → E5 (arco por debajo del diagrama) ─────────
+    \draw (E3) edge[out=207, in=-27]
+      node[lbl, below, pos=0.42] {$\tfrac{1}{16}$} (E5);
+
+  \end{tikzpicture}
+\end{center}
+
+% ═══════════════════════════════════════════════════════════════════════════
+%  PARTE b)
+% ═══════════════════════════════════════════════════════════════════════════
+\parteheader{Parte b) \textperiodcentered\ Clases de comunicaci\'on, tipos y per\'iodos}
+
+\textbf{Comunicaci\'on entre estados.}\quad
+Se dice que $i \leftrightarrow j$ si $i \to j$ y $j \to i$ (ambos alcanzables entre
+s\'i). Se verifican las siguientes rutas:
+
+\begin{itemize}
+  \item $E_1 \leftrightarrow E_3$: directo en un paso ($\pij{E_1}{E_3}=\tfrac{1}{4}>0$
+        y $\pij{E_3}{E_1}=\tfrac{4}{16}>0$).
+  \item $E_2 \leftrightarrow E_3$: $E_2\to E_3$ en un paso; $E_3\to E_2$ en un paso.
+  \item $E_4 \leftrightarrow E_3$: directo en un paso.
+  \item Por transitividad: $E_1\leftrightarrow E_2\leftrightarrow E_3\leftrightarrow E_4$.
+\end{itemize}
+
+$E_0$ y $E_5$ son \emph{absorbentes}: una vez alcanzados no se puede salir, y por
+tanto no comunican con ning\'un otro estado.
+
+\medskip
+\textbf{Clases de comunicaci\'on:}
+
+\begin{center}
+  \begin{tabular}{clll}
+    \toprule
+    Clase           & Estados                  & Tipo                    & Per\'iodo \\
+    \midrule
+    $\mathcal{C}_0$ & $\{E_0\}$                & Recurrente (absorbente) & $d = 1$   \\
+    $\mathcal{C}_1$ & $\{E_1, E_2, E_3, E_4\}$ & Transitorio             & $d = 1$   \\
+    $\mathcal{C}_2$ & $\{E_5\}$                & Recurrente (absorbente) & $d = 1$   \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\textbf{Justificaci\'on del tipo transitorio de $\mathcal{C}_1$:}\quad
+Todo estado en $\{E_1,E_2,E_3,E_4\}$ puede alcanzar $E_0$ o $E_5$ con probabilidad
+positiva (por ejemplo, $E_3\to E_0$ con prob.\ $\tfrac{1}{16}$). Una vez absorbidos
+en $\mathcal{C}_0$ o $\mathcal{C}_2$, no es posible regresar. Por tanto, la
+probabilidad de retornar a cualquier estado de $\mathcal{C}_1$ es estrictamente
+menor a $1$: todos los estados son \emph{transitorios}.
+
+\medskip
+\textbf{Per\'iodo de los estados en $\mathcal{C}_1$:}\quad
+El per\'iodo de un estado $i$ es $d(i)=\gcd\{n\ge 1: \pij{i}{i}^{(n)}>0\}$,
+y es el mismo para todos los estados de una clase.
+
+\begin{itemize}
+  \item $E_1$, $E_3$, $E_4$ tienen auto-lazo ($\pij{i}{i}>0$), luego $n=1$ es
+        alcanzable. Esto implica $d=1$ (aperiódico).
+  \item $E_2$ no tiene auto-lazo, pero puede retornar en 2 pasos
+        ($E_2\to E_3\to E_2$) y en 3 pasos ($E_2\to E_3\to E_3\to E_2$, usando
+        el auto-lazo de $E_3$). Como $\gcd(2,3)=1$, se concluye $d(E_2)=1$.
+\end{itemize}
+
+Todos los estados de $\mathcal{C}_1$ son \textbf{aperiódicos} ($d=1$).
+
+% ═══════════════════════════════════════════════════════════════════════════
+%  PARTE c)
+% ═══════════════════════════════════════════════════════════════════════════
+\parteheader{Parte c) \textperiodcentered\ Probabilidad de absorci\'on en $E_5$ desde $E_3$}
+
+El estado inicial es $E_3 = \{XY,XY\}$ (dos individuos id\'enticos con genotipo
+$XY$). Se quiere calcular la probabilidad de que la cadena sea absorbida en $E_5$
+(``todos recesivos'') a largo plazo.
+
+\medskip
+\textbf{Probabilidades de absorci\'on $f_i$.}\quad
+Dado que la cadena puede pasar por varios estados transitorios antes de absorberse,
+no es posible calcular $f_3$ directamente desde la definici\'on. La estrategia es
+definir, para \emph{cada} estado $E_i$,
+\[
+  f_i \;=\; \Prob{\text{absorci\'on en }E_5 \mid X_0 = E_i},
+\]
+es decir, $f_i$ es la probabilidad de que la cadena, \textbf{partiendo del estado
+  $E_i$}, acabe atrapada en $E_5$ en alg\'un tiempo futuro (potencialmente muy lejano).
+Al conocer $f_i$ para todos los estados, se puede recuperar el valor buscado
+$f_3$ resolviendo un sistema de ecuaciones lineales.
+
+\medskip
+\textbf{Planteamiento del sistema.}\quad
+Las condiciones de frontera son inmediatas: si ya se est\'a en un estado
+absorbente, la probabilidad de llegar a $E_5$ es conocida:
+\[
+  f_0 = 0 \quad (\text{absorbido en }E_0\text{, nunca llega a }E_5), \qquad
+  f_5 = 1 \quad (\text{ya est\'a en }E_5).
+\]
+Para los estados transitorios, por la \emph{ley de probabilidad total} (condicionando
+en el primer paso):
+\begin{align}
+  f_1 & = \pij{E_1}{E_0}\,f_0 + \pij{E_1}{E_1}\,f_1 + \pij{E_1}{E_3}\,f_3
+  = \tfrac{1}{4}\cdot 0 + \tfrac{1}{2}\,f_1 + \tfrac{1}{4}\,f_3,          \\[4pt]
+  f_2 & = \pij{E_2}{E_3}\,f_3 = f_3,                                      \\[4pt]
+  f_4 & = \pij{E_4}{E_3}\,f_3 + \pij{E_4}{E_4}\,f_4 + \pij{E_4}{E_5}\,f_5
+  = \tfrac{1}{4}\,f_3 + \tfrac{1}{2}\,f_4 + \tfrac{1}{4},                 \\[4pt]
+  f_3 & = \tfrac{1}{16}\,f_0 + \tfrac{4}{16}\,f_1 + \tfrac{2}{16}\,f_2
+  + \tfrac{4}{16}\,f_3 + \tfrac{4}{16}\,f_4 + \tfrac{1}{16}\,f_5.
+\end{align}
+
+\medskip
+\textbf{Resoluci\'on paso a paso.}
+
+\noindent\textit{De la ecuaci\'on (1):}
+\[
+  f_1 - \tfrac{1}{2}\,f_1 = \tfrac{1}{4}\,f_3 \implies
+  \tfrac{1}{2}\,f_1 = \tfrac{1}{4}\,f_3 \implies
+  \boxed{f_1 = \tfrac{1}{2}\,f_3.}
+\]
+
+\noindent\textit{De la ecuaci\'on (2):} $\boxed{f_2 = f_3.}$
+
+\noindent\textit{De la ecuaci\'on (3):}
+\[
+  f_4 - \tfrac{1}{2}\,f_4 = \tfrac{1}{4}\,f_3 + \tfrac{1}{4} \implies
+  \tfrac{1}{2}\,f_4 = \tfrac{1}{4}\,f_3 + \tfrac{1}{4} \implies
+  \boxed{f_4 = \tfrac{1}{2}\,f_3 + \tfrac{1}{2}.}
+\]
+
+\noindent\textit{Sustituyendo en la ecuaci\'on (4)}, con $f_0=0$ y $f_5=1$:
+\begin{align*}
+  f_3 & = 0 + \tfrac{4}{16}\cdot\tfrac{1}{2}\,f_3
+  + \tfrac{2}{16}\cdot f_3
+  + \tfrac{4}{16}\cdot f_3
+  + \tfrac{4}{16}\!\left(\tfrac{1}{2}\,f_3+\tfrac{1}{2}\right)
+  + \tfrac{1}{16}                                                      \\[4pt]
+      & = \tfrac{2}{16}\,f_3 + \tfrac{2}{16}\,f_3 + \tfrac{4}{16}\,f_3
+  + \tfrac{2}{16}\,f_3 + \tfrac{2}{16} + \tfrac{1}{16}                 \\[4pt]
+      & = \tfrac{10}{16}\,f_3 + \tfrac{3}{16}.
+\end{align*}
+\[
+  f_3 - \tfrac{10}{16}\,f_3 = \tfrac{3}{16} \implies
+  \tfrac{6}{16}\,f_3 = \tfrac{3}{16} \implies
+  \boxed{f_3 = \tfrac{1}{2}.}
+\]
+
+\medskip
+\textbf{Respuesta.}\quad La probabilidad de que en el largo plazo solo haya
+individuos con genes recesivos, partiendo de $\{XY,XY\}$, es
+\[
+  \Prob{\text{absorci\'on en }E_5 \mid X_0 = E_3} = \dfrac{1}{2}.
+\]
+
+\begin{nota}
+  \textbf{Interpretaci\'on por simetr\'ia.} El modelo trata a los genes $X$ e $Y$ de
+  forma completamente sim\'etrica. En el estado $E_3 = \{XY,XY\}$ hay exactamente
+  2 genes dominantes y 2 recesivos sobre 4 totales (frecuencia recesiva $= 50\%$).
+  Por simetr\'ia, la probabilidad de absorci\'on en ``todos dominantes'' es tambi\'en
+  $\tfrac{1}{2}$, y ambas suman 1 (la absorci\'on es cierta, pues los estados
+  transitorios se visitan un n\'umero finito de veces). En general, la probabilidad
+  de absorci\'on en $E_5$ desde cualquier estado transitorio es igual a la
+  \emph{frecuencia inicial de genes recesivos}: $f_1=\tfrac{1}{4}$,
+  $f_2=f_3=\tfrac{1}{2}$, $f_4=\tfrac{3}{4}$.
+\end{nota}
+
+\vspace{10pt}
+{\color{subsecbg!60}\hrule}
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{Problema 7 \textperiodcentered\ Centro hospitalario: instalaci\'on de equipos}
+  En un peque\~no centro hospitalario se tiene la urgencia de instalar equipos nuevos.
+  Estos equipos son muy costosos y se deben manejar con mucho cuidado, por lo que se
+  necesita que el establecimiento est\'e vac\'io al momento de la instalaci\'on.
+  Actualmente hay $M$ pacientes en el centro y, con el fin de poder proceder a la
+  instalaci\'on, no se recibir\'an m\'as pacientes hasta que \'esta se realice.
+
+  Cada ma\~nana un doctor eval\'ua la condici\'on de los pacientes. Se ha determinado
+  que cada paciente tiene una probabilidad $p$ de estar rehabilitado y salir del
+  centro, y una probabilidad $(1-p)$ de seguir internado, \emph{independientemente}
+  de lo que ocurra con los dem\'as pacientes. Nadie puede ingresar al centro hasta
+  despu\'es de instalados los equipos.
+
+  \smallskip
+  \begin{enumerate}[label=\alph*)]
+    \item Muestre que el sistema descrito puede ser modelado como una cadena de
+          Markov en tiempo discreto, dibuje el grafo correspondiente, identifique
+          las clases y clasifique sus estados.\\[2pt]
+          \textit{Hint:} Calcule la probabilidad
+          $\Pr\!\bigl[X(n)=r\mid X(n-1)=k\bigr]$, con $X(n)$ representando la
+          cantidad de personas en el centro en la semana $n$.
+    \item Si el sistema tiene inicialmente $M$ pacientes, ?`cu\'al es la probabilidad
+          de que alg\'un d\'ia haya $M-1$ pacientes? ?`Cu\'al es la probabilidad de
+          que alg\'un d\'ia se puedan instalar los equipos? Encuentre estas
+          probabilidades y fund\'amente adecuadamente sus respuestas.
+  \end{enumerate}
+\end{enunciado}
+
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════════
+%  PARTE a)
+% ═══════════════════════════════════════════════════════════════════════════
+\parteheader{Parte a) \textperiodcentered\ Modelo como cadena de Markov, grafo y clasificaci\'on}
+
+\textbf{Definici\'on del proceso.}\quad
+Sea $X(n)$ el n\'umero de pacientes en el centro al inicio del d\'ia $n$. El espacio
+de estados es $\mathcal{S} = \{0, 1, 2, \ldots, M\}$, y no se admiten nuevos
+pacientes, por lo que el proceso s\'olo puede decrecer.
+
+\medskip
+\textbf{C\'alculo de probabilidades de transici\'on.}\quad
+Dado $X(n-1)=k$, cada uno de los $k$ pacientes permanece con probabilidad $(1-p)$
+o es dado de alta con probabilidad $p$, de forma \emph{independiente}. El n\'umero
+de pacientes que queda al d\'ia siguiente es por tanto
+\[
+  X(n)\;\big|\;X(n-1)=k \;\sim\; \mathrm{Binomial}\!\bigl(k,\;1-p\bigr).
+\]
+La probabilidad de transici\'on de $k$ a $r$ ($0\le r\le k$) es:
+\[
+  \pij{kr} \;=\; \Pr\!\bigl[X(n)=r\mid X(n-1)=k\bigr]
+  \;=\; \binom{k}{r}(1-p)^{r}\,p^{\,k-r},
+\]
+y $\pij{kr}=0$ para $r>k$ (los pacientes s\'olo pueden marcharse).
+
+\medskip
+\textbf{Propiedad de Markov.}\quad
+El estado futuro $X(n)$ depende del pasado \emph{\'unicamente} a trav\'es del estado
+actual $X(n-1)=k$: dada la cantidad actual de pacientes, el mecanismo de alta de
+d\'ias anteriores no aporta informaci\'on adicional. Las probabilidades de
+transici\'on son adem\'as hom\'nogeneas en el tiempo. Por tanto, el proceso es una
+\textbf{cadena de Markov homog\'enea en tiempo discreto}.
+
+\medskip
+\textbf{Grafo de transici\'on} (esquema para $M$ general):
+
+\begin{center}
+  \begin{tikzpicture}[
+      every node/.style={circle, draw=sectionbg, fill=sectionbg!10,
+          minimum size=1.0cm, font=\small\sffamily},
+      every edge/.style={draw, -Stealth, thick},
+      lbl/.style={draw=none, fill=none, font=\scriptsize, inner sep=2pt},
+    ]
+
+    % Estados explícitos
+    \node (s0) at (0,   0) {$0$};
+    \node (s1) at (2.4, 0) {$1$};
+    \node[draw=none, fill=none, minimum size=0pt] (sd1) at (4.4, 0) {\large$\cdots$};
+    \node (sk) at (6.4, 0) {$k$};
+    \node[draw=none, fill=none, minimum size=0pt] (sd2) at (8.4, 0) {\large$\cdots$};
+    \node (sM) at (10.4, 0) {$M$};
+
+    % Auto-lazos
+    \draw (s0) edge[loop above, looseness=5] node[lbl, above] {$1$}         (s0);
+    \draw (s1) edge[loop above, looseness=5] node[lbl, above] {$(1-p)$}     (s1);
+    \draw (sk) edge[loop above, looseness=5] node[lbl, above] {$(1-p)^k$}   (sk);
+    \draw (sM) edge[loop above, looseness=5] node[lbl, above] {$(1-p)^M$}   (sM);
+
+    % 1 → 0
+    \draw (s1) edge
+      node[lbl, above] {$p$} (s0);
+
+    % k → 1 (transición representativa intermedia)
+    \draw (sk) edge[bend left=22]
+      node[lbl, above, pos=0.5] {$\binom{k}{1}(1-p)\,p^{k-1}$} (s1);
+
+    % k → 0
+    \draw (sk) edge[bend right=25]
+      node[lbl, below, pos=0.5] {$p^k$} (s0);
+
+    % M → k (transición representativa)
+    \draw (sM) edge[bend left=20]
+      node[lbl, above, pos=0.45] {$\binom{M}{k}(1-p)^k p^{M-k}$} (sk);
+
+    % M → 0
+    \draw (sM) edge[out=215, in=-35]
+      node[lbl, below, pos=0.42] {$p^M$} (s0);
+
+  \end{tikzpicture}
+\end{center}
+
+\medskip
+\textbf{Clases de comunicaci\'on y clasificaci\'on de estados.}\quad
+Dado que el proceso s\'olo puede \emph{decrecer} (nunca entran nuevos pacientes),
+ning\'un estado $k\ge 1$ puede ser alcanzado desde ning\'un estado $j<k$.
+
+\begin{itemize}
+  \item \textbf{Estado 0:} una vez vac\'io el centro, permanece vac\'io
+        ($\pij{00}=1$). Es un \emph{estado absorbente}: clase recurrente
+        $\mathcal{C}_0 = \{0\}$, periodo $d=1$.
+  \item \textbf{Estados $k=1,\ldots,M$:} desde $k$ se puede alcanzar cualquier
+        $j<k$, pero desde $j$ no se puede retornar a $k$. Por tanto $k$ no
+        comunica con ning\'un otro estado y forma su propio singleton
+        $\{k\}$, que es \emph{transitorio} y \emph{aperi\'odico} ($d=1$,
+        pues $\pij{kk}=(1-p)^k>0$).
+\end{itemize}
+
+\begin{center}
+  \begin{tabular}{cll}
+    \toprule
+    Clase           & Estados                      & Tipo                           \\
+    \midrule
+    $\mathcal{C}_0$ & $\{0\}$                      & Recurrente (absorbente), $d=1$ \\
+    $\mathcal{C}_k$ & $\{k\}$, para $k=1,\ldots,M$ & Transitorio, $d=1$             \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+% ═══════════════════════════════════════════════════════════════════════════
+%  PARTE b)
+% ═══════════════════════════════════════════════════════════════════════════
+\parteheader{Parte b) \textperiodcentered\ Probabilidades de alcanzar $M{-}1$ y de instalar los equipos}
+
+\textbf{Probabilidad de que alg\'un d\'ia haya $M-1$ pacientes.}\quad
+Sea
+\[
+  f \;=\; \Prob{\exists\,n\ge 1:\,X(n)=M-1 \mid X(0)=M}.
+\]
+Dado que el proceso s\'olo decrece, si alguna vez cae por debajo de $M-1$ nunca
+podr\'a volver a $M-1$. Condicionando en el primer paso:
+\begin{align*}
+  f & = \Prob{X(1)=M-1\mid X(0)=M}
+  + \Prob{X(1)=M\mid X(0)=M}\cdot f
+  + \underbrace{\sum_{r=0}^{M-2}\Prob{X(1)=r\mid X(0)=M}\cdot 0}_{\text{cae debajo de }M-1:\text{ imposible regresar}}.
+\end{align*}
+Definiendo
+\[
+  \alpha \;=\; \Prob{X(1)=M-1\mid X(0)=M}
+  \;=\; \binom{M}{M-1}(1-p)^{M-1}p
+  \;=\; M\,p\,(1-p)^{M-1},
+\]
+\[
+  \beta  \;=\; \Prob{X(1)=M\mid X(0)=M}
+  \;=\; (1-p)^M,
+\]
+la ecuaci\'on se reduce a $f = \alpha + \beta f$, de donde:
+\[
+  \boxed{f \;=\; \frac{\alpha}{1-\beta}
+    \;=\; \frac{M\,p\,(1-p)^{M-1}}{1-(1-p)^M}.}
+\]
+
+\begin{nota}
+  Esta f\'ormula se puede interpretar como la probabilidad de dar exactamente un paso
+  de $M$ a $M-1$, condicionada a que el sistema \emph{s\'i} abandone el estado $M$
+  (evento $1-\beta$). Para $M=1$ se obtiene $f=1$ (trivialmente, el \'unico paciente
+  debe pasar por 0, que requiere estar en 1 antes).
+\end{nota}
+
+\medskip
+\textbf{Probabilidad de instalar los equipos.}\quad
+Se busca $\Prob{\exists\,n\ge 1:\,X(n)=0 \mid X(0)=M}$. Se mostrar\'a que esta
+probabilidad es \textbf{igual a 1} para cualquier $p\in(0,1)$.
+
+\medskip
+\textit{Argumento por esperanza.}\quad
+Cada uno de los $M$ pacientes presentes al inicio permanece en el centro al d\'ia
+$n$ con probabilidad $(1-p)^n$, independientemente de los dem\'as. Por linealidad
+de la esperanza:
+\[
+  \E{X(n)\mid X(0)=M} \;=\; M\,(1-p)^n \;\xrightarrow{n\to\infty}\; 0,
+  \qquad \text{para } p\in(0,1).
+\]
+Como $X(n)\ge 0$ es entero, la desigualdad de Markov da:
+\[
+  \Prob{X(n)\ge 1 \mid X(0)=M}
+  \;\le\; \E{X(n)\mid X(0)=M}
+  \;=\; M\,(1-p)^n \;\to\; 0.
+\]
+Por tanto $\Prob{X(n)=0\mid X(0)=M}\to 1$, lo que implica que la absorci\'on en
+el estado 0 ocurre con probabilidad 1:
+\[
+  \boxed{\Prob{\text{equipos instalados}\mid X(0)=M}
+    \;=\; \Prob{\exists\,n:\,X(n)=0 \mid X(0)=M} \;=\; 1.}
+\]
+
+\begin{nota}
+  El resultado se puede verificar tambi\'en notando que desde cualquier estado
+  $k\ge 1$ existe una probabilidad $p^k>0$ de llegar a 0 en un solo paso
+  (todos los pacientes salen el mismo d\'ia). Como esta probabilidad est\'a
+  uniformemente acotada por $p^M>0$, la probabilidad de \emph{no} absorci\'on
+  en $n$ pasos est\'a acotada por $(1-p^M)^n\to 0$.
+\end{nota}
+
+\vspace{10pt}
+{\color{subsecbg!60}\hrule}
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{P35 \textperiodcentered\ Empresa de arriendo de autos: Santiago--Vi\~na del Mar}
+  Considere una empresa automovilística que arrienda autos entre Santiago y Vi\~na del
+  Mar. La empresa dispone de $N=3$ autos en total. Las funciones de probabilidad de
+  la demanda diaria son independientes entre ciudades y a lo largo del tiempo:
+
+  \smallskip
+  \begin{center}
+    \begin{tabular}{lcccccc}
+      \toprule
+      Cantidad demandada & 0    & 1    & 2    & 3    & 4    & 5    \\
+      \midrule
+      Santiago           & 0.10 & 0.20 & 0.50 & 0.10 & 0.05 & 0.05 \\
+      Vi\~na del Mar     & 0.30 & 0.50 & 0.10 & 0.10 & 0    & 0    \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \smallskip
+  Los autos arrendados viajan a la otra ciudad ese mismo d\'ia (disponibles allí al
+  final del d\'ia). La demanda no satisfecha se pierde. Sea $X_n$ el n\'umero de autos
+  en Santiago al comienzo del d\'ia $n$.
+
+  \smallskip
+  \begin{enumerate}[label=\alph*)]
+    \item Obtenga la matriz de probabilidades de transici\'on en una etapa.
+    \item Suponga que $X_1=2$. Obtenga el valor esperado de la demanda insatisfecha
+          por la empresa durante el primer d\'ia.
+    \item La empresa decide implementar la siguiente pol\'itica nocturna: si al final
+          del d\'ia cualquiera de las dos ciudades se queda sin autos, se traslada un
+          auto desde la otra ciudad.
+          \begin{enumerate}[label=\roman*.]
+            \item Obtenga la nueva matriz de transici\'on en una etapa.
+            \item Suponga que ha obtenido el vector estacionario $\pi$ de este proceso.
+                  Encuentre una expresi\'on para el n\'umero promedio de traslados nocturnos
+                  efectuados en el largo plazo.
+          \end{enumerate}
+  \end{enumerate}
+\end{enunciado}
+
+\vspace{6pt}
+
+% ───────────────────────────────────────────────────────────────────────
+\parteheader{Parte a) \textperiodcentered\ Matriz de transici\'on en una etapa}
+
+\textbf{Din\'amica del sistema.}\quad
+Si al inicio del d\'ia $n$ hay $i$ autos en Santiago (y $3-i$ en Vi\~na), la cantidad
+satisfecha en cada ciudad queda limitada por el stock disponible:
+\[
+  A = \min(D_S,\,i), \qquad B = \min(D_V,\,3-i).
+\]
+Los $A$ autos arrendados en Santiago viajan a Vi\~na ese d\'ia; los $B$ arrendados en
+Vi\~na viajan a Santiago. Por tanto:
+\[
+  X_{n+1} = i - A + B.
+\]
+Como $D_S \perp D_V$ (independientes), las distribuciones de $A$ y $B$ se obtienen
+directamente de las tablas de demanda.
+
+\medskip
+\noindent\textit{Estado $i=0$ (0 autos en Santiago):}\quad
+$A=0$ con certeza. $B = \min(D_V,3)$, luego $X_{n+1}=B$.
+\[
+  p_{00}=0.30,\quad p_{01}=0.50,\quad p_{02}=0.10,\quad
+  p_{03}=\Prob{D_V\ge 3}=0.10.
+\]
+
+\noindent\textit{Estado $i=3$ (3 autos en Santiago):}\quad
+$B=0$ con certeza. $A=\min(D_S,3)$, luego $X_{n+1}=3-A$.
+\[
+  p_{30}=\Prob{D_S\ge 3}=0.20,\quad p_{31}=0.50,\quad p_{32}=0.20,\quad p_{33}=0.10.
+\]
+
+\noindent\textit{Estado $i=1$ (1 auto en Santiago, 2 en Vi\~na):}\quad
+$A\in\{0,1\}$, $B\in\{0,1,2\}$. Tabla de probabilidades conjuntas de $X_{n+1}=1-A+B$:
+
+\begin{center}
+  \begin{tabular}{l|ccc|l}
+    \toprule
+                                 & $B=0$                                                         & $B=1$       & $B=2$       & \\
+                                 & (0.30)                                                        & (0.50)      & (0.20)      & \\
+    \midrule
+    $A=0$ (0.10)                 & $X=1$, 0.03                                                   & $X=2$, 0.05 & $X=3$, 0.02 & \\
+    $A=1$ (0.90)                 & $X=0$, 0.27                                                   & $X=1$, 0.45 & $X=2$, 0.18 & \\
+    \midrule
+    \multicolumn{4}{l}{Sumando:} & $p_{10}=0.27$,\ $p_{11}=0.48$,\ $p_{12}=0.23$,\ $p_{13}=0.02$                               \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\noindent\textit{Estado $i=2$ (2 autos en Santiago, 1 en Vi\~na):}\quad
+$A\in\{0,1,2\}$, $B\in\{0,1\}$. Tabla de $X_{n+1}=2-A+B$:
+
+\begin{center}
+  \begin{tabular}{l|cc|l}
+    \toprule
+                                 & $B=0$ (0.30)                                                  & $B=1$ (0.70) & \\
+    \midrule
+    $A=0$ (0.10)                 & $X=2$, 0.03                                                   & $X=3$, 0.07  & \\
+    $A=1$ (0.20)                 & $X=1$, 0.06                                                   & $X=2$, 0.14  & \\
+    $A=2$ (0.70)                 & $X=0$, 0.21                                                   & $X=1$, 0.49  & \\
+    \midrule
+    \multicolumn{3}{l}{Sumando:} & $p_{20}=0.21$,\ $p_{21}=0.55$,\ $p_{22}=0.17$,\ $p_{23}=0.07$                  \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\medskip
+\textbf{Matriz de transici\'on} (filas = estado origen, columnas = estado destino):
+\[
+  \mathbf{P} =
+  \bordermatrix{
+    & 0    & 1    & 2    & 3    \cr
+    i=0    & 0.30 & 0.50 & 0.10 & 0.10 \cr
+    i=1    & 0.27 & 0.48 & 0.23 & 0.02 \cr
+    i=2    & 0.21 & 0.55 & 0.17 & 0.07 \cr
+    i=3    & 0.20 & 0.50 & 0.20 & 0.10 \cr
+  }
+\]
+
+\medskip
+\textbf{Clasificaci\'on.}\quad
+Todos los elementos de $\mathbf{P}$ son estrictamente positivos, por lo que desde
+cualquier estado se puede alcanzar cualquier otro en un solo paso: la cadena es
+\emph{irreducible}. Adem\'as, todos los estados tienen auto-lazo ($p_{ii}>0$), por
+lo que son \emph{aperi\'odicos} ($d=1$). Dado que el espacio de estados es finito,
+todos los estados son \textbf{recurrentes positivos} y existe una \'unica
+distribuci\'on estacionaria $\pi$.
+
+% ───────────────────────────────────────────────────────────────────────
+\parteheader{Parte b) \textperiodcentered\ Demanda insatisfecha esperada con $X_1=2$}
+
+Con $X_1=2$: hay 2 autos en Santiago y 1 en Vi\~na. La demanda insatisfecha total
+en el d\'ia 1 es:
+\[
+  U = (D_S - 2)^+ + (D_V - 1)^+,
+  \qquad \text{donde } (x)^+ = \max(x,0).
+\]
+Dado que $D_S \perp D_V$, $\E{U} = \E{(D_S-2)^+} + \E{(D_V-1)^+}$.
+
+\[
+  \E{(D_S-2)^+} = 1\cdot\Prob{D_S=3} + 2\cdot\Prob{D_S=4} + 3\cdot\Prob{D_S=5}
+  = 1(0.10)+2(0.05)+3(0.05) = 0.35.
+\]
+\[
+  \E{(D_V-1)^+} = 1\cdot\Prob{D_V=2} + 2\cdot\Prob{D_V=3}
+  = 1(0.10)+2(0.10) = 0.30.
+\]
+\[
+  \boxed{\E{U \mid X_1=2} = 0.35 + 0.30 = 0.65 \text{ autos/d\'ia.}}
+\]
+
+% ───────────────────────────────────────────────────────────────────────
+\parteheader{Parte c) \textperiodcentered\ Pol\'itica de traslado nocturno}
+
+\textbf{i) Nueva matriz de transici\'on.}\quad
+La pol\'itica transforma el estado \emph{al final del d\'ia} antes de comenzar el
+siguiente:
+\[
+  Y = X_{n+1}^{\text{raw}} \mapsto X_{n+1} =
+  \begin{cases}
+    1 & \text{si } Y=0 \;\text{(Vi\~na tiene 3, traslado a Santiago)}, \\
+    Y & \text{si } Y=1 \text{ \'o } 2,                                 \\
+    2 & \text{si } Y=3 \;\text{(Santiago tiene 3, traslado a Vi\~na)}.
+  \end{cases}
+\]
+Los estados 0 y 3 nunca son estado inicial al d\'ia siguiente: el espacio de
+estados efectivo se reduce a $\{1,2\}$. La nueva matriz $\mathbf{P}'$ se obtiene
+agrupando columnas de $\mathbf{P}$:
+\begin{align*}
+  p'_{11} & = p_{10}+p_{11} = 0.27+0.48 = 0.75, &
+  p'_{12} & = p_{12}+p_{13} = 0.23+0.02 = 0.25,   \\
+  p'_{21} & = p_{20}+p_{21} = 0.21+0.55 = 0.76, &
+  p'_{22} & = p_{22}+p_{23} = 0.17+0.07 = 0.24.
+\end{align*}
+\[
+  \mathbf{P}' = \begin{pmatrix} 0.75 & 0.25 \\ 0.76 & 0.24 \end{pmatrix}.
+\]
+
+\textbf{ii) Promedio de traslados en el largo plazo.}\quad
+Un traslado ocurre cuando el estado \emph{bruto} al final del d\'ia es $Y=0$
+(traslado de Vi\~na a Santiago) o $Y=3$ (traslado de Santiago a Vi\~na). En el largo
+plazo, la frecuencia de d\'ias con traslado es:
+\[
+  \bar{T} = \pi_1\bigl(p_{10}+p_{13}\bigr) + \pi_2\bigl(p_{20}+p_{23}\bigr)
+  = 0.29\,\pi_1 + 0.28\,\pi_2,
+\]
+donde $\pi=(\pi_1,\pi_2)$ es la distribuci\'on estacionaria de $\mathbf{P}'$.
+
+\begin{nota}
+  Resolviendo $\pi\mathbf{P}'=\pi$, $\pi_1+\pi_2=1$: de $0.25\,\pi_1=0.76\,\pi_2$
+  se obtiene $\pi_1=76/101$, $\pi_2=25/101$. Sustituyendo:
+  $\bar{T} = 0.29\times(76/101)+0.28\times(25/101) = 2904/10100 \approx 0.288$
+  traslados por d\'ia.
+\end{nota}
+
+\vspace{10pt}
+{\color{subsecbg!60}\hrule}
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{Problema 2 \textperiodcentered\ Ruina del jugador}
+  Un jugador apuesta sucesivas veces en el mismo juego. En cada jugada existe una
+  probabilidad $p$ de ganar una unidad y una probabilidad $1-p$ de perder una unidad.
+  Las jugadas son independientes. El jugador comienza con una fortuna de $i$ unidades
+  ($1<i<N$) y juega hasta que pierde todo o llega a $N$.
+
+  \smallskip
+  \begin{enumerate}[label=\alph*)]
+    \item Construya una cadena de Markov que describa la fortuna del jugador en cada
+          instante. Incluya las probabilidades de transici\'on.
+    \item El jugador al llegar a $N$ cambia su estrategia: apuesta \emph{doble o
+            nada}, de modo que con probabilidad $p$ su riqueza es $2N$ (y se retira),
+          mientras con probabilidad $1-p$ pierde todo. Modele esta nueva situaci\'on.
+    \item Si $p=1/2$, ?`de qu\'e depende que el jugador finalmente gane o pierda?
+          Sin hacer c\'alculos entregue valores espec\'ificos cuando sea posible e
+          interprete sus resultados.
+    \item Resuelva el problema general: encuentre las probabilidades de terminar
+          ganando y perdiendo si se empieza con fortuna $i$ ($1<i<N$) y
+          $p\ne 1-p$.
+  \end{enumerate}
+\end{enunciado}
+
+\vspace{6pt}
+
+% ───────────────────────────────────────────────────────────────────────
+\parteheader{Parte a) \textperiodcentered\ Cadena de Markov: modelo b\'asico}
+
+\textbf{Espacio de estados:} $\mathcal{S}=\{0,1,2,\ldots,N\}$, donde $X_n$ es la
+fortuna del jugador tras $n$ jugadas. Las probabilidades de transici\'on son:
+\[
+  p_{k,k+1}=p, \quad p_{k,k-1}=1-p \quad (k=1,\ldots,N-1); \qquad
+  p_{00}=1, \quad p_{NN}=1.
+\]
+
+\begin{center}
+  \begin{tikzpicture}[
+      every node/.style={circle, draw=sectionbg, fill=sectionbg!10,
+          minimum size=1.0cm, font=\small\sffamily},
+      every edge/.style={draw, -Stealth, thick},
+      lbl/.style={draw=none, fill=none, font=\scriptsize, inner sep=2pt},
+    ]
+    \node (s0) at (0,   0) {$0$};
+    \node (s1) at (2.2, 0) {$1$};
+    \node[draw=none,fill=none,minimum size=0pt] (sd) at (4.2,0) {\large$\cdots$};
+    \node (si) at (6.2, 0) {$i$};
+    \node[draw=none,fill=none,minimum size=0pt] (sd2) at (8.2,0) {\large$\cdots$};
+    \node (sN) at (10.2, 0) {$N$};
+
+    \draw (s0) edge[loop above, looseness=5] node[lbl,above] {$1$} (s0);
+    \draw (sN) edge[loop above, looseness=5] node[lbl,above] {$1$} (sN);
+
+    \draw (s1) edge[bend left=20]  node[lbl,above] {$p$}     (si);
+    \draw (si) edge[bend left=20]  node[lbl,below] {$1-p$}   (s1);
+
+    \draw (s1) edge                node[lbl,below] {$1-p$}   (s0);
+    \draw (si) edge[bend left=15]  node[lbl,above] {$p$}     (sN);
+    \draw (sN) edge[bend left=15]  node[lbl,below] {$1-p$}   (si);
+  \end{tikzpicture}
+\end{center}
+
+\textbf{Clasificaci\'on.}
+\begin{itemize}
+  \item $\{0\}$ y $\{N\}$: clases recurrentes absorbentes, $d=1$.
+  \item $\{1,\ldots,N-1\}$: clase transitoria. Todos los estados se comunican
+        (pueden ir hacia arriba y hacia abajo). No hay auto-lazos ($p_{kk}=0$),
+        y todo retorno a $k$ requiere un n\'umero par de pasos ($\pm1$ deben
+        compensarse). Como $\gcd(2,4,6,\ldots)=2$, el per\'iodo es $d=2$.
+\end{itemize}
+
+% ───────────────────────────────────────────────────────────────────────
+\parteheader{Parte b) \textperiodcentered\ Modelo modificado: apuesta ``doble o nada'' en $N$}
+
+Al llegar a $N$, el jugador apuesta $N$ con probabilidad $p$ de doblar ($\to 2N$)
+y $1-p$ de perder todo ($\to 0$). Se agrega el estado absorbente $2N$:
+
+\[
+  p_{N,2N}=p,\quad p_{N,0}=1-p; \qquad p_{2N,2N}=1.
+\]
+Los dem\'as estados no cambian. El nuevo espacio de estados es
+$\mathcal{S}=\{0,1,\ldots,N,2N\}$.
+
+\textbf{Clasificaci\'on actualizada.}
+\begin{itemize}
+  \item $\{0\}$: recurrente absorbente (``ruina''), $d=1$.
+  \item $\{2N\}$: recurrente absorbente (``gran ganancia''), $d=1$.
+  \item $\{N\}$: transitorio singleton --- desde $N$ se va a $0$ o $2N$, ninguno
+        de los cuales puede regresar a $N$.
+  \item $\{1,\ldots,N-1\}$: clase transitoria, $d=2$ (igual que en parte a).
+\end{itemize}
+
+% ───────────────────────────────────────────────────────────────────────
+\parteheader{Parte c) \textperiodcentered\ Caso $p=\tfrac{1}{2}$: ¿de qu\'e depende el resultado?}
+
+Con $p=\tfrac{1}{2}$, la cadena es una \emph{caminata aleatoria sim\'etrica}: en
+cada paso se gana o pierde una unidad con igual probabilidad. Bajo esta condici\'on,
+la fortuna $X_n$ es una \textbf{martingala}:
+\[
+  \E{X_{n+1}\mid X_n=k} = p(k+1)+(1-p)(k-1)\big|_{p=1/2} = k.
+\]
+Sea $T=\min\{n:X_n\in\{0,N\}\}$ el tiempo de parada. Por el Teorema de Parada
+Opcional:
+\[
+  \E{X_T} = X_0 = i.
+\]
+Como $X_T\in\{0,N\}$:
+\[
+  N\cdot\Prob{\text{ganar}}+0\cdot\Prob{\text{perder}}=i
+  \implies
+  \boxed{\Prob{\text{ganar}\mid X_0=i}=\frac{i}{N},\quad
+    \Prob{\text{perder}\mid X_0=i}=\frac{N-i}{N}.}
+\]
+
+\textbf{Interpretaci\'on.} El resultado depende \emph{\'unicamente} de la posici\'on
+inicial $i$ relativa al objetivo $N$: es la proporci\'on del camino ya recorrido.
+Valores espec\'ificos: si $i=N/2$ (punto medio), $\Prob{\text{ganar}}=1/2$; si
+$i=1$, $\Prob{\text{ganar}}=1/N$ (muy dif\'icil ganar); si $i=N-1$,
+$\Prob{\text{ganar}}=(N-1)/N$ (casi seguro ganar).
+
+% ───────────────────────────────────────────────────────────────────────
+\parteheader{Parte d) \textperiodcentered\ Caso general $p\ne 1-p$: probabilidades de absorci\'on}
+
+Sea $f_i=\Prob{\text{llegar a }N\text{ antes que a }0\mid X_0=i}$. Las condiciones
+de frontera son $f_0=0$ y $f_N=1$. Para $1\le i\le N-1$, condicionando en el
+primer paso:
+\[
+  f_i = p\,f_{i+1}+(1-p)\,f_{i-1}.
+\]
+Reordenando: $p\,f_{i+1}-f_i+(1-p)\,f_{i-1}=0$. Se ensaya $f_i=r^i$:
+\[
+  p\,r^2 - r + (1-p) = 0 \implies
+  r = \frac{1\pm|1-2p|}{2p}.
+\]
+Para $p\ne\tfrac{1}{2}$ las dos ra\'ices son distintas:
+\[
+  r_1 = 1, \qquad r_2 = \frac{1-p}{p} \;=:\; \rho.
+\]
+La soluci\'on general es $f_i = A + B\rho^i$. Aplicando las condiciones de frontera:
+\[
+  f_0=0:\; A+B=0 \implies A=-B;\qquad
+  f_N=1:\; -B+B\rho^N=1 \implies B=\frac{1}{\rho^N-1}.
+\]
+Por tanto:
+\[
+  f_i = \frac{\rho^i-1}{\rho^N-1} = \frac{1-\rho^i}{1-\rho^N},
+  \qquad \rho=\frac{1-p}{p}\ne 1.
+\]
+Las probabilidades finales son:
+\[
+  \boxed{\Prob{\text{ganar}\mid X_0=i} = \frac{1-\rho^i}{1-\rho^N},
+    \qquad
+    \Prob{\text{perder}\mid X_0=i} = \frac{\rho^i-\rho^N}{1-\rho^N}.}
+\]
+
+\begin{nota}
+  \textbf{Verificaci\'on:} la suma es $(1-\rho^i+\rho^i-\rho^N)/(1-\rho^N)=1$. Para
+  $p>\tfrac{1}{2}$ ($\rho<1$): $\rho^N\to 0$ con $N\to\infty$, luego
+  $\Prob{\text{ganar}}\to 1-\rho^i>0$ (juego favorable, probabilidad positiva de
+  ganar incluso contra un adversario con recursos ilimitados). Para $p<\tfrac{1}{2}$
+  ($\rho>1$): $\Prob{\text{ganar}}\to 0$ con $N\to\infty$ (juego desfavorable,
+  ruina casi segura). La f\'ormula del caso $p=\tfrac{1}{2}$ ($f_i=i/N$) se
+  recupera como l\'imite $\rho\to 1$ por L'H\^opital.
+\end{nota}
+
+\end{document}
