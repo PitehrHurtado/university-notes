@@ -1057,4 +1057,169 @@ Las probabilidades finales son:
   recupera como l\'imite $\rho\to 1$ por L'H\^opital.
 \end{nota}
 
+\vspace{10pt}
+{\color{subsecbg!60}\hrule}
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{P22 \textperiodcentered\ Clima en Canc\'un: seguro de vacaciones}
+  Suponga que en la ciudad de Canc\'un el clima de un d\'ia cualquiera puede ser
+  clasificado de despejado, nublado o lloviendo. Suponga que el clima del d\'ia
+  siguiente depende del clima actual de la siguiente manera: si hoy est\'a despejado,
+  ma\~nana estar\'a nublado con una probabilidad de 0.3 y lloviendo con 0.2; si hoy
+  est\'a nublado, ma\~nana estar\'a despejado con una probabilidad de 0.5 y lloviendo
+  con probabilidad 0.3; finalmente, si est\'a lloviendo hoy d\'ia, ma\~nana estar\'a
+  despejado con probabilidad 0.4 y nublado con 0.5.
+
+  \smallskip
+  Suponga ahora que el se\~nor y la se\~nora P\'erez han planeado celebrar sus 25~a\~nos
+  de matrimonio en Canc\'un. Si se cuenta el d\'ia de hoy como el primer d\'ia, ellos
+  estar\'an en Canc\'un el s\'eptimo y octavo d\'ia. Ellos est\'an pensando contratar
+  un seguro de vacaciones que promete devolverles el costo total de su estad\'ia, que
+  es de US\$2{,}500 si llueve los dos d\'ias, y que no les devuelve nada en caso
+  contrario. El costo del seguro es de US\$200.
+
+  \smallskip
+  Analice si le conviene al matrimonio P\'erez contratar el seguro, asuma que hoy
+  est\'a despejado en Canc\'un.
+\end{enunciado}
+
+\vspace{10pt}
+{\color{subsecbg!60}\hrule}
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{P26 \textperiodcentered\ Ventas semanales como cadena de Markov}
+  Suponga que las ventas semanales de un cierto producto pueden ser descritas como
+  una cadena de Markov discreta. Suponga que estas ventas var\'ian entre 2 y 8
+  unidades. Las probabilidades de transici\'on en una etapa son las siguientes
+  (filas y columnas corresponden a ventas $2,3,4,5,6,7,8$, respectivamente):
+  \[
+    P = \begin{pmatrix}
+      0.6 & 0.4 & 0   & 0   & 0   & 0   & 0   \\
+      0   & 1   & 0   & 0   & 0   & 0   & 0   \\
+      0   & 0   & 0   & 1   & 0   & 0   & 0   \\
+      0   & 0   & 0.8 & 0.2 & 0   & 0   & 0   \\
+      0   & 0   & 0   & 0   & 0.4 & 0.6 & 0   \\
+      0.5 & 0   & 0.3 & 0   & 0   & 0   & 0.2 \\
+      0   & 0.4 & 0   & 0   & 0.6 & 0   & 0
+    \end{pmatrix}
+  \]
+
+  \begin{enumerate}[label=\alph*)]
+    \item ?`Existe distribuci\'on l\'imite? ?`Existe distribuci\'on estacionaria?
+          Justifique.
+    \item Suponga que las ventas semanales pueden clasificarse en Bajas (2 \'o 3),
+          Medias (4 \'o 5) o Altas (6, 7 u 8), y suponga que durante la primera semana
+          se vendieron 6 unidades. ?`Cu\'ales son las probabilidades, en el largo plazo,
+          de que las ventas en una semana cualquiera sean Bajas, Medias o Altas?
+    \item ?`Cu\'anto tiempo transcurre en promedio, entre dos semanas con ventas iguales
+          a 2 unidades? ?`Cu\'al es la distribuci\'on de probabilidades de este tiempo?
+  \end{enumerate}
+\end{enunciado}
+
+\vspace{10pt}
+{\color{subsecbg!60}\hrule}
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{P27 \textperiodcentered\ Cadena de Markov discreta con estados $\{1,\ldots,7\}$}
+  Considere una cadena de Markov discreta con estados $\{1,2,\ldots,7\}$, y la
+  siguiente matriz de probabilidades de transici\'on en una etapa:
+  \[
+    P = \begin{pmatrix}
+      0.8 & 0   & 0   & 0   & 0   & 0.2 & 0   \\
+      0   & 0   & 0   & 0   & 1   & 0   & 0   \\
+      0.1 & 0   & 0.9 & 0   & 0   & 0   & 0   \\
+      0   & 0   & 0   & 0.5 & 0   & 0   & 0.5 \\
+      0   & 0.3 & 0   & 0   & 0.7 & 0   & 0   \\
+      0   & 0   & 1   & 0   & 0   & 0   & 0   \\
+      0   & 0.5 & 0   & 0   & 0   & 0.5 & 0
+    \end{pmatrix}
+  \]
+
+  \begin{enumerate}[label=\alph*)]
+    \item Determine las clases de estados y clasifique los estados en transientes,
+          recurrentes nulos o positivos, y determine si son aperi\'odicos o peri\'odicos
+          (y el per\'iodo).
+    \item ?`Existe distribuci\'on l\'imite?
+    \item ?`Cu\'al es la probabilidad de que, si el sistema parte en el estado~7, se
+          llegue al estado~6 alguna vez? ?`Cu\'al es la probabilidad de que, si el
+          sistema parte en el estado~7, llegue alguna vez al estado~5?
+    \item Suponga que el sistema parte en el estado~1. ?`Cu\'anto tiempo (etapas) toma,
+          en promedio, retornar al estado~1 por primera vez?
+    \item Suponga que el sistema parte en el estado~2. Obtenga una expresi\'on para el
+          tiempo promedio que le toma al sistema ingresar al estado~5 por primera vez.
+    \item ?`Tiene este sistema distribuci\'on estacionaria? Justifique.
+    \item Obtenga $F(6,1)$ y $F(6,3)$.
+  \end{enumerate}
+\end{enunciado}
+
+\vspace{10pt}
+{\color{subsecbg!60}\hrule}
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{P31 \textperiodcentered\ Empresa de transporte: seguro de flota}
+  Una empresa de transporte debe contratar un seguro para su flota de veh\'iculos.
+  Existen 4 posibles seguros con valores $v_1 > v_2 > v_3 > v_4$. El valor del
+  seguro se paga al principio del a\~no y depende del tipo de seguro contratado el
+  a\~no anterior y de los accidentes cobrados, a la compa\~n\'ia de seguros, durante
+  ese a\~no. Si durante el a\~no pasado, el seguro contratado cost\'o $v_i$ y no se
+  cobraron da\~nos, el seguro este a\~no costar\'a $v_{i+1}$; en caso contrario (es
+  decir, si se cobraron da\~nos), el seguro costar\'a $v_1$. Si el a\~no anterior el
+  seguro cost\'o $v_4$ y no hubo da\~nos cobrados, el seguro este a\~no tambi\'en
+  costar\'a $v_4$.
+
+  \smallskip
+  La empresa de transporte debe decidir, al final del a\~no, si cobrar\'a o no los
+  da\~nos acumulados por sus veh\'iculos durante el a\~no. Si la empresa decide cobrar
+  los da\~nos, la compa\~n\'ia se hace cargo de \'estos. El da\~no total de la flota
+  durante un a\~no cualquiera es una v.a.\ con distribuci\'on $F$ y densidad $f$.
+  La empresa utiliza la siguiente pol\'itica: si el seguro contratado vale $v_i$,
+  entonces se cobran los da\~nos al final del a\~no si \'estos son mayores que $a_i$
+  (estos valores son par\'ametros de la pol\'itica). Sea $X_n$ el tipo de seguro
+  contratado durante el a\~no $n$.
+
+  \begin{enumerate}[label=\alph*)]
+    \item Obtenga la matriz $P$ de este proceso.
+    \item Suponga que el da\~no total, en pesos, que sufre la flota durante un a\~no
+          cualquiera tiene distribuci\'on exponencial de par\'ametro $\lambda$. Se
+          desea determinar la pol\'itica \'optima de contrataci\'on de este seguro en
+          un horizonte de largo plazo, de modo de minimizar el costo esperado anual.
+          Encuentre la expresi\'on que ser\'ia necesario optimizar y explique c\'omo
+          obtendr\'ia la soluci\'on \'optima.
+  \end{enumerate}
+\end{enunciado}
+
+\vspace{10pt}
+{\color{subsecbg!60}\hrule}
+\vspace{6pt}
+
+% ═══════════════════════════════════════════════════════════════════════
+\begin{enunciado}{P39 \textperiodcentered\ Juego de apuestas sucesivas}
+  Considere un jugador que apuesta sucesivas veces en el mismo juego. En cada jugada
+  existe una probabilidad $p$ de ganar una unidad y una probabilidad $1-p$ de perder
+  una unidad. Se asume que las jugadas sucesivas son independientes. El jugador
+  comienza con una cantidad de $i$, $1 < i < N$, y juega hasta que pierde todo o
+  llega a $N$.
+
+  \begin{enumerate}[label=\alph*)]
+    \item Construya una cadena de Markov que describa la fortuna del jugador en cada
+          instante. Incluya las probabilidades de transici\'on.
+    \item El jugador al llegar a $N$ cambia su estrategia y decide apostar doble o
+          nada, de manera que con probabilidad $p$ su riqueza es $2N$ (y se retira),
+          mientras con probabilidad $1-p$ pierde todo (y su riqueza se reduce a cero).
+          Modele esta nueva situaci\'on.
+    \item Si en la situaci\'on de la parte~(a), la probabilidad de ganar es $p=1/2$,
+          ?`De qu\'e depende que nuestro jugador finalmente gane o pierda? Sin hacer
+          c\'alculos entregue valores espec\'ificos cuando se pueda e interprete sus
+          resultados.
+    \item Resuelva el problema para el caso general, es decir, encuentre las
+          probabilidades de terminar ganando o perdiendo el juego si se empieza con
+          una cantidad de $i$, $1 < i < N$. Se juega hasta que pierde todo o llega a
+          $N$, con $p \ne (1-p)$.
+  \end{enumerate}
+\end{enunciado}
+
 \end{document}

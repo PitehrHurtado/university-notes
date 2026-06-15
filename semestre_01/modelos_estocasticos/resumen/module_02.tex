@@ -1704,19 +1704,94 @@
 
 \subsecheader{6.4 \textperiodcentered\ Ecuaciones de Kolmogorov}
 
-\begin{teorema}{Ecuaciones de Kolmogorov (progresiva y regresiva)}
-  Sea $\mathbf{P}(t) = (p_{ij}(t))$ la matriz de probabilidades de transici\'on.
-  Bajo condiciones de regularidad:
+\begin{teorema}{Ecuaci\'on regresiva de Kolmogorov (\emph{backward})}
+  Partiendo del estado $i$ en $t=0$, condicionamos en el \textbf{primer salto}:
   \begin{align}
-    \mathbf{P}'(t) &= \mathbf{P}(t)\,\generator \quad \text{(ecuaci\'on progresiva de Kolmogorov)}\\
-    \mathbf{P}'(t) &= \generator\,\mathbf{P}(t) \quad \text{(ecuaci\'on regresiva de Kolmogorov)}
+    p'_{ij}(t) &= -q_i\,p_{ij}(t) + \sum_{k \neq i} q_{ik}\,p_{kj}(t)
+               = \sum_{k \in \Sset} q_{ik}\,p_{kj}(t), \label{eq:backward-scalar}
   \end{align}
-  con condici\'on inicial $\mathbf{P}(0) = \mathbf{I}$.
-  La soluci\'on formal es la \textbf{exponencial matricial}:
+  o en forma matricial:
+  \[
+    \mathbf{P}'(t) = \generator\,\mathbf{P}(t), \qquad \mathbf{P}(0)=\mathbf{I}.
+  \]
+\end{teorema}
+
+\begin{teorema}{Ecuaci\'on progresiva de Kolmogorov (\emph{forward})}
+  Condicionamos en el \textbf{\'ultimo salto} antes de llegar al estado $j$ en $t$:
+  \begin{align}
+    p'_{ij}(t) &= -q_j\,p_{ij}(t) + \sum_{k \neq j} p_{ik}(t)\,q_{kj}
+               = \sum_{k \in \Sset} p_{ik}(t)\,q_{kj}, \label{eq:forward-scalar}
+  \end{align}
+  o en forma matricial:
+  \[
+    \mathbf{P}'(t) = \mathbf{P}(t)\,\generator, \qquad \mathbf{P}(0)=\mathbf{I}.
+  \]
+  La soluci\'on com\'un es la \textbf{exponencial matricial}:
   \[
     \mathbf{P}(t) = e^{t\generator} = \sum_{k=0}^{\infty} \frac{(t\generator)^k}{k!}.
   \]
 \end{teorema}
+
+\begin{demostracion}
+  \textbf{Ecuaci\'on regresiva.}
+  Aplicamos Chapman-Kolmogorov con el intervalo pequeño $h>0$ al inicio del recorrido:
+  \[
+    p_{ij}(t+h) = \sum_{k \in \Sset} p_{ik}(h)\,p_{kj}(t).
+  \]
+  Por la definici\'on del generador (derivada de $\mathbf{P}(t)$ en $t=0$):
+  \[
+    p_{ii}(h) = 1 - q_i\,h + o(h), \qquad p_{ik}(h) = q_{ik}\,h + o(h)\quad (k\neq i).
+  \]
+  Sustituyendo y separando el t\'ermino $k=i$:
+  \[
+    p_{ij}(t+h) = (1 - q_i h)\,p_{ij}(t) + \sum_{k \neq i} q_{ik}\,h\,p_{kj}(t) + o(h).
+  \]
+  Restando $p_{ij}(t)$, dividiendo por $h$ y tomando $h \to 0^+$:
+  \[
+    p'_{ij}(t) = -q_i\,p_{ij}(t) + \sum_{k \neq i} q_{ik}\,p_{kj}(t)
+              = \sum_{k} \underbrace{q_{ik}}_{\substack{q_{ii}=-q_i \\ q_{ik}\ge0,\,k\ne i}} p_{kj}(t).
+  \]
+  En notaci\'on matricial: $\mathbf{P}'(t) = \generator\,\mathbf{P}(t)$.\\[6pt]
+
+  \textbf{Ecuaci\'on progresiva.}
+  Colocamos ahora el intervalo peque\~no al \emph{final}:
+  \[
+    p_{ij}(t+h) = \sum_{k \in \Sset} p_{ik}(t)\,p_{kj}(h).
+  \]
+  Con $p_{jj}(h) = 1 - q_j h + o(h)$ y $p_{kj}(h) = q_{kj}h + o(h)$ para $k\neq j$:
+  \[
+    p_{ij}(t+h) = p_{ij}(t)(1 - q_j h) + \sum_{k \neq j} p_{ik}(t)\,q_{kj}\,h + o(h).
+  \]
+  Tomando el l\'imite:
+  \[
+    p'_{ij}(t) = -q_j\,p_{ij}(t) + \sum_{k \neq j} p_{ik}(t)\,q_{kj}
+              = \sum_k p_{ik}(t)\,q_{kj},
+  \]
+  es decir, $\mathbf{P}'(t) = \mathbf{P}(t)\,\generator$.\\[6pt]
+
+  \textbf{Soluci\'on matricial.}
+  Ambas EDOs $\mathbf{P}'=\generator\mathbf{P}$ y $\mathbf{P}'=\mathbf{P}\generator$ con $\mathbf{P}(0)=\mathbf{I}$
+  tienen la misma soluci\'on $e^{t\generator}$ porque $\generator$ y $e^{t\generator}$ conmutan.
+  La serie converge uniformemente en compactos. $\square$
+\end{demostracion}
+
+\begin{nota}
+  \textbf{Interpretaci\'on probabil\'istica.}
+  \begin{itemize}
+    \item \textbf{Regresiva (backward):} descompone el trayecto $i\to j$ en $[0,t]$ seg\'un lo que ocurre en el primer instante infinitesimal. Con probabilidad $1-q_i h$ el proceso permanece en $i$; con probabilidad $q_{ik}h$ salta a $k$ y luego debe llegar a $j$ desde $k$ en tiempo $t$. Conveniente para calcular probabilidades de absorci\'on y tiempos de primer paso (se ancla en el estado inicial).
+    \item \textbf{Progresiva (forward):} descompone el trayecto seg\'un el \'ultimo salto en $[t,t+h]$. Conveniente para obtener la distribuci\'on de $X(t)$ a partir de la distribuci\'on en $t=0$ (se ancla en el estado final $j$).
+    \item Para $|\Sset|$ finito o tasas acotadas, ambas ecuaciones tienen la misma soluci\'on \'unica. En espacios infinitos con posible \emph{explosi\'on}, la ecuaci\'on regresiva siempre tiene soluci\'on m\'inima \'unica; la progresiva puede tener m\'ultiples soluciones.
+  \end{itemize}
+\end{nota}
+
+\begin{nota}
+  \textbf{Ecuaci\'on de Kolmogorov para la distribuci\'on marginal.}
+  Si $\boldsymbol{\alpha}(t)$ es el vector fila con $\alpha_j(t) = \Prob{X(t)=j}$, multiplicando la ecuaci\'on progresiva por la distribuci\'on inicial:
+  \[
+    \boldsymbol{\alpha}'(t) = \boldsymbol{\alpha}(t)\,\generator, \qquad \boldsymbol{\alpha}(0) = \boldsymbol{\alpha}^{(0)}.
+  \]
+  En estado estacionario $\boldsymbol{\alpha}'(t)=\mathbf{0}$, lo que recupera la condici\'on $\boldsymbol{\pi}\,\generator = \mathbf{0}$ (\S6.5).
+\end{nota}
 
 \begin{ejemplo}{Soluci\'on expl\'icita para 2 estados}
   Con la Q-matrix anterior ($\lambda, \mu > 0$), los autovalores de $\generator$ son

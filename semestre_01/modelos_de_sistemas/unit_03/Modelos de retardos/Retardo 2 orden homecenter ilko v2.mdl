@@ -1,0 +1,138 @@
+{UTF-8}
+Ajuste en expectativas1=
+	(pedidos reales-Demanda esperada homecenter)/Tiempo de ajuste expectativas1
+	~	
+	~		|
+
+Ajuste en expectativas2=
+	(Demanda esperada homecenter-Demanda esperada Ilko)/Tiempo de ajuste de expectativas2
+	~	
+	~		|
+
+Demanda esperada homecenter= INTEG (
+	Ajuste en expectativas1,
+		50)
+	~	
+	~		|
+
+Demanda esperada Ilko= INTEG (
+	Ajuste en expectativas2,
+		50)
+	~	
+	~		|
+
+pedidos reales=
+	50+50*PULSE(5, 1)
+	~	
+	~	50+STEP(50, 5)
+		50+50*PULSE(5, 1)
+		
+		Las de Javier
+		
+		100*STEP(2,0)
+		100*PULSE(0,1)
+	|
+
+Tiempo de ajuste de expectativas2=
+	10
+	~	
+	~		|
+
+Tiempo de ajuste expectativas1=
+	10
+	~	
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 30
+	~	Day
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Day
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP 
+	~	Day [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.0078125
+	~	Day [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Vensim Sans|12||0-0-0|0-0-0|0-0-255|-1--1--1|255-255-255|96,96,200,0
+10,1,pedidos reales,304,282,42,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,2,Demanda esperada homecenter,451,85,57,42,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,3,Demanda esperada Ilko,724,273,62,29,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,4,48,204,84,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,5,7,4,100,0,0,22,0,192,0,-1--1--1,,1|(256,84)|
+1,6,7,2,4,0,0,22,0,192,0,-1--1--1,,1|(352,84)|
+11,7,0,304,84,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,8,Ajuste en expectativas1,304,121,63,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,9,48,469,275,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,10,12,9,100,0,0,22,0,192,0,-1--1--1,,1|(521,275)|
+1,11,12,3,4,0,0,22,0,192,0,-1--1--1,,1|(619,275)|
+11,12,0,570,275,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,13,Ajuste en expectativas2,570,312,63,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,14,Tiempo de ajuste expectativas1,172,197,79,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,15,Tiempo de ajuste de expectativas2,470,409,79,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,16,14,8,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,17,15,13,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,18,1,8,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,19,2,13,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,20,3,13,1,0,0,0,0,192,0,-1--1--1,,1|(630,205)|
+1,21,2,8,1,0,0,0,0,192,0,-1--1--1,,1|(331,39)|
+///---\\\
+:L<%^E!@
+1:current.vdfx
+4:Time
+5:pedidos reales
+9:current
+19:200,0
+24:0
+25:30
+26:30
+23:0
+15:0,0,0,0,0,0
+27:0,
+34:0,
+42:0
+72:0
+73:0
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:4
+41:0
+95:0
+96:0
+97:0
+77:0
+78:0
+102:1
+93:0
+94:0
+92:0
+91:0
+90:0
+87:0
+75:
+43:
+103:8,8,8,3,8
+105:0,0,0,0,0,0,0,0,0,0
+104:Vensim Sans|12||0-0-0|0-0-0|-1--1--1|0-0-255|192-192-192|-1--1--1

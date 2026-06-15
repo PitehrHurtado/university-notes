@@ -1,0 +1,283 @@
+{UTF-8}
+Muertes de peces=A FUNCTION OF(Muertes de peces,Fracción de muertes,Población de peces\
+		) ~~|
+Muertes de peces=
+	~	peces/Year
+	~		|
+
+Fracción de muertes=A FUNCTION OF(Fracción de muertes,Fracción de ocupación) ~~|
+Fracción de muertes=
+	~	1/Year
+	~		|
+
+Área=A FUNCTION OF(Área) ~~|
+Área=
+	~	km2
+	~		|
+
+Barcos=A FUNCTION OF(Barcos,Tasa de construcción) ~~|
+Barcos= INTEG (
+	Tasa de construcción,
+		)
+	~	barcos
+	~		|
+
+Capacidad de carga=A FUNCTION OF(Capacidad de carga) ~~|
+Capacidad de carga=
+	~	peces
+	~		|
+
+Captura por barco=A FUNCTION OF(Captura por barco,Densidad) ~~|
+Captura por barco=
+	~	peces/(Year*barcos)
+	~		|
+
+Costo de envio=A FUNCTION OF(Costo de envio) ~~|
+Costo de envio=
+	~	$/barcos
+	~		|
+
+Costo operativo promedio por barco=A FUNCTION OF(Costo operativo promedio por barco) ~~|
+Costo operativo promedio por barco=
+	~	$/(Year*barcos)
+	~		|
+
+Costos operativos=A FUNCTION OF(Costos operativos,Barcos,Costo operativo promedio por barco\
+		) ~~|
+Costos operativos=
+	~	$/Year
+	~		|
+
+Cuenta banco=A FUNCTION OF(Cuenta banco,Dépositos para el banco) ~~|
+Cuenta banco= INTEG (
+	Dépositos para el banco,
+		)
+	~	$
+	~		|
+
+Densidad=A FUNCTION OF(Densidad,Área,Población de peces) ~~|
+Densidad=
+	~	peces/km2
+	~		|
+
+Dépositos para el banco=A FUNCTION OF(Dépositos para el banco,Utilidades anuales) ~~|
+Dépositos para el banco=
+	~	$/Year
+	~		|
+
+Fracción invertida=A FUNCTION OF(Fracción invertida) ~~|
+Fracción invertida=
+	~	Dmnl
+	~		|
+
+Tasa de natalidad fraccional=A FUNCTION OF(Tasa de natalidad fraccional) ~~|
+Tasa de natalidad fraccional=
+	~	1/Year
+	~		|
+
+Fracción de ocupación=A FUNCTION OF(Fracción de ocupación,Capacidad de carga,Población de peces\
+		) ~~|
+Fracción de ocupación=
+	~	Dmnl
+	~		|
+
+Ingresos=A FUNCTION OF(Ingresos,Peces capturados para pesca al año,Precio del pescado\
+		) ~~|
+Ingresos=
+	~	$/Year
+	~		|
+
+Utilidades anuales=A FUNCTION OF(Utilidades anuales,Costos operativos,Ingresos) ~~|
+Utilidades anuales=
+	~	$/Year
+	~		|
+
+Nacimientos de peces=A FUNCTION OF(Nacimientos de peces,Población de peces,Tasa de natalidad fraccional\
+		) ~~|
+Nacimientos de peces=
+	~	peces/Year
+	~		|
+
+Peces capturados para pesca al año=A FUNCTION OF(Peces capturados para pesca al año\
+		,Barcos,Captura por barco) ~~|
+Peces capturados para pesca al año=
+	~	peces/Year
+	~		|
+
+Población de peces=A FUNCTION OF(Población de peces,Muertes de peces,Nacimientos de peces\
+		,Peces capturados para pesca al año) ~~|
+Población de peces= INTEG (
+	Nacimientos de peces-Muertes de peces-Peces capturados para pesca al año,
+		)
+	~	peces
+	~		|
+
+Precio del pescado=A FUNCTION OF(Precio del pescado) ~~|
+Precio del pescado=
+	~	$/peces
+	~		|
+
+Tasa de construcción=A FUNCTION OF(Tasa de construcción,Costo de envio,Fracción invertida\
+		,Utilidades anuales) ~~|
+Tasa de construcción=
+	~	barcos/Year
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 20
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.125
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Vensim Sans|12||0-0-0|0-0-0|0-0-255|-1--1--1|255-255-255|96,96,90,0
+10,1,Población de peces,452,-5,59,29,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,2,Barcos,748,391,42,22,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,3,Tasa de natalidad fraccional,237,-102,82,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,4,48,184,-3,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,5,7,4,100,0,0,22,0,192,0,-1--1--1,,1|(242,-3)|
+1,6,7,1,4,0,0,22,0,192,0,-1--1--1,,1|(347,-3)|
+11,7,0,296,-3,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,8,Nacimientos de peces,296,34,58,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,9,48,724,-5,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,10,12,1,100,0,0,22,0,192,0,-1--1--1,,1|(575,-5)|
+1,11,12,9,4,0,0,22,0,192,0,-1--1--1,,1|(683,-5)|
+11,12,0,646,-5,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,13,Muertes de peces,646,32,53,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,14,48,434,205,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,15,17,1,100,0,0,22,0,192,0,-1--1--1,,1|(434,56)|
+1,16,17,14,4,0,0,22,0,192,0,-1--1--1,,1|(434,149)|
+11,17,0,434,95,8,6,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,18,Peces capturados para pesca al año,523,95,81,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,19,Densidad,289,110,45,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,20,Área,129,136,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,21,20,19,1,0,45,0,0,192,0,-1--1--1,,1|(183,118)|
+10,22,Captura por barco,358,225,56,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,23,19,22,1,0,43,0,0,192,0,-1--1--1,,1|(286,162)|
+1,24,22,18,1,0,43,0,0,64,0,-1--1--1,,1|(444,178)|
+1,25,1,19,1,0,43,0,0,192,0,-1--1--1,,1|(345,39)|
+1,26,3,8,1,0,43,0,0,192,0,-1--1--1,,1|(217,-29)|
+1,27,1,8,1,0,43,0,0,192,0,-1--1--1,,1|(344,-52)|
+10,28,Fracción de muertes,656,-82,53,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,29,Capacidad de carga,384,-169,50,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,30,Fracción de ocupación,511,-128,53,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,31,28,13,1,0,43,0,0,192,0,-1--1--1,,1|(675,-35)|
+1,32,29,30,1,0,45,0,0,192,0,-1--1--1,,1|(443,-169)|
+1,33,1,30,1,0,43,0,0,192,0,-1--1--1,,1|(456,-62)|
+1,34,30,28,1,0,43,0,0,192,0,-1--1--1,,1|(614,-140)|
+1,35,1,13,1,0,43,0,0,192,0,-1--1--1,,1|(553,-36)|
+1,36,2,18,1,0,43,0,0,192,0,-1--1--1,,1|(703,215)|
+12,37,48,505,389,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,38,40,37,100,0,0,22,0,192,0,-1--1--1,,1|(559,389)|
+1,39,40,2,4,0,0,22,0,192,0,-1--1--1,,1|(661,389)|
+11,40,0,610,389,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,41,Tasa de construcción,610,426,59,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,42,Ingresos,486,223,43,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,43,18,42,1,0,43,0,0,192,0,-1--1--1,,1|(492,164)|
+10,44,Precio del pescado,288,281,46,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,45,44,42,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+10,46,Utilidades anuales,488,327,47,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,47,42,46,1,0,43,0,0,192,0,-1--1--1,,1|(474,265)|
+10,48,Costos operativos,624,310,49,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,49,2,48,1,0,43,0,0,192,0,-1--1--1,,1|(708,328)|
+1,50,48,46,1,0,45,0,0,192,0,-1--1--1,,1|(541,285)|
+10,51,Costo operativo promedio por barco,624,200,72,42,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,52,51,48,1,0,43,0,0,192,0,-1--1--1,,1|(641,257)|
+1,53,46,41,1,0,43,0,0,192,0,-1--1--1,,1|(507,385)|
+10,54,Costo de envio,519,502,42,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,55,54,41,0,0,45,0,0,192,0,-1--1--1,,1|(0,0)|
+10,56,Fracción invertida,781,462,42,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,57,56,41,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+10,58,Cuenta banco,1000,248,42,29,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,59,48,808,245,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,60,62,59,100,0,0,22,0,192,0,-1--1--1,,1|(850,245)|
+1,61,62,58,4,0,0,22,0,192,0,-1--1--1,,1|(926,245)|
+11,62,0,888,245,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,63,Dépositos para el banco,888,282,70,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,64,Utilidades anuales,851,147,45,29,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,65,64,63,1,0,43,0,0,192,0,-1--1--1,,1|(847,197)|
+12,66,0,521,-21,80,40,8,7,0,0,-1,0,0,0,0,0,0,0,0,0
+-
+12,67,0,416,40,80,40,8,7,0,0,-1,0,0,0,0,0,0,0,0,0
+-
+12,68,0,566,346,23,23,5,7,0,0,-1,0,0,0,0,0,0,0,0,0
+B3
+12,69,0,565,-83,23,23,4,7,0,0,-1,0,0,0,0,0,0,0,0,0
+B1
+12,70,0,547,152,23,23,5,7,0,0,-1,0,0,0,0,0,0,0,0,0
+R2
+12,71,0,362,-31,23,23,5,7,0,0,-1,0,0,0,0,0,0,0,0,0
+R1
+12,72,0,382,127,23,23,5,7,0,0,-1,0,0,0,0,0,0,0,0,0
+B2
+12,73,0,685,372,80,40,8,7,0,0,-1,0,0,0,0,0,0,0,0,0
++
+///---\\\
+:GRAPH grafica1
+:TITLE peces versus barcos
+:X-AXIS Time
+:NO-LEGEND 1
+:DOTS
+:SCALE
+:VAR Barcos
+:DATASET 
+:LINE-WIDTH 1
+:SCALE
+:VAR Población de peces
+:DATASET 
+:LINE-WIDTH 1
+:L<%^E!@
+4:Time
+5:Población de peces
+9:current
+19:90,0
+24:0
+25:20
+26:20
+23:0
+15:0,0,0,0,0,0
+27:0,
+34:0,
+42:0
+72:0
+73:0
+95:0
+96:0
+97:0
+77:0
+78:0
+102:1
+93:0
+94:0
+92:0
+91:0
+90:0
+87:0
+75:
+43:
+103:8,8,8,3,8
+105:0,0,0,0,0,0,0,0,0,0
+104:Vensim Sans|12||0-0-0|0-0-0|-1--1--1|0-0-255|192-192-192|-1--1--1

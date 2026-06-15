@@ -1,0 +1,850 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{framed}
+\usepackage{pdflscape}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, babel}
+\usepackage{enumitem}
+\usepackage{float}
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	\vspace*{2cm}
+	{\Large \textbf{Pontificia Universidad Católica de Valparaíso}}\\[0.5cm]
+	{\large Escuela de Ingeniería Industrial}\\[3cm]
+
+	{\Huge \textbf{Informe de Modelamiento SysML}}\\[0.5cm]
+	{\Large Sistema de Detección de Infractores en Autopistas Concesionadas (SisDIAC)}\\[3cm]
+
+	\begin{flushright}
+		\textbf{Integrantes:}\\
+		Eric Escudero\\
+		Pitehr Hurtado C.\\
+		Kaleb Irahola Azad\\[1cm]
+		\textbf{Profesores:}\\
+		Franco Guidi P.\\
+		Guillermo Bustos R.\\
+		Mónica Castañeda R.\\[1cm]
+		\textbf{Asignatura:}\\
+		EII 800 - Modelos y Arquitecturas de Sistemas
+	\end{flushright}
+
+	\vfill
+	{\large Junio, 2026}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+
+\addcontentsline{toc}{section}{Lista de Abreviaturas}
+\section*{Lista de Abreviaturas}
+\begin{itemize}
+	\item \textbf{DDB:} Diagrama de Definición de Bloques.
+	\item \textbf{DCU:} Diagrama de Casos de Uso.
+	\item \textbf{DoCU:} Documentación de Casos de Uso.
+	\item \textbf{CU:} Caso de Uso.
+	\item \textbf{DAct:} Diagrama de Actividades.
+	\item \textbf{SisDIAC:} Sistema de Detección de Infractores en Autopistas Concesionadas.
+	\item \textbf{DT:} Dirección del Tránsito.
+	\item \textbf{$\rho$:} Porcentaje de error permitido
+\end{itemize}
+
+\newpage
+\section{Definición del Sistema}
+\subsection{Conceptualización}
+El \textbf{Sis}tema de \textbf{D}etección de \textbf{I}nfractores en \textbf{A}utopistas \textbf{C}oncesionadas (SisDIAC) es un sistema de \textit{backend} centralizado que opera dentro del Data Center de VíaLibre, detectando infracciones por exceso de velocidad promedio entre pórticos consecutivos y generando reportes distribuidos a los organismos competentes. VíaLibre interviene con tres roles diferenciados: área de Operaciones (configura la recepción de datos de los Armarios Vía), operador autorizado (define el parámetro $\rho$) y gerencia (solicita y recibe estadísticas de divulgación).
+La Figura~\ref{fig:cajaNegra} presenta el modelo de caja negra del sistema, mostrando sus entradas, salidas y el entorno que delimita su operación.
+
+\begin{figure}[htb]
+	\centering
+	\begin{tikzpicture}[>=stealth,
+			inbox/.style  = {draw, rounded corners=3pt, fill=green!10,
+					text width=3.3cm, align=center,
+					minimum height=0.9cm, font=\small},
+			outbox/.style = {draw, rounded corners=3pt, fill=blue!10,
+					text width=3.8cm, align=center,
+					minimum height=0.9cm, font=\small},
+			sysbox/.style = {draw, very thick, fill=gray!8,
+					text width=2.8cm, align=center,
+					minimum height=7.0cm, font=\small\bfseries},
+			clockbox/.style = {draw, circle, very thick, draw=purple!60,
+					fill=purple!8, minimum size=1.6cm,
+					align=center, font=\scriptsize}
+		]
+
+		% Entornos (rectangulos de fondo, dibujados primero)
+		\draw[dashed, rounded corners=5pt, fill=cyan!5, draw=cyan!50]
+		(-3.0,-4.2) rectangle (3.0, 4.2);
+		\node[font=\footnotesize\itshape, text=cyan!60] at (-2.0, 4.5)
+		{Data Center};
+
+		% Sistema central (caja negra)
+		\node[sysbox] (sisdiac) at (0,0) {\textbf{SisDIAC}};
+
+		% Entradas de datos
+		\node[inbox] (in1) at (-6.0,  3.0) {Lista de Cruces (Armario V\'ia)};
+		\node[inbox] (in2) at (-6.0,  1.5) {Par\'ametros del Sistema};
+		\node[inbox] (in3) at (-6.0,  0.0) {Solicitudes de Reportes};
+		\node[inbox] (in4) at (-6.0, -1.5) {Respuesta Registro Civil};
+		\node[inbox] (in5) at (-6.0, -3.0) {Solicitud de Estad\'isticas (V\'iaLibre)};
+
+		% Reloj del sistema (trigger de medianoche) - encima de SisDIAC
+		\node[clockbox] (clock) at (0, 6.0) {\textbf{Reloj}\\00:00};
+		% Manecillas del reloj: ambas apuntando a las 12 (medianoche)
+		\draw[thick, purple!70] (0, 6.0) -- (0, 6.6);
+		\draw[thick, purple!70] (0, 6.0) -- (0, 6.4);
+
+		% Salidas
+		\node[outbox] (out1) at (6.3,  1.7) {Reporte Diario Consolidado Municipal};
+		\node[outbox] (out2) at (6.3,  0.0) {Reporte Hist\'orico por Veh\'iculo};
+		\node[outbox] (out3) at (6.3, -1.7) {M\'etricas y Estad\'isticas de Divulgaci\'on};
+
+		% Flechas de entrada (datos)
+		\draw[->] (in1.east) -- (sisdiac.west |- in1);
+		\draw[->] (in2.east) -- (sisdiac.west |- in2);
+		\draw[->] (in3.east) -- (sisdiac.west |- in3);
+		\draw[->] (in4.east) -- (sisdiac.west |- in4);
+		\draw[->] (in5.east) -- (sisdiac.west |- in5);
+
+		% Flecha del reloj: punteada para distinguir trigger temporal de flujo de datos
+		\draw[->, dashed, purple!60, thick]
+		(clock.south) -- (sisdiac.north)
+		node[midway, right=3pt, font=\scriptsize, fill=white, inner sep=2pt,
+			align=center, text width=1.4cm]
+		{disparo\\diario};
+
+		% Flechas de salida
+		\draw[->] (sisdiac.east |- out1) -- (out1.west);
+		\draw[->] (sisdiac.east)         -- (out2.west);
+		\draw[->] (sisdiac.east |- out3) -- (out3.west);
+
+	\end{tikzpicture}
+	\caption{Modelo de Caja Negra del Sistema SisDIAC.}
+	\label{fig:cajaNegra}
+	\vspace{0.4em}
+	{\footnotesize\textit{\textbf{Nota:} el nodo Reloj (disparador de medianoche) se representa como disparador externo para destacar la naturaleza temporal del proceso; corresponde a un servicio de planificación interno alojado en el propio Data Center.}}
+\end{figure}
+
+\subsubsection{Entorno del Sistema}
+Como se aprecia en el diagrama de caja negra (Figura~\ref{fig:cajaNegra}), SisDIAC opera dentro de un único entorno tecnológico:
+\begin{itemize}
+	\item \textbf{Data Center:} Entorno tecnológico centralizado de VíaLibre que aloja y ejecuta SisDIAC. Actúa como punto de recepción de las listas de registros enviadas periódicamente por los Armarios Vía; desde él, SisDIAC ejecuta la detección de infracciones y distribuye los reportes a los organismos externos: Direcciones de Tránsito, Juzgados de Policía Local y gerencia de VíaLibre.
+\end{itemize}
+
+\subsubsection{Entradas}
+Las cinco entradas de datos y un disparador temporal que atraviesan la frontera del sistema, tal como se representan en la Figura~\ref{fig:cajaNegra}, son:
+\begin{itemize}
+	\item \textbf{Lista de Cruces (Armario Vía):} Lista de registros vehiculares enviada periódicamente al Data Center por cada Armario Vía instalado en los pórticos de la autopista. La frecuencia de envío es configurable por el área de Operaciones de VíaLibre, ya sea por intervalo fijo (ej. cada 15 min.) o por volumen fijo (ej. cada 1.000 registros). Cada lista contiene: identificador del pórtico, hora del último envío, hora de cierre de la lista, identificación de vehículos (patente y fotografía) y horas de cruce con resolución al segundo.
+	\item \textbf{Parámetros del Sistema:} Valores de configuración ingresados por el operador autorizado de VíaLibre a través del panel de administración. Comprenden el porcentaje de error permitido ($\rho$) utilizado para calibrar el umbral efectivo de detección de infracciones ($v_{\text{umbral}} = v_{\text{max}} \cdot (1 + \rho)$).
+	\item \textbf{Solicitudes de Reportes:} Requerimientos formales bajo demanda emitidos por los Juzgados de Policía Local, especificando patente y rango de fechas para la extracción del historial completo de circulación e infracciones de un vehículo determinado.
+	\item \textbf{Respuesta Registro Civil:} Datos de filiación del propietario (nombre y domicilio) recibidos como respuesta a la consulta que SisDIAC emite al Registro de Vehículos Empadronados del Registro Civil e Identificación cada medianoche, para enriquecer el Reporte Diario previo a su distribución. La naturaleza de consulta-respuesta (flujo \textit{pull}) está descrita en S10.
+	\item \textbf{Solicitud de Estadísticas (VíaLibre):} Requerimiento emitido por la gerencia de VíaLibre especificando el tipo de estadística requerida, el valor de $N$ y el período de análisis. Gatilla la generación de las métricas y rankings de divulgación correspondientes.
+	\item \textbf{Reloj del Sistema:} Disparador temporal que se activa automáticamente a la medianoche (00:00:00 hora local) para iniciar el proceso de generación del Reporte Diario Consolidado, procesando las infracciones acumuladas durante el día calendario anterior.
+\end{itemize}
+
+\subsubsection{Salidas}
+Las tres categorías de salida que el sistema produce y entrega a los organismos receptores son:
+\begin{itemize}
+	\item \textbf{Reporte Diario Consolidado Municipal:} Documento digital generado automáticamente a la medianoche, agrupando las infracciones del día por la comuna de jurisdicción de cada pórtico. Por cada infracción incluye: patente, el registro fotográfico con el tiempo de cruce en cada pórtico involucrado, la velocidad promedio calculada y los datos de filiación del propietario (nombre y domicilio obtenidos del Registro Civil). Es distribuido a la Dirección de Tránsito de la municipalidad correspondiente, quien emite los partes empadronados a los propietarios.
+	\item \textbf{Reporte Histórico Detallado por Vehículo:} Expediente analítico generado bajo demanda para los Juzgados de Policía Local. Entrega todas las rutas del vehículo solicitado en el rango de fechas indicado, con horarios y fotografías de cruce en cada pórtico (independientemente de si hubo infracción), con indicación explícita de los tramos donde se detectó exceso de velocidad. Sirve como respaldo documental ante defensas legales de infractores.
+	\item \textbf{Métricas y Estadísticas de Divulgación:} Conjunto de datos anonimizados destinados a campañas de divulgación de VíaLibre. Comprende tres estadísticas: (1) las $N$ mayores velocidades detectadas en la red, sin identificación de vehículos; (2) los $N$ vehículos con mayor cantidad de infracciones en un período dado, presentado como ranking general por autopista y por municipalidad, sin identificación de propietarios; y (3) la cantidad de infracciones por municipalidad por día dentro de un período, diferenciando días hábiles, fines de semana y feriados.
+\end{itemize}
+
+\newpage
+\subsection{Supuestos de Diseño}
+
+Para el modelamiento formal de SisDIAC, se han establecido los siguientes supuestos que delimitan su alcance operativo, estructural y legal:
+
+\begin{description}
+	\item[\textbf{S1. Operación Automatizada de Vía:}] Toda la operación en los pórticos es completamente automatizada; no se modela la interacción de personal físico, operarios ni carabineros en la vía.
+
+	\item[\textbf{S2. Identificación Unívoca del Vehículo:}] Cada vehículo se identifica en el pórtico mediante su placa patente. Esta captura se realiza de forma primaria mediante la lectura del dispositivo electrónico TAG (estándar en Chile) y/o de forma secundaria por visión computacional (OCR) aplicada a la fotografía tomada en el momento del cruce.
+
+	\item[\textbf{S3. Sincronización Temporal Confiable:}] Los relojes de todos los armarios de vía (pórticos) están sincronizados en tiempo real mediante el protocolo de red NTP con el Data Center de VíaLibre, garantizando un margen de error temporal despreciable para asegurar la coherencia en el cálculo de tiempos ($t$).
+
+	\item[\textbf{S4. Continuidad y Delimitación de la Autopista:}] Se asume que al inicio y al fin de la autopista concesionada existe un pórtico instalado. Por ende, no existen tramos descontrolados, desconocidos o que omitan la identificación del flujo vehicular.
+
+	\item[\textbf{S5. Cálculo Cinemático por Adyacencia:}] La detección de infracciones se basa exclusivamente en el cálculo de la velocidad promedio ($v = d/t$) utilizando los registros de tiempo entre dos pórticos sucesivos y contiguos en la misma autopista y sentido de circulación. No se consideran saltos de pórticos no adyacentes ni sensores de velocidad instantánea de entrada.
+
+	\item[\textbf{S6. Parámetros Geométricos y de Velocidad Límite:}] Las distancias exactas ($d$) entre pórticos consecutivos y el límite de velocidad máximo ($v_{\text{max}}$) de cada autopista son parámetros de referencia fijos, pre-configurados en la base de datos durante la instalación de la infraestructura vial. Ambos valores son necesarios para el cálculo del umbral de infracción ($v_{\text{umbral}} = v_{\text{max}} \cdot (1+\rho)$).
+
+	\item[\textbf{S7. Parámetro de Tolerancia Global:}] El porcentaje de error permitido ($\rho \in [0,1]$, expresado como fracción decimal; ej. $\rho = 0{,}08$ equivale a un 8\% de tolerancia) es un valor único de configuración global para todo el sistema (no varía por autopista ni por pórtico). El umbral efectivo de infracción se calcula como $v_{\text{umbral}} = v_{\text{max}} \cdot (1 + \rho)$.
+
+	\item[\textbf{S8. Foco Exclusivo en Exceso de Velocidad:}] El alcance del sistema se restringe estrictamente a las infracciones por sobrepasar el límite de velocidad permitido. Se excluyen explícitamente del modelo otras conductas como la evasión de peaje o la invasión de carriles exclusivos.
+
+	\item[\textbf{S9. Mapeo Jurisdiccional Estático:}] SisDIAC mantiene un registro interno que asigna a cada pórtico su Dirección de Tránsito (DT) de jurisdicción. Esto habilita la agrupación comunal de infracciones y el envío de reportes al organismo receptor correcto.
+
+	\item[\textbf{S10. Origen Externo de Datos Civiles:}] El acceso al Registro de Vehículos Empadronados del Registro Civil e Identificación se realiza como un servicio web externo (API) ya disponible. El sistema solo invoca este servicio a la medianoche con el fin de enriquecer el Reporte Diario Consolidado agregando el nombre del propietario y su domicilio, sin persistir los datos en la memoria del sistema.
+
+	\item[\textbf{S11. Reportabilidad y Delimitación de Multas:}] SisDIAC no emite multas ni partes directamente a los conductores. Su responsabilidad finaliza con la entrega de los reportes correspondientes. La emisión y notificación de los partes empadronados es competencia y responsabilidad exclusiva de las Direcciones de Tránsito (DT) municipales.
+
+	\item[\textbf{S12. Agrupación por Jurisdicción Comunal:}] SisDIAC agrupa en el Reporte Diario todas las infracciones de un vehículo según la municipalidad de jurisdicción de cada pórtico. Si el recorrido del vehículo traspasa límites intercomunales, puede generar infracciones para más de una DT en el mismo día. La decisión de emitir una o múltiples multas para infracciones dentro de una misma comuna es responsabilidad exclusiva de la DT receptora, no de SisDIAC.
+
+	\item[\textbf{S13. Divulgación y Anonimización Estratégica:}] Toda estadística histórica o de rendimiento corporativo entregada a la gerencia de VíaLibre para fines de difusión pública está completamente desprovista de patentes, RUT o datos identificatorios de personas y vehículos.
+
+	\item[\textbf{S14. Retención Histórica de Datos:}] El sistema mantiene el almacenamiento íntegro de los registros de pasos e infracciones por un periodo mínimo de 2 años, garantizando el sustrato de datos necesario para responder a los requerimientos y auditorías de los Juzgados de Policía Local. \textit{(Supuesto del equipo; el enunciado no especifica período de retención.)}
+
+	\item[\textbf{S15. Generación de Estadísticas Bajo Demanda:}] Las Métricas y Estadísticas de Divulgación se generan de forma on-demand, activadas por una Solicitud de Estadísticas emitida por la gerencia de VíaLibre. El enunciado no especifica si su generación es automática o solicitada; el equipo optó por el modelo bajo demanda para dar control explícito sobre los parámetros de consulta ($N$ y período de análisis). \textit{(Supuesto del equipo.)}
+
+\end{description}
+
+\newpage
+\section{Diagrama de Definición de Bloques (DDB)}
+Para el modelado estructural del sistema, se ha definido la ontología del SisDIAC mediante el DDB presentado en la Figura \ref{fig:ddb}. El diagrama identifica los bloques constitutivos del dominio del problema, sus propiedades internas y las relaciones estructurales que los vinculan.
+
+% Asegúrate de tener la imagen generada en la ruta img/SisDIAC_DDB.png
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{../vpp_proyect/SisDIAC-dbb.png}
+	\caption{Diagrama de Definición de Bloques (DDB) - SisDIAC.}
+	\label{fig:ddb}
+\end{figure}
+
+\subsection{Descripción de Bloques}
+
+{\sloppy
+	\begin{description}
+
+		\item[\textbf{Autopista}]
+		      Bloque raíz que representa la infraestructura vial concesionada como entidad organizadora del modelo. Agrupa los tramos que la componen y referencia los reportes generados a partir de su operación. Contiene como propiedad el parámetro de tolerancia de error cinético aplicado globalmente a la detección de infracciones y el límite de velocidad legal aplicable a la Autopista.
+		      \begin{itemize}
+			      \item \textbf{parts:} \texttt{tramos : Tramo [1..*]} — uno o más tramos que conforman la autopista.
+			      \item \textbf{references:} \texttt{reportes : Reporte [0..*]} — reportes generados a partir de la operación de los pórticos.
+			      \item \textbf{properties:} \texttt{porcentajeErrorGlobal : float} — porcentaje de tolerancia de error ($\rho$) aplicado al umbral de infracción; \texttt{limiteVelocidad : float} — $v_{\text{max}}$ del tramo.
+		      \end{itemize}
+
+		\item[\textbf{Tramo}]
+		      Segmento de autopista delimitado por dos pórticos consecutivos sobre el cual SisDIAC calcula la velocidad promedio de los vehículos. Concentra los parámetros cinemáticos necesarios para la detección de infracciones: la distancia física entre sus pórticos extremos.
+		      \begin{itemize}
+			      \item \textbf{parts:} \texttt{porticoEntrada : Pórtico} (entrada) y \texttt{porticoSalida : Pórtico} (salida).
+			      \item \textbf{properties:} \texttt{distancia : float} — longitud del tramo en kilometros.
+		      \end{itemize}
+
+		\item[\textbf{Pórtico}]
+		      Punto de control físico instalado a lo largo de la autopista. Captura el cruce de los vehículos mediante sensores y cámaras, y está asociado geográficamente a una comuna, lo que determina la jurisdicción de la Dirección de Tránsito receptora de las infracciones detectadas en su área.
+		      \begin{itemize}
+			      \item \textbf{properties:} \texttt{id : string} — identificador único del pórtico; \texttt{comunaUbicacion : string} — identificador de la municipalidad de jurisdicción.
+		      \end{itemize}
+
+		\item[\textbf{RegistroCruce}]
+		      Registro atómico generado cada vez que un vehículo cruza un pórtico. Constituye la unidad mínima de datos que alimenta a SisDIAC y contiene toda la información necesaria para el cálculo de velocidad promedio: el instante de cruce, la fotografía del vehículo y la referencia al pórtico y al vehículo involucrados.
+		      \begin{itemize}
+			      \item \textbf{references:} \texttt{porticoCruce : Pórtico} — pórtico donde se capturó el cruce; \texttt{vehículoCruce : Vehículo} — vehículo identificado en el cruce.
+			      \item \textbf{properties:} \texttt{timestamp : datetime} — fecha y hora del cruce con resolución al segundo; \texttt{fotografia : png} — imagen capturada en el momento del cruce; \texttt{idRegistro : string} — identificador único del registro.
+		      \end{itemize}
+
+		\item[\textbf{Vehículo}]
+		      Entidad que representa al vehículo detectado en la autopista. Es identificado de forma unívoca por su patente, la cual actúa como clave de búsqueda en los reportes históricos y en la consulta al Registro Civil para obtener los datos del propietario.
+		      \begin{itemize}
+			      \item \textbf{properties:} \texttt{patente : string} — placa de identificación del vehículo.
+		      \end{itemize}
+
+		\item[\textbf{Infracción}]
+		      Evento de exceso de velocidad promedio detectado entre dos pórticos consecutivos de un mismo tramo. Se construye a partir de exactamente dos RegistroCruce únicos — uno en el pórtico de entrada y otro en el de salida — cuya diferencia de timestamps, combinada con la distancia del tramo, permite calcular la velocidad promedio infractora.
+		      \begin{itemize}
+			      \item \textbf{references:} \texttt{Cruces : RegistroCruce [2]} — los dos registros de cruce que delimitan el evento infractor.
+			      \item \textbf{properties:} \texttt{velocidadPromedio : float} — corresponde a la velocidad calculada del tramo.
+
+		      \end{itemize}
+
+		\item[\textbf{Reporte}]
+		      Documento estructurado producido por SisDIAC que agrupa las infracciones detectadas en un período definido. Actúa como contenedor de los eventos infractores y delimita temporalmente el alcance de la información reportada.
+		      \begin{itemize}
+			      \item \textbf{parts:} \texttt{infracciones : Infracción [0..*]} — conjunto de infracciones incluidas en el reporte.
+			      \item \textbf{properties:} \texttt{fechaHoraCreacion : datetime} - corresponde a la fecha y hora de creacion del reporte; \texttt{fechaHoraInicio : datetime} y \texttt{fechaHoraFin : datetime} — delimitan el período cubierto.
+		      \end{itemize}
+
+	\end{description}
+}
+
+\subsection{Descripción de Relaciones}
+
+{\sloppy
+	\begin{description}
+
+		\item[\textbf{Autopista $\boldsymbol{\diamond\!\!\to}$ Tramo} (Composición, \texttt{1..*})]
+		      La Autopista está compuesta por uno o más Tramos consecutivos. Es una relación de composición fuerte: los tramos son partes constitutivas de la autopista y no tienen existencia independiente fuera de ella. La multiplicidad \texttt{[1..*]} garantiza que toda autopista modelada tiene al menos un tramo.
+
+		\item[\textbf{Autopista $\boldsymbol{\circ\!\!\to}$ Reporte} (Agregación, \texttt{0..*})]
+		      La Autopista referencia los reportes derivados de la operación de sus pórticos. Es una agregación débil: los reportes pueden existir con ciclo de vida propio, independiente del objeto Autopista que los origina. La multiplicidad \texttt{[0..*]} refleja que una autopista puede no haber generado aún ningún reporte.
+
+		\item[\textbf{Tramo $\boldsymbol{\diamond\!\!\to}$ Pórtico} (Composición doble: entrada y salida)]
+		      Cada Tramo está compuesto por dos Pórticos: \texttt{porticoEntrada} y \texttt{porticoSalida}. Definen los extremos físicos del tramo y habilitan el cálculo de velocidad promedio entre ellos.
+
+		\item[\textbf{Reporte $\boldsymbol{\diamond\!\!\to}$ Infracción} (Composición, \texttt{0..*})]
+		      Un Reporte contiene cero o más Infracciones como partes propias. Es una composición fuerte: las infracciones pertenecen al reporte y no tienen existencia independiente. La multiplicidad \texttt{[0..*]} permite generar reportes en períodos sin eventos infractores.
+
+		\item[\textbf{Infracción $\boldsymbol{\to}$ RegistroCruce} (Referencia, \texttt{[2]})]
+		      Cada Infracción referencia dos RegistroCruce únicos: el del pórtico de entrada y el del de salida.
+
+		\item[\textbf{RegistroCruce $\boldsymbol{\to}$ Pórtico} (Referencia, \texttt{1})]
+		      Cada RegistroCruce referencia el Pórtico específico donde fue capturado el evento. Esta referencia permite recuperar la ubicación geográfica y la jurisdicción municipal del cruce, datos necesarios para la agrupación comunal de infracciones.
+
+		\item[\textbf{RegistroCruce $\boldsymbol{\to}$ Vehículo} (Referencia, \texttt{1})]
+		      Cada RegistroCruce referencia el Vehículo identificado en ese cruce. A través de esta referencia, SisDIAC correlaciona los registros de entrada y salida de un mismo vehículo en un tramo, habilitando el cálculo de su velocidad promedio.
+
+	\end{description}
+}
+
+\newpage
+\section{Diagrama de Casos de Uso (DCU)}
+En la Figura \ref{fig:dcu}, se presenta la vista de Casos de Uso del sistema.
+
+\begin{figure}[h]
+	\centering
+	% Recuerda guardar la exportación de PlantUML del DCU en tu carpeta img
+	\includegraphics[scale=0.8]{../vpp_proyect/SisDIAC-dcu.png}
+	\caption{Diagrama de Casos de Uso (DCU) - SisDIAC.}
+	\label{fig:dcu}
+\end{figure}
+
+\section{Documentación de Casos de Uso (DoCU)}
+
+La presente sección documenta formalmente cada Caso de Uso identificado en el DCU (Figura~\ref{fig:dcu}). Cada tabla especifica: actor(es) involucrado(s), descripción del propósito, precondiciones, postcondiciones, flujo normal de ejecución y flujos alternativos relevantes. Los CU incluidos (sin actor primario externo) son disparados únicamente por el CU que los contiene vía relación \textbf{<<Include>>}.
+
+% ==================================================================
+% CU-01 · Cargar Lista de Cruces
+% ==================================================================
+\newpage
+\subsection{CU-01 · Cargar de Lista de Cruces}
+
+\noindent \textbf{Caso de uso:} Cargar Lista de Cruces \\
+\textbf{Objetivo:} El Armario Vía envía periódicamente al Data Center una lista con los registros de cruce acumulados desde el último envío, para que SisDIAC los almacene e inicie la detección de infracciones. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} Armario Vía \\
+\textbf{Actores secundarios:} No hay \\
+\textbf{Precondición:} El Armario Vía tiene registros acumulados desde el último envío. La conectividad entre el Armario Vía y el Data Center está disponible. \\
+\textbf{Garantías mínimas:} Recepción de lista del Armario \\
+\textbf{Postcondición:} Los RegistroCruce quedan almacenados en SisDIAC y disponibles para la detección de infracciones. \\
+\textbf{Inicio:} Armario Vía \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item El CU se inicia cuando el Armario Vía alcanza el umbral de disparo configurado (intervalo fijo o volumen fijo de registros).
+	\item El Armario Vía envía la lista al Data Center, cada registro contiene: ID del pórtico, identificación de vehículos (patente y fotografía) y horas de cruce con resolución al segundo.
+	\item SisDIAC recibe la lista.
+	\item SisDIAC valida la integridad de sus campos obligatorios.
+	\item SisDIAC almacena los RegistroCruce en la base de datos.
+	\item El CU termina.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{2a.} Si no hubo cruces desde el último envío:
+\begin{enumerate}[nosep]
+	\item[2a1.] El Armario Vía envía una lista vacía.
+	\item[2a2.] SisDIAC no registra.
+	\item[2a3.] Regresa al paso 6.
+\end{enumerate}
+
+
+% ==================================================================
+% CU-02 · Detectar Infracciones
+% ==================================================================
+\newpage
+\subsection{CU-02 · Detectar Infracciones}
+
+\noindent \textbf{Caso de uso:} Detectar Infracciones \\
+\textbf{Objetivo:} SisDIAC analiza los RegistroCruce recién cargados para identificar vehículos que hayan superado el umbral de velocidad promedio en algún tramo, aplicando el porcentaje de error permitido ($\rho$) configurado globalmente. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} --- (incluido por CU-03) \\
+\textbf{Actores secundarios:} No hay \\
+\textbf{Precondición:} Existen nuevos RegistroCruce en la base de datos. El parámetro $\rho$ está configurado en el sistema. Las distancias ($d$) y límites ($v_{\text{max}}$) por Autopista están pre-configurados (S6). \\
+\textbf{Garantías mínimas:} Las Infracciones detectadas quedan almacenadas en la base de datos, listas para ser incluidas en el próximo Reporte Diario. \\
+\textbf{Postcondición:} Las Infracciones detectadas quedan almacenadas en la base de datos, listas para ser incluidas en el próximo Reporte Diario. \\
+\textbf{Inicio:} Sistema (invocado internamente) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item El CU es iniciado por CU-03.
+	\item SisDIAC recupera los RegistroCruce a evaluar (último día).
+	\item PARA cada par de RegistroCruce de un mismo vehículo en pórticos adyacentes de un tramo:
+	\item SisDIAC ordena los registros por timestamp para identificar el de entrada y el de salida.
+	\item SisDIAC calcula el tiempo de tránsito: $\Delta t = \text{timestamp}_{\text{salida}} - \text{timestamp}_{\text{entrada}}$.
+	\item SisDIAC recupera la distancia $d$ del Tramo entre ambos pórticos.
+	\item SisDIAC calcula la velocidad promedio: $v = d\,/\,\Delta t$.
+	\item SisDIAC recupera el límite $v_{\text{max}}$ de la Autopista.
+	\item SisDIAC calcula el umbral: $v_{\text{umbral}} = v_{\text{max}} \cdot (1 + \rho)$.
+	\item Si $v > v_{\text{umbral}}$: SisDIAC crea un registro de Infracción asociando los dos RegistroCruce del par (entrada y salida) y almacena la velocidadPromedio.
+	\item FIN-PARA
+	\item El CU termina.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{3a.} Un vehículo tiene RegistroCruce de entrada pero no de salida en el pórtico adyacente (salió de la autopista):
+\begin{enumerate}[nosep]
+	\item[3a1.] El par es descartado sin generar infracción.
+	\item[3a2.] Regresa al paso 3 para evaluar el siguiente par.
+\end{enumerate}
+\textbf{9a.} Si $v \leq v_{\text{umbral}}$:
+\begin{enumerate}[nosep]
+	\item[9a1.] El par es descartado sin generar infracción.
+	\item[9a2.] Regresa al paso 3 para evaluar el siguiente par.
+\end{enumerate}
+
+
+% ==================================================================
+% CU-03 · Generar Reporte Diario
+% ==================================================================
+\newpage
+\subsection{CU-03 · Generar Reporte Diario}
+
+\noindent \textbf{Caso de uso:} Generar Reporte Diario \\
+\textbf{Objetivo:} A las 00:00:00, SisDIAC genera automáticamente el Reporte Diario Consolidado Municipal, agrupando las infracciones del día anterior por municipalidad y enriqueciéndolas con datos del propietario del vehículo obtenidos del Registro Civil. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} Reloj (timer) \\
+\textbf{Actores secundarios:} Registro Civil, Dirección de Tránsito \\
+\textbf{Precondición:} Son las 00:00:00 hora local. El sistema dispone de infracciones registradas para el día calendario anterior. El mapeo pórtico--DT está configurado (S9). \\
+\textbf{Garantías mínimas:} El Reporte Diario Consolidado Municipal ha sido generado por municipalidad y entregado a cada Dirección de Tránsito correspondiente. \\
+\textbf{Postcondición:} El Reporte Diario Consolidado Municipal ha sido generado por municipalidad y entregado a cada Dirección de Tránsito correspondiente. \\
+\textbf{Inicio:} Reloj (timer) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item El CU se inicia cuando el Reloj dispara el proceso a las 00:00:00 hora local.
+	\item SisDIAC recupera todos los RegistroCruce del dia calendario anterior e inicia CU-02 (Detectar infracciones).
+	\item SisDIAC recupera todas las Infracciones del día calendario anterior.
+	\item SisDIAC agrupa las infracciones por municipalidad de jurisdicción del pórtico (mapeo de S9).
+	\item[] PARA cada vehículo infractor:
+	\item Incluye CU-04: Consultar Propietario.
+	\item SisDIAC almacena temporalmente la información; patente, propietario, dirección, para la composición del reporte.
+	\item[] FIN-PARA
+	\item SisDIAC compone el reporte por municipalidad: patente, registro fotográfico con timestamp en cada pórtico involucrado, velocidad promedio calculada, nombre y domicilio del propietario.
+	\item Incluye CU-05: Entregar Reporte (una instancia por municipalidad con infracciones).
+	\item El CU termina.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{3a.} No hay infracciones registradas para el día anterior:
+\begin{enumerate}[nosep]
+	\item[3a1.] El sistema genera un reporte vacío.
+	\item[3a2.] Regresa al paso 8.
+\end{enumerate}
+
+% ==================================================================
+% CU-04 · Consultar Propietario
+% ==================================================================
+\newpage
+\subsection{CU-04 · Consultar Propietario}
+
+\noindent \textbf{Caso de uso:} Consultar Propietario \\
+\textbf{Objetivo:} SisDIAC consulta el Registro de Vehículos Empadronados del Registro Civil e Identificación para obtener el nombre y domicilio del propietario de un vehículo infractor, con el fin de enriquecer el Reporte Diario antes de su distribución a las DT. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} Registro Civil \\
+\textbf{Actores secundarios:} No hay \\
+\textbf{Precondición:} CU-03 está en ejecución. La patente del vehículo infractor está disponible. El servicio web del Registro Civil (API) está disponible (S10). \\
+\textbf{Garantías mínimas:} SisDIAC envía una consulta a la API del Registro Civil \\
+\textbf{Postcondición:} El nombre y domicilio del propietario están disponibles temporalmente para la composición del Reporte Diario. Los datos no son persistidos en SisDIAC (S10). \\
+\textbf{Inicio:} SisDIAC (invocado por CU-03) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item El CU se inicia cuando SisDIAC requiere los datos del propietario para una patente en CU-03.
+	\item SisDIAC envía una consulta a la API del Registro Civil con la patente del vehículo infractor.
+	\item El Registro Civil devuelve: nombre del propietario y domicilio registrado.
+	\item SisDIAC extrae nombre y domicilio del propietario de la patente.
+	\item El CU termina.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{2a.} La patente no está en el Registro Civil:
+\begin{enumerate}[nosep]
+	\item[2a1.] SisDIAC incluye al vehículo en el reporte con el campo propietario marcado como ``No identificado en Registro Civil''.
+	\item[2a2.] Regresa al paso 5.
+\end{enumerate}
+
+% ==================================================================
+% CU-05 · Entregar Reporte
+% ==================================================================
+\newpage
+\subsection{CU-05 · Entregar Reporte}
+
+\noindent \textbf{Caso de uso:} Entregar Reporte \\
+\textbf{Objetivo:} SisDIAC transmite el Reporte Diario Consolidado a la Dirección de Tránsito de la municipalidad correspondiente, habilitando la emisión de partes empadronados a los propietarios de los vehículos infractores. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} Dirección de Tránsito de municipalidades \\
+\textbf{Actores secundarios:} Identificación de la DT receptora. \\
+\textbf{Precondición:} El reporte ha sido compuesto (paso 7 de CU-03 completado). La DT receptora está identificada por el mapeo jurisdiccional (S9). SisDIAC no emite multas; su responsabilidad termina con la entrega (S11). \\
+\textbf{Garantías mínimas:} SisDIAC identifica la DT receptora a partir de la municipalidad de jurisdicción del reporte (S9). \\
+\textbf{Postcondición:} La DT ha recibido el reporte y puede proceder a emitir los partes empadronados a los propietarios de los vehículos infractores. \\
+\textbf{Inicio:} SisDIAC (invocado por CU-03) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item El CU se inicia cuando el reporte por municipalidad está listo para ser despachado.
+	\item SisDIAC identifica las DT's receptoras a partir de las municipalidades (S9).
+	\item[] PARA cada DT identificada:
+	\item SisDIAC transmite el reporte digital a la DT correspondiente.
+	\item La DT confirma la recepción del reporte.
+	\item SisDIAC recibe confirmación de recepción.
+	\item [] FIN PARA
+	\item El CU termina.
+\end{enumerate}
+
+
+% ==================================================================
+% CU-06 · Generar Reporte Vehicular
+% ==================================================================
+\newpage
+\subsection{CU-06 · Generar Reporte Vehicular}
+
+\noindent \textbf{Caso de uso:} Generar Reporte Vehicular \\
+\textbf{Objetivo:} A solicitud formal de un Juzgado de Policía Local, SisDIAC genera un expediente analítico completo del historial de circulación e infracciones de un vehículo específico en un rango de fechas determinado, para ser usado como respaldo documental en defensas legales. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} Juzgado de Policía Local \\
+\textbf{Actores secundarios:} No hay\\
+\textbf{Precondición:} El Juzgado emite una solicitud especificando patente del vehículo y rango de fechas. El sistema dispone de registros de cruce para el período indicado (S15). \\
+\textbf{Garantías mínimas:} El expediente analítico ha sido entregado al Juzgado solicitante, con todas las rutas, horarios, fotografías en cada pórtico e indicación de infracciones. \\
+\textbf{Postcondición:} El expediente analítico ha sido entregado al Juzgado solicitante, con todas las rutas, horarios, fotografías en cada pórtico e indicación de infracciones. \\
+\textbf{Inicio:} Juzgado de Policía Local \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item El CU se inicia cuando el Juzgado de Policía Local envía la solicitud a SisDIAC indicando la patente del vehículo y el rango de fechas.
+	\item SisDIAC valida que la patente tenga formato válido y que el rango de fechas sea coherente.
+	\item SisDIAC recupera todos los RegistroCruce del vehículo en el período, sin filtrar por infracción (incluye todos los pórticos cruzados).
+	\item SisDIAC recupera las Infracciones asociadas al vehículo en el período.
+	\item SisDIAC compone el expediente: rutas con horarios, fotografías de cruce en cada pórtico, marcando explícitamente los tramos con exceso de velocidad detectado y la velocidad calculada.
+	\item SisDIAC entrega el expediente al Juzgado de Policía Local solicitante.
+	\item El CU termina.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{2a.} La patente no sigue el formato válido o el rango de fechas es incoherente:
+\begin{enumerate}[nosep]
+	\item[2a1.] El sistema rechaza la solicitud.
+	\item[2a2.] El sistema informa el motivo del rechazo al Juzgado.
+	\item[2a3.] Regresa al paso 7.
+\end{enumerate}
+\textbf{3a.} No existe ningún RegistroCruce para la patente en el período indicado:
+\begin{enumerate}[nosep]
+	\item[3a1.] SisDIAC responde con un informe de ``sin registros para el período solicitado''.
+	\item[3a2.] Regresa al paso 6.
+\end{enumerate}
+
+
+% ==================================================================
+% CU-07 · Configurar Parámetros
+% ==================================================================
+\newpage
+\subsection{CU-07 · Configurar Parámetros}
+
+\noindent \textbf{Caso de uso:} Configurar Parámetros \\
+\textbf{Objetivo:} El operador autorizado de VíaLibre actualiza el porcentaje de error permitido ($\rho$) que SisDIAC aplica globalmente al umbral de detección de infracciones en todos los tramos y autopistas. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} VíaLibre Usuario (Operador autorizado) \\
+\textbf{Actores secundarios:} No hay \\
+\textbf{Precondición:} El usuario ha iniciado sesión con credenciales de operador autorizado de VíaLibre. El sistema está operativo. \\
+\textbf{Garantías mínimas:} Verificación del Usuario. \\
+\textbf{Postcondición:} El nuevo valor de $\rho$ queda almacenado en el sistema. Las detecciones de infracción posteriores utilizarán el nuevo umbral $v_{\text{umbral}} = v_{\text{max}} \cdot (1 + \rho)$ (S7). \\
+\textbf{Inicio:} VíaLibre Usuario (Operador autorizado) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item El CU se inicia cuando el operador accede al panel de administración de SisDIAC.
+	\item El sistema verifica que el usuario tiene el rol de operador autorizado.
+	\item El operador ingresa el nuevo valor de $\rho$ como fracción decimal $\in [0,1]$ (ej. 0,08 para un 8\% de tolerancia).
+	\item SisDIAC valida que el valor esté en el rango permitido $[0,1]$.
+	\item SisDIAC almacena el nuevo $\rho$ como parámetro global del sistema.
+	\item El sistema confirma la actualización al operador.
+	\item El CU termina.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{2a.} El usuario no posee el rol de operador autorizado:
+\begin{enumerate}[nosep]
+	\item[2a1.] El sistema rechaza el acceso.
+	\item[2a2.] Regresa al paso 7.
+\end{enumerate}
+\textbf{4a.} El valor ingresado es $\rho < 0$ o $\rho > 1$:
+\begin{enumerate}[nosep]
+	\item[4a1.] El sistema rechaza el valor y muestra un mensaje de error.
+	\item[4a2.] Regresa al paso 7.
+\end{enumerate}
+
+% ==================================================================
+% CU-08 · Generar Estadísticas (Abstracto)
+% ==================================================================
+\newpage
+\subsection{CU-08 · Generar Estadísticas (Abstracto)}
+
+\noindent \textbf{Caso de uso:} Generar Estadísticas \\
+\textbf{Objetivo:} Caso de uso abstracto que define el esqueleto estructural y de cumplimiento de seguridad para la extracción, consulta, validación temporal y anonimización de métricas del sistema. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} VíaLibre Usuario (Gerencia) \\
+\textbf{Actores secundarios:} No hay \\
+\textbf{Precondición:} El usuario está autenticado como gerencia de VíaLibre. El sistema dispone de registros históricos para el período solicitado. \\
+\textbf{Garantías mínimas:} El usuario de la gerencia de VíaLibre recibe el reporte de su solicitud. \\
+\textbf{Postcondición:} El informe de estadísticas anonimizadas ha sido generado y entregado a la gerencia de VíaLibre, sin contener datos identificatorios de personas ni vehículos (S13). \\
+\textbf{Inicio:} VíaLibre Usuario (Gerencia) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item El CU se inicia cuando el usuario de la gerencia de VíaLibre envía la solicitud de una estadística específica a SisDIAC indicando un período de análisis.
+	\item SisDIAC valida que el período de análisis sea coherente cronológicamente.
+	\item SisDIAC consulta la base de datos de infracciones extrayendo los registros del período indicado.
+	\item \textit{[Paso de Extracción de Parámetros Específicos: Definido por el caso de uso hijo concrete]}.
+	\item \textit{[Paso de Cálculo Algorítmico: Definido por el caso de uso hijo concrete]}.
+	\item SisDIAC verifica que el conjunto de datos resultante no contenga patentes, fotografías ni datos de filiación que vulneren la política de anonimización (S13).
+	\item SisDIAC entrega el informe estadístico estructurado al usuario de la gerencia de VíaLibre.
+	\item El usuario de la gerencia de VíaLibre recibe el reporte de su solicitud
+	\item El CU termina.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{2a.} El período ingresado por el usuario es incoherente:
+\begin{enumerate}[nosep]
+	\item[2a1.] SisDIAC rechaza el procesamiento e indica el error temporal.
+	\item[2a2.] Regresa al paso 8.
+\end{enumerate}
+\textbf{3a.} No hay registros de infracción para el período solicitado:
+\begin{enumerate}[nosep]
+	\item[3a1.] SisDIAC responde con un informe vacío indicando la ausencia absoluta de datos en la ventana temporal.
+	\item[3a2.] Regresa al paso 8.
+\end{enumerate}
+
+
+% ==================================================================
+% CU-09 · Calcular las N velocidades mayores
+% ==================================================================
+\newpage
+\subsection{CU-09 · Calcular las N velocidades mayores}
+
+\noindent \textbf{Caso de uso:} Calcular las N velocidades mayores \\
+\textbf{Objetivo:} Especialización concreta de CU-08 para extraer de forma matemática y ordenada las $N$ velocidades más altas registradas en la red vial en el intervalo de tiempo validado. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} VíaLibre Usuario (Gerencia) \\
+\textbf{Actores secundarios:} No hay \\
+\textbf{Precondición:} Hereda precondiciones de CU-08. \\
+\textbf{Garantías mínimas:} El usuario introduce y valida con éxito el parámetro entero $N$. \\
+\textbf{Postcondición:} Reporte analítico de las $N$ velocidades mayores entregado y anonimizado. \\
+\textbf{Inicio:} VíaLibre Usuario (Gerencia) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item[1.]  El CU se inicia cuando el usuario de la gerencia de VíaLibre envía la solicitud de calcular las N velocidades mayores a SisDIAC indicando un período de análisis.
+	\item[4.] SisDIAC solicita el parámetro entero $N$ para definir el tamaño del corte estadístico.
+	\item[4.1.] El usuario de la gerencia introduce el parámetro $N$.
+	\item[4.2.] SisDIAC valida que el parámetro cumpla la condición $N > 0$.
+	\item[5.] SisDIAC ejecuta el ordenamiento y calcula las $N$ mayores velocidades detectadas en la red, purgando cualquier identificador vehicular directo.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{4.2a.} El parámetro numérico ingresado cumple con la condición $N \leq 0$:
+\begin{enumerate}[nosep]
+	\item[4.2a1.] El sistema aborta la construcción del reporte e informa la invalidez del parámetro al solicitante.
+	\item[4.2a2.] Avanza directamente al paso 8 (Cierre del CU).
+\end{enumerate}
+
+
+% ==================================================================
+% CU-10 · Calcular los N vehículos con más infracciones
+% ==================================================================
+\newpage
+\subsection{CU-10 · Calcular los N vehículos con más infracciones}
+
+\noindent \textbf{Caso de uso:} Calcular los N vehículos con más infracciones \\
+\textbf{Objetivo:} Especialización concreta de CU-08 para modelar un ranking acotado de las $N$ unidades vehiculares con mayor reincidencia, segmentado por entidad geográfica e infraestructura vial. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} VíaLibre Usuario (Gerencia) \\
+\textbf{Actores secundarios:} No hay \\
+\textbf{Precondición:} Hereda precondiciones de CU-08. \\
+\textbf{Garantías mínimas:} Selección explícita de al menos una autopista y una jurisdicción municipal para la agregación de los datos. \\
+\textbf{Postcondición:} Reporte del ranking de los $N$ vehículos con más infracciones clasificado por autopista y comuna entregado (sin datos del dueño). \\
+\textbf{Inicio:} VíaLibre Usuario (Gerencia) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item[1.] El CU se inicia cuando el usuario de la gerencia de VíaLibre envía la solicitud de calcular los N vehículos con más infracciones a SisDIAC indicando un período de análisis.
+	\item[4.] SisDIAC solicita el parámetro estructural $N$ para acotar el tamaño del listado.
+	\item[4.1.] El usuario de la gerencia introduce el parámetro $N$.
+	\item[4.2.] SisDIAC valida que el parámetro cumpla la condición $N > 0$.
+	\item[4.3.] SisDIAC despliega las autopistas que poseen actividad registrada en ese rango.
+	\item[4.4.] El usuario de la gerencia selecciona las autopistas de interés para el análisis.
+	\item[4.5.] SisDIAC verifica que la selección contenga al menos una autopista elegida.
+	\item[4.6.] SisDIAC despliega las comunas/municipalidades disponibles dentro de los tramos seleccionados.
+	\item[4.7.] El usuario de la gerencia selecciona las municipalidades deseadas.
+	\item[4.8.] SisDIAC verifica que la selección contenga al menos una municipalidad elegida.
+	\item[5.] SisDIAC procesa la agregación y calcula el ranking de los $N$ vehículos reincidentes, estructurando los resultados por corte geográfico y de vía, omitiendo de forma estricta los datos personales de filiación.
+\end{enumerate}
+
+\noindent \textbf{Escenarios alternativos:} \\
+\textbf{4.2a.} El parámetro $N \leq 0$:
+\begin{enumerate}[nosep]
+	\item[4.2a1.] El sistema rechaza la solicitud e informa la inconsistencia métrica. Avanza al paso 8.
+\end{enumerate}
+\textbf{4.5a.} No se seleccionó ninguna autopista en la casilla de verificación:
+\begin{enumerate}[nosep]
+	\item[4.5a1.] El sistema notifica la obligatoriedad de selección de infraestructura vial. Avanza al paso 8.
+\end{enumerate}
+\textbf{4.8a.} No se seleccionó ninguna municipalidad en la casilla de verificación:
+\begin{enumerate}[nosep]
+	\item[4.8a1.] El sistema notifica la obligatoriedad de selección de jurisdicción territorial. Avanza al paso 8.
+\end{enumerate}
+
+
+% ==================================================================
+% CU-11 · Calcular cantidad de infracciones
+% ==================================================================
+\newpage
+\subsection{CU-11 · Calcular cantidad de infracciones}
+
+\noindent \textbf{Caso de uso:} Calcular cantidad de infracciones \\
+\textbf{Objetivo:} Especialización concreta de CU-08 encargada de computar el volumen total de infracciones agregadas diariamente, correlacionando el comportamiento según la tipología del calendario civil. \\
+\textbf{Ámbito:} Análisis / Requerimientos \\
+\textbf{Actor principal:} VíaLibre Usuario (Gerencia) \\
+\textbf{Actores secundarios:} No hay \\
+\textbf{Precondición:} Hereda precondiciones de CU-08. \\
+\textbf{Garantías mínimas:} Entrega de matriz analítica agregada por días del período de consulta. \\
+\textbf{Postcondición:} Reporte volumétrico temporal entregado y anonimizado con discriminación de tipo de día. \\
+\textbf{Inicio:} VíaLibre Usuario (Gerencia) \\
+
+\noindent \textbf{Escenario principal:}
+\begin{enumerate}[nosep, leftmargin=*]
+	\item[1.] El CU se inicia cuando el usuario de la gerencia de VíaLibre envía la solicitud de calcular la cantidad de infracciones a SisDIAC indicando un período de análisis.
+	\item[4.] \textit{[Este caso de uso hijo no requiere la inyección de parámetros adicionales]}.
+	\item[5.] SisDIAC ejecuta el conteo volumétrico y calcula la cantidad exacta de infracciones por día dentro del período, cruzando las fechas para etiquetar y diferenciar estadísticamente el comportamiento en días hábiles, fines de semana y festivos/feriados.
+\end{enumerate}
+
+
+
+
+\newpage
+
+% ==================================================================
+% DIAGRAMAS DE ACTIVIDADES - SisDIAC
+% ==================================================================
+\begin{landscape}
+	\section{Diagramas de Actividades (DAct)}
+	\subsection{CU-01 · Cargar Lista de Cruces}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.9\linewidth]{../vpp_proyect/AC_CU01.png}
+		\caption{Diagrama de Actividades - CU-01: Cargar Lista de Cruces.}
+		\label{fig:AC_CU01}
+	\end{figure}
+\end{landscape}
+
+
+\newpage
+
+\subsection{CU-02 · Detectar Infracciones}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.71\textwidth]{../vpp_proyect/AC_CU02.png}
+	\caption{Diagrama de Actividades - CU-02: Detectar Infracciones.}
+	\label{fig:AC_CU02}
+\end{figure}
+
+\newpage
+
+\subsection{CU-03 · Generar Reporte Diario}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.71\textwidth]{../vpp_proyect/AC_CU03.png}
+	\caption{Diagrama de Actividades - CU-03: Generar Reporte Diario.}
+	\label{fig:AC_CU03}
+\end{figure}
+
+\newpage
+
+\begin{landscape}
+	\subsection{CU-04 · Consultar Propietario}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.9\linewidth]{../vpp_proyect/AC_CU04.png}
+		\caption{Diagrama de Actividades - CU-04: Consultar Propietario.}
+		\label{fig:AC_CU04}
+	\end{figure}
+
+
+
+	\newpage
+
+	\subsection{CU-05 · Entregar Reporte}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.9\linewidth]{../vpp_proyect/AC_CU05.png}
+		\caption{Diagrama de Actividades - CU-05: Entregar Reporte.}
+		\label{fig:AC_CU05}
+	\end{figure}
+
+
+	\newpage
+
+	\subsection{CU-06 · Generar Reporte Vehicular}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.9\linewidth]{../vpp_proyect/AC_CU06.png}
+		\caption{Diagrama de Actividades - CU-06: Generar Reporte Vehicular.}
+		\label{fig:AC_CU06}
+	\end{figure}
+
+	\newpage
+
+	\subsection{CU-07 · Configurar Parámetros}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.9\linewidth]{../vpp_proyect/AC_CU07.png}
+		\caption{Diagrama de Actividades - CU-07: Configurar Parámetros.}
+		\label{fig:AC_CU07}
+	\end{figure}
+
+	\newpage
+
+	\subsection{CU-08 · Generar Estadísticas}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=\linewidth]{../vpp_proyect/AC_CU08.png}
+		\caption{Diagrama de Actividades - CU-08: Generar Estadísticas.}
+		\label{fig:AC_CU08}
+	\end{figure}
+
+
+	\newpage
+
+	\subsection{CU-09 · Calcular las $N$ velocidades mayores}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=\linewidth]{../vpp_proyect/AC_CU09.png}
+		\caption{Diagrama de Actividades - CU-09 · Calcular las $N$ velocidades mayores.}
+		\label{fig:AC_CU09}
+	\end{figure}
+
+
+
+	\newpage
+
+	\subsection{CU-10 · Calcular los $N$ vehículos con más infracciones}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=\linewidth]{../vpp_proyect/AC_CU10.png}
+		\caption{Diagrama de Actividades - CU-10 · Calcular los $N$ vehículos con más infracciones.}
+		\label{fig:AC_CU10}
+	\end{figure}
+
+	\newpage
+
+	\subsection{CU-11 · Calcular cantidad de infracciones}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=\linewidth]{../vpp_proyect/AC_CU11.png}
+		\caption{Diagrama de Actividades - CU-11 · Calcular cantidad de infracciones.}
+		\label{fig:AC_CU11}
+	\end{figure}
+
+\end{landscape}
+
+
+\end{document}
+

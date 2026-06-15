@@ -1,0 +1,166 @@
+{UTF-8}
+Piedras blancas añadidas por periodo=A FUNCTION OF(Piedras blancas añadidas por periodo\
+		,Aleatorio,Piedras añadidas por periodo,Porcentaje de piedras blancas) ~~|
+Piedras blancas añadidas por periodo=
+	~	
+	~	IF((Aleatorio)>(1-'Fraccion blancas'),'Piedras añadidas por \
+		periodo',0<<piedras/da>>)
+	|
+
+Piedras negras añadidas por periodo=A FUNCTION OF(Piedras negras añadidas por periodo\
+		,Aleatorio,Piedras añadidas por periodo,Porcentaje de piedras negras) ~~|
+Piedras negras añadidas por periodo=
+	~	
+	~	IF(Aleatorio<'Fraccion de negras','Piedras añadidas por \
+		periodo',0<<piedras/da>>)
+	|
+
+Aleatorio=A FUNCTION OF(Aleatorio) ~~|
+Aleatorio=
+	~	
+	~		|
+
+Porcentaje de piedras blancas=A FUNCTION OF(Porcentaje de piedras blancas,Piedras blancas\
+		,Piedras totales) ~~|
+Porcentaje de piedras blancas=
+	~	
+	~		|
+
+Porcentaje de piedras negras=A FUNCTION OF(Porcentaje de piedras negras,Piedras negras\
+		,Piedras totales) ~~|
+Porcentaje de piedras negras=
+	~	
+	~		|
+
+Piedras añadidas por periodo=A FUNCTION OF(Piedras añadidas por periodo) ~~|
+Piedras añadidas por periodo=
+	~	
+	~		|
+
+Piedras blancas=A FUNCTION OF(Piedras blancas,Piedras blancas añadidas por periodo) ~~|
+Piedras blancas= INTEG (
+	Piedras blancas añadidas por periodo,
+		)
+	~	
+	~		|
+
+Piedras negras=A FUNCTION OF(Piedras negras,Piedras negras añadidas por periodo) ~~|
+Piedras negras= INTEG (
+	Piedras negras añadidas por periodo,
+		)
+	~	
+	~		|
+
+Piedras totales=A FUNCTION OF(Piedras totales,Piedras blancas,Piedras negras) ~~|
+Piedras totales=
+	~	
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 300
+	~	Month
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Month
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Month [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 1
+	~	Month [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|96,96,100,0
+10,1,Piedras negras,482,131,56,22,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,2,Piedras blancas,482,259,60,22,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+12,3,48,755,127,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,4,6,1,4,0,0,22,0,0,0,-1--1--1,,1|(582,127)|
+1,5,6,3,100,0,0,22,0,0,0,-1--1--1,,1|(691,127)|
+11,6,0,632,127,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,7,Piedras negras añadidas por periodo,632,168,56,33,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,8,48,721,263,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,9,11,2,4,0,0,22,0,0,0,-1--1--1,,1|(576,263)|
+1,10,11,8,100,0,0,22,0,0,0,-1--1--1,,1|(666,263)|
+11,11,0,616,263,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,12,Piedras blancas añadidas por periodo,616,304,60,33,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,13,Piedras totales,266,199,56,22,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,14,Porcentaje de piedras negras,253,89,65,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,15,Porcentaje de piedras blancas,258,314,65,19,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,16,2,13,1,0,43,0,0,0,0,-1--1--1,,1|(375,209)|
+1,17,2,15,1,0,43,0,0,0,0,-1--1--1,,1|(362,258)|
+1,18,13,15,1,0,45,0,0,64,0,-1--1--1,,1|(205,248)|
+1,19,1,14,1,0,43,0,0,64,0,-1--1--1,,1|(344,128)|
+1,20,13,14,1,0,45,0,0,64,0,-1--1--1,,1|(204,142)|
+1,21,14,7,1,0,43,0,0,0,0,-1--1--1,,1|(590,84)|
+10,22,Piedras añadidas por periodo,784,221,64,23,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,23,22,7,1,0,43,0,0,64,0,-1--1--1,,1|(723,176)|
+1,24,22,12,1,0,43,0,0,64,0,-1--1--1,,1|(716,265)|
+10,25,Aleatorio,920,233,30,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,26,25,7,1,0,0,0,0,64,0,-1--1--1,,1|(835,162)|
+1,27,25,12,1,0,0,0,0,64,0,-1--1--1,,1|(811,311)|
+1,28,1,13,1,0,43,0,0,32,0,-1--1--1,,1|(376,179)|
+1,29,15,12,1,0,43,0,0,0,0,-1--1--1,,1|(535,358)|
+12,30,0,428,317,22,22,4,7,0,0,-1,0,0,0,0,0,0,0,0,0
+R
+12,31,0,281,149,22,22,4,7,0,0,-1,0,0,0,0,0,0,0,0,0
+B
+12,32,0,467,80,22,22,4,7,0,0,-1,0,0,0,0,0,0,0,0,0
+R
+12,33,0,281,243,22,22,4,7,0,0,-1,0,0,0,0,0,0,0,0,0
+B
+///---\\\
+:L<%^E!@
+4:Time
+5:Piedras totales
+9:Current
+19:100,0
+24:0
+25:300
+26:300
+23:0
+15:0,0,0,0,0,0
+27:2,
+34:0,
+42:0
+72:0
+73:0
+35:Date
+36:YYYY-MM-DD
+37:2000
+38:1
+39:1
+40:2
+41:0
+95:0
+96:0
+97:0
+77:0
+78:0
+102:1
+93:0
+94:0
+92:0
+91:0
+90:0
+87:0
+75:
+43:
+103:8,8,8,3,8
+105:0,0,0,0,0,0,0,0,0,0
+104:Vensim Sans|12||0-0-0|0-0-0|-1--1--1|0-0-255|192-192-192|-1--1--1
