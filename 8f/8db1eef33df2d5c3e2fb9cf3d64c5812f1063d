@@ -1,0 +1,22 @@
+semestre_01/programacion_matematica/exercises/guia1_soluciones_v2.tex
+  s_7c6c3185480403::t_b60b7e65328580 5
+  s_7c6c3185480403::t_9d22900d7379da 1-4,6-1082
+semestre_01/programacion_matematica/exercises/guia2_soluciones_v2.tex
+  s_7c6c3185480403::t_9b8b27e81ef927 1-768
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "8f8db1eef33df2d5c3e2fb9cf3d64c5812f1063d",
+  "prompts": {},
+  "sessions": {
+    "s_7c6c3185480403": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1cda023a-fc5d-487c-8b5c-2b92e5a22b13",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "PitehrHurtado <pitehr.hurtado.c@mail.pucv.cl>"
+    }
+  }
+}
