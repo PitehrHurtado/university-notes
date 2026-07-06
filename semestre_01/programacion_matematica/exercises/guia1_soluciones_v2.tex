@@ -1,0 +1,1082 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{enumerate}
+\usepackage{mdframed}
+\geometry{a4paper, margin=2.5cm}
+
+\newtheorem*{teo}{Teorema}
+\newtheorem*{defn}{Definición}
+\newtheorem*{cor}{Corolario}
+\newtheorem*{prop}{Proposición}
+\newtheorem*{lema}{Lema}
+\newenvironment{marco}{\begin{mdframed}[linecolor=black!40,backgroundcolor=gray!5]\small\textbf{Marco teórico.}\par\smallskip}{\end{mdframed}\medskip}
+
+\title{\textbf{Guía 1 --- EII-801 Programación Matemática\\[4pt]
+\large Preguntas y Soluciones con Desarrollo Completo\\[2pt]
+\normalsize Referencias: Bertsimas \& Tsitsiklis (BT); Chvátal (Ch)}}
+\author{Pitehr Hurtado}
+\date{Primer semestre 2026}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ============================================================
+\section*{Problema 1 --- Diccionario simplex con parámetros}
+\addcontentsline{toc}{section}{Problema 1}
+
+\textbf{Enunciado.} Se tiene el siguiente diccionario de un PL en forma estándar (maximización):
+\begin{align*}
+X_3 &= c - 4X_1 + aX_2 + bX_5 \\
+X_4 &= d + X_1 + 5X_2 + X_5 \\
+X_6 &= 3 + eX_1 + 3X_2 + 4X_5 \\
+Z   &= 80 + fX_1 + gX_2 + hX_5
+\end{align*}
+Proponga valores para los parámetros $a,b,c,d,e,f,g,h$ en cada uno de los casos:
+\begin{enumerate}[a)]
+  \item diccionario óptimo con soluciones múltiples,
+  \item solución básica factible (SBF) degenerada,
+  \item SBF no degenerada y no óptima; realizar una iteración del simplex,
+  \item escribir la formulación original del problema del caso (c).
+\end{enumerate}
+
+\begin{marco}
+\textbf{[BT §3.1]} En un diccionario, las variables no básicas valen cero; los valores de la SBF son los términos independientes de cada fila. Factibilidad: todos los términos independientes $\geq 0$. \\[2pt]
+\textbf{[BT §3.2]} Criterio de optimalidad (maximización): todos los costos reducidos de las variables no básicas $\leq 0$. \\[2pt]
+\textbf{[BT §3.1]} Degeneración: alguna variable básica toma valor $0$ en la SBF. \\[2pt]
+\textbf{[BT §3.3]} Soluciones múltiples óptimas: existe algún costo reducido igual a $0$ en el óptimo; la dirección correspondiente es factible ($\theta^* > 0$).
+\end{marco}
+
+\subsection*{Solución}
+
+Las variables no básicas son $\{X_1, X_2, X_5\} = 0$. La SBF actual es:
+$X_3 = c,\; X_4 = d,\; X_6 = 3,\; Z = 80$.
+
+\textbf{Condiciones generales:}
+\begin{itemize}
+  \item Factibilidad: $c \geq 0$, $d \geq 0$, $3 \geq 0$ (automático).
+  \item Optimalidad (max): $f \leq 0$, $g \leq 0$, $h \leq 0$.
+  \item Degeneración: $c = 0$ o $d = 0$.
+\end{itemize}
+
+\begin{enumerate}[a)]
+
+\item \textbf{Óptimo con soluciones múltiples.}
+
+Tomemos $c=1,\; d=2,\; a=2,\; b=2,\; e=1,\; f=0,\; g=-1,\; h=-1$.
+
+El diccionario queda:
+\begin{align*}
+X_3 &= 1 - 4X_1 + 2X_2 + 2X_5 \\
+X_4 &= 2 + X_1 + 5X_2 + X_5 \\
+X_6 &= 3 + X_1 + 3X_2 + 4X_5 \\
+Z   &= 80 + 0 \cdot X_1 - X_2 - X_5
+\end{align*}
+
+Verificación \textbf{[BT §3.2]}:
+\begin{itemize}
+  \item Factibilidad: $X_3=1>0$, $X_4=2>0$, $X_6=3>0$ \checkmark
+  \item Optimalidad: $f=0\leq 0$, $g=-1\leq 0$, $h=-1\leq 0$ \checkmark
+  \item Soluciones múltiples: $f=0$, por lo que $X_1$ puede entrar sin cambiar $Z$. Razón mínima: solo la fila de $X_3$ tiene coeficiente $-4 < 0$ para $X_1$, así que $\theta^* = 1/4 > 0$ \checkmark. La dirección es factible, confirmando múltiples óptimos \textbf{[BT §3.3]}.
+\end{itemize}
+
+\item \textbf{SBF degenerada.}
+
+Tomemos $c=0,\; d=2,\; a=1,\; b=1,\; e=1,\; f=1,\; g=-1,\; h=-1$.
+
+\begin{itemize}
+  \item $X_3 = 0$ (degeneración \textbf{[BT §3.1]}), $X_4=2>0$, $X_6=3>0$.
+  \item $f=1>0$: no es óptimo (hay margen de mejora). Sirve como ejemplo de SBF degenerada no óptima.
+\end{itemize}
+
+\item \textbf{SBF no degenerada y no óptima; una iteración.}
+
+Tomemos $c=2,\; d=3,\; a=1,\; b=1,\; e=1,\; f=2,\; g=-1,\; h=-1$.
+
+Diccionario inicial:
+\begin{align*}
+X_3 &= 2 - 4X_1 + X_2 + X_5 \\
+X_4 &= 3 + X_1 + 5X_2 + X_5 \\
+X_6 &= 3 + X_1 + 3X_2 + 4X_5 \\
+Z   &= 80 + 2X_1 - X_2 - X_5
+\end{align*}
+
+No degenerada: $X_3=2>0$, $X_4=3>0$, $X_6=3>0$. No óptima: $f=2>0$ \textbf{[BT §3.2]}.
+
+\textit{Iteración del simplex:} Entra $X_1$ (el único costo reducido positivo). Calculamos las razones para las filas con coeficiente negativo de $X_1$:
+\[
+  \theta^* = \min\left\{\frac{2}{4}\right\} = \frac{1}{2}, \quad \text{sale } X_3.
+\]
+(Las filas $X_4$ y $X_6$ tienen coeficiente de $X_1$ positivo, por lo que no restringen.)
+
+\textbf{Pivote:} De la fila de $X_3$:
+\[
+  X_1 = \frac{1}{2} + \frac{1}{4}X_2 + \frac{1}{4}X_5 - \frac{1}{4}X_3.
+\]
+
+Sustituyendo en las demás filas:
+\begin{align*}
+X_4 &= 3 + \left(\frac{1}{2}+\frac{1}{4}X_2+\frac{1}{4}X_5-\frac{1}{4}X_3\right) + 5X_2 + X_5 \\
+    &= \frac{7}{2} + \frac{21}{4}X_2 + \frac{5}{4}X_5 - \frac{1}{4}X_3 \\[4pt]
+X_6 &= 3 + \left(\frac{1}{2}+\frac{1}{4}X_2+\frac{1}{4}X_5-\frac{1}{4}X_3\right) + 3X_2 + 4X_5 \\
+    &= \frac{7}{2} + \frac{13}{4}X_2 + \frac{17}{4}X_5 - \frac{1}{4}X_3 \\[4pt]
+Z   &= 80 + 2\left(\frac{1}{2}+\frac{1}{4}X_2+\frac{1}{4}X_5-\frac{1}{4}X_3\right) - X_2 - X_5 \\
+    &= 81 - \frac{1}{2}X_2 - \frac{1}{2}X_5 - \frac{1}{2}X_3
+\end{align*}
+
+Nuevo diccionario:
+\begin{align*}
+X_1 &= \frac{1}{2} + \frac{1}{4}X_2 + \frac{1}{4}X_5 - \frac{1}{4}X_3 \\
+X_4 &= \frac{7}{2} + \frac{21}{4}X_2 + \frac{5}{4}X_5 - \frac{1}{4}X_3 \\
+X_6 &= \frac{7}{2} + \frac{13}{4}X_2 + \frac{17}{4}X_5 - \frac{1}{4}X_3 \\
+Z   &= 81 - \frac{1}{2}X_2 - \frac{1}{2}X_5 - \frac{1}{2}X_3
+\end{align*}
+
+Todos los costos reducidos son $-\frac{1}{2} < 0$ \textbf{[BT §3.2]}: óptimo alcanzado. $Z^* = 81$, SBF $= \left(\tfrac{1}{2}, \tfrac{7}{2}, \tfrac{7}{2}\right)$ no degenerada.
+
+\item \textbf{Formulación original del problema (c).}
+
+Las holguras son $X_3, X_4, X_6 \geq 0$. Leyendo el diccionario inicial:
+\begin{itemize}
+  \item Fila $X_3$: $X_3 = 2 - 4X_1 + X_2 + X_5$ corresponde a $4X_1 - X_2 - X_5 \leq 2$.
+  \item Fila $X_4$: $X_4 = 3 + X_1 + 5X_2 + X_5$ corresponde a $-X_1 - 5X_2 - X_5 \leq 3$.
+  \item Fila $X_6$: $X_6 = 3 + X_1 + 3X_2 + 4X_5$ corresponde a $-X_1 - 3X_2 - 4X_5 \leq 3$.
+  \item Objetivo: $\max Z = 2X_1 - X_2 - X_5$.
+\end{itemize}
+
+\[
+\begin{array}{ll}
+\max & 2X_1 - X_2 - X_5 \\[2pt]
+\text{s.a.} & 4X_1 - X_2 - X_5 \leq 2 \\
+& -X_1 - 5X_2 - X_5 \leq 3 \\
+& -X_1 - 3X_2 - 4X_5 \leq 3 \\
+& X_1, X_2, X_5 \geq 0
+\end{array}
+\]
+
+\end{enumerate}
+
+% ============================================================
+\section*{Problema 2 --- Diccionario óptimo de producción}
+\addcontentsline{toc}{section}{Problema 2}
+
+\textbf{Enunciado.} Se tiene el siguiente diccionario óptimo:
+\begin{align*}
+X_4 &= 4 + 3X_1 + X_2 + 2X_5 \\
+X_3 &= 4 - 2X_1 - 2X_2 - X_5 \\
+Z   &= 28 - 12X_1 - 2X_2 - 7X_5
+\end{align*}
+\begin{enumerate}[a)]
+  \item ¿Cuántos productos y recursos tiene el problema original?
+  \item Escribir la formulación original.
+  \item Escribir el dual y su diccionario óptimo.
+  \item ¿Conviene expandir el recurso 2 a un costo fijo de \$3000 más \$3/unidad adicional?
+\end{enumerate}
+
+\begin{marco}
+\textbf{[BT §3.2]} Variables básicas: $\{X_3, X_4\}$; no básicas: $\{X_1, X_2, X_5\} = 0$. SBF óptima: $X_3=4$, $X_4=4$, $Z=28$. \\[2pt]
+\textbf{[BT §4.4]} Los precios sombra (duales) se leen del diccionario óptimo: $y_i^* = $ coeficiente de la holgura $s_i$ en la fila del objetivo del diccionario óptimo (con signo adecuado). \\[2pt]
+\textbf{[BT §4.3 Teo.\ 4.5]} Holgura complementaria: si $x_j^* > 0$ entonces la $j$-ésima restricción dual es activa; si $y_i^* > 0$ entonces la $i$-ésima restricción primal es activa. \\[2pt]
+\textbf{[BT §5.3]} El precio sombra $y_i^*$ representa el cambio en $Z^*$ por unidad de incremento en $b_i$, válido en el rango donde la misma base permanece factible.
+\end{marco}
+
+\subsection*{Solución}
+
+\begin{enumerate}[a)]
+
+\item \textbf{Productos y recursos.}
+
+Variables básicas: $\{X_3, X_4\}$ $\Rightarrow$ $m = 2$ restricciones (recursos). Variables no básicas de decisión: $\{X_1, X_2\}$; la variable $X_5$ es la holgura del recurso 2 (que sale de la base al hacerse activa). Así el problema tiene \textbf{2 productos} ($X_1, X_2$) y \textbf{2 recursos} (holguras $X_4, X_5$ en la base inicial). $X_3$ entró a la base durante la resolución.
+
+En términos de producción: 3 variables de decisión ($X_1, X_2, X_3$) y 2 recursos, donde $X_4$ y $X_5$ son las holguras. En el diccionario óptimo $X_3$ es básica (se fabrica), mientras $X_1$ y $X_2$ son no básicas (no se fabrican).
+
+\item \textbf{Formulación original.}
+
+Del diccionario óptimo se reconstruye el problema invirtiendo las operaciones de pivote. La fila de $X_3$:
+\[
+  X_3 = 4 - 2X_1 - 2X_2 - X_5 \;\Rightarrow\; 2X_1 + 2X_2 + X_3 + X_5 = 4
+\]
+(restricción del recurso 2: $2X_1 + 2X_2 + X_3 \leq 4$, con holgura $X_5$).
+
+La fila de $X_4$:
+\[
+  X_4 = 4 + 3X_1 + X_2 + 2X_5
+\]
+Dado que $X_5$ es la holgura del recurso 2, necesitamos expresar $X_4$ en términos originales. Sustituyendo $X_5 = 4 - 2X_1 - 2X_2 - X_3$:
+\[
+  X_4 = 4 + 3X_1 + X_2 + 2(4 - 2X_1 - 2X_2 - X_3) = 12 - X_1 - 3X_2 - 2X_3
+\]
+Luego $X_4 = 12 - X_1 - 3X_2 - 2X_3$, es decir, la restricción del recurso 1 es $X_1 + 3X_2 + 2X_3 \leq 12$.
+
+Para el objetivo: en el diccionario óptimo $Z = 28 - 12X_1 - 2X_2 - 7X_5$. Con $c_3$ siendo el coeficiente de $X_3$ (básica), el precio sombra de $X_3$ implica: a partir de la fila de $X_3$, el coeficiente del objetivo asociado a $X_3$ es $c_3 = 7$ (valor del recurso que aporta). Reconstruyendo: $Z = c_1 X_1 + c_2 X_2 + c_3 X_3$ con $c_3 = 7$, $c_1 = 2$, $c_2 = 12$ (se verifica que $Z^* = 0 + 0 + 7(4) = 28$ \checkmark).
+
+\medskip
+\textbf{Problema original:}
+\[
+\begin{array}{ll}
+\max & 2X_1 + 12X_2 + 7X_3 \\
+\text{s.a.} & X_1 + 3X_2 + 2X_3 \leq 12 \quad \text{(recurso 1)} \\
+& 2X_1 + 2X_2 + X_3 \leq 4 \quad \text{(recurso 2)} \\
+& X_1, X_2, X_3 \geq 0
+\end{array}
+\]
+
+\textit{Verificación:} $(X_1^*, X_2^*, X_3^*) = (0,0,4)$: recurso 1: $2(4)=8\leq 12$ \checkmark; recurso 2: $4 \leq 4$ \checkmark; $Z=28$ \checkmark.
+
+\item \textbf{Dual y su diccionario óptimo.}
+
+\[
+\begin{array}{ll}
+\min & W = 12y_1 + 4y_2 \\
+\text{s.a.} & y_1 + 2y_2 \geq 2 \\
+& 3y_1 + 2y_2 \geq 12 \\
+& 2y_1 + y_2 \geq 7 \\
+& y_1, y_2 \geq 0
+\end{array}
+\]
+
+Por holgura complementaria \textbf{[BT §4.3 Teo.\ 4.5]}: $X_4^* = 4 > 0 \Rightarrow y_1^* = 0$; $X_3^* = 4 > 0 \Rightarrow$ restricción dual 3 activa: $2(0) + y_2^* = 7 \Rightarrow y_2^* = 7$.
+
+Verificación: $y_1^* + 2y_2^* = 14 \geq 2$ \checkmark; $3(0)+2(7)=14\geq 12$ \checkmark; $W^* = 0+4(7) = 28 = Z^*$ \checkmark (dualidad fuerte \textbf{[BT §4.2 Teo.\ 4.2]}).
+
+\medskip
+Diccionario óptimo del dual (no básicas $\{y_1, e_3\} = 0$, donde $e_j$ es la holgura de la restricción dual $j$):
+\begin{align*}
+y_2    &= 7 - 2y_1 + e_3 \\
+e_1    &= 12 - 3y_1 + 2e_3 \\
+e_2    &= 2 - y_1 + 2e_3 \\
+W      &= 28 + 4y_1 + 4e_3
+\end{align*}
+
+Dado que es minimización, los costos reducidos de las no básicas deben ser $\geq 0$: ambos valen $+4 > 0$ \textbf{[BT §3.2]} (convenio para min). Óptimo confirmado.
+
+\item \textbf{Conveniencia de expandir el recurso 2.}
+
+Precio sombra del recurso 2: $y_2^* = 7$ \$/unidad \textbf{[BT §5.3]}. La ganancia bruta por expandir $\Delta$ unidades es $7\Delta$. El costo es $3000 + 3\Delta$.
+
+Ganancia neta: $7\Delta - 3000 - 3\Delta = 4\Delta - 3000$.
+
+Requiere $\Delta > 750$ para ser rentable. Ahora verificamos el rango de validez del precio sombra. La columna de $X_5$ (holgura del recurso 2) en $B^{-1}$ actúa sobre el vector básico:
+\[
+  X_3' = 4 - \Delta \geq 0 \;\Rightarrow\; \Delta \leq 4.
+\]
+(Leer de la fila de $X_3$: coeficiente de $X_5$ es $-1$.)
+
+Dentro del rango $[0,4]$: ganancia neta máxima $= 4(4) - 3000 = 16 - 3000 = -2984 < 0$.
+
+\textbf{Conclusión: No conviene expandir el recurso 2.} Para cualquier $\Delta$ dentro del rango de validez del precio sombra, la expansión es deficitaria.
+
+\end{enumerate}
+
+% ============================================================
+\section*{Problema 3 --- Problema agrícola (sensibilidad)}
+\addcontentsline{toc}{section}{Problema 3}
+
+\textbf{Enunciado.} Problema de producción agrícola:
+\[
+\begin{array}{ll}
+\max & 150x_1 + 200x_2 - 10x_3 \\
+\text{s.a.} & x_1 + x_2 \leq 45 \quad (1) \\
+& 6x_1 + 10x_2 - x_3 \leq 0 \quad (2) \\
+& x_3 \leq 350 \quad (3) \\
+& 5x_1 \leq 140 \quad (4) \\
+& 4x_2 \leq 120 \quad (5) \\
+& x_1, x_2, x_3 \geq 0
+\end{array}
+\]
+Un solver entrega: $Z^* = 4250$, $(x_1^*, x_2^*, x_3^*) = (25, 20, 350)$. Variables duales: $y_1^* = 75$, $y_2^* = 12.5$, $y_3^* = 2.5$, $y_4^* = y_5^* = 0$.
+\begin{enumerate}[a)]
+  \item Escribir el diccionario óptimo.
+  \item Precio máximo que se justifica pagar por 1 ha adicional adyacente.
+  \item El precio del trigo baja, haciendo que el ingreso de $x_1$ baje a 130 M\$/ha.
+  \item Se inundan 5 ha: nueva solución.
+  \item Se inundan 8 ha: nueva solución.
+\end{enumerate}
+
+\begin{marco}
+\textbf{[BT §4.4 / §5.3]} Precio sombra $y_i^* = \partial Z^*/\partial b_i$: valor marginal del recurso $i$. Válido para $\Delta b_i$ en el rango donde la misma base óptima permanece factible. \\[2pt]
+\textbf{[BT §4.3 Teo.\ 4.5]} $y_i^* > 0 \Leftrightarrow$ restricción $i$ activa en el óptimo. \\[2pt]
+\textbf{[BT §5.1]} Cambio en $c_j$ con $x_j$ básica: la SBF no cambia; se recalculan los precios duales y los costos reducidos. \\[2pt]
+\textbf{[BT §5.3]} Al cambiar $b$ en $\Delta e_i$: $x_B' = x_B + \Delta \cdot B^{-1}e_i$. La base sigue siendo factible ssi $x_B' \geq 0$.
+\end{marco}
+
+\subsection*{Solución}
+
+\begin{enumerate}[a)]
+
+\item \textbf{Diccionario óptimo.}
+
+Restricciones activas: $(1): x_1+x_2=45$, $(2): 6x_1+10x_2=x_3$, $(3): x_3=350$. Sus holguras $s_1=s_2=s_3=0$ son no básicas. Restricciones inactivas: $s_4 = 140-5(25)=15>0$, $s_5=120-4(20)=40>0$; $s_4$ y $s_5$ son básicas. Base óptima: $\mathcal{B} = \{x_1, x_2, x_3, s_4, s_5\}$.
+
+El diccionario óptimo expresa las variables básicas en función de $\{s_1, s_2, s_3\}$. Para construirlo, escribimos el sistema $B x_{\mathcal{B}} = b - N x_N$ y resolvemos $B^{-1}$. El resultado es:
+
+\begin{align*}
+x_1  &= 25 - \tfrac{5}{2}s_1 + \tfrac{1}{4}s_2 + \tfrac{1}{4}s_3 \\
+x_2  &= 20 + \tfrac{3}{2}s_1 - \tfrac{1}{4}s_2 - \tfrac{1}{4}s_3 \\
+x_3  &= 350 - s_3 \\
+s_4  &= 15 + \tfrac{25}{2}s_1 - \tfrac{5}{4}s_2 - \tfrac{5}{4}s_3 \\
+s_5  &= 40 - 6s_1 + s_2 + s_3 \\
+Z    &= 4250 - 75s_1 - 12.5\,s_2 - 2.5\,s_3
+\end{align*}
+
+Los costos reducidos de todas las no básicas son negativos (o cero), confirmando optimalidad \textbf{[BT §3.2]}.
+
+\item \textbf{Precio máximo por 1 ha adyacente.}
+
+El precio sombra de la restricción (1) es $y_1^* = 75$ M\$/ha \textbf{[BT §4.4]}. Adquirir 1 ha adicional incrementa $Z^*$ en 75 M\$. El propietario puede cobrar \textbf{máximo 75 M\$} por esa hectárea adicional.
+
+\item \textbf{Baja de ingreso de $x_1$: nuevo $c_1' = 130$.}
+
+$x_1$ es básica, por lo que la SBF $\{25, 20, 350\}$ no cambia \textbf{[BT §5.1]}. Se recalculan los precios duales $\mu' = c_{\mathcal{B}}'B^{-1}$. Solo cambia el coeficiente de $x_1$: $c_1' = 130$ (antes 150).
+
+Usando los coeficientes de $B^{-1}$ (columnas de $s_1, s_2, s_3$ en la fila de $x_1$):
+\[
+  \mu_1' = 130\cdot\left(-\tfrac{5}{2}\right) + 200\cdot\left(\tfrac{3}{2}\right) + (-10)\cdot 0 = -325 + 300 = -25
+\]
+Pero se obtiene más directamente usando el cambio de costo: $\Delta Z = \Delta c_1 \cdot x_1^* = (-20)(25) = -500$ M\$.
+
+Los nuevos costos reducidos de las no básicas son:
+\begin{align*}
+\bar{c}_{s_1}' &= 0 - 130\left(\tfrac{5}{2}\right) - 200\left(-\tfrac{3}{2}\right) + 10\cdot 0 = -325+300 = -25 \leq 0 \\
+\bar{c}_{s_2}' &= 0 - 130\left(-\tfrac{1}{4}\right) - 200\left(\tfrac{1}{4}\right) + 0 = 32.5 - 50 = -17.5 \leq 0 \\
+\bar{c}_{s_3}' &= 0 - 130\left(-\tfrac{1}{4}\right) - 200\left(\tfrac{1}{4}\right) + 10 = 32.5 - 50 + 10 = -7.5 \leq 0
+\end{align*}
+
+Todos los costos reducidos son $\leq 0$: la base sigue siendo óptima \textbf{[BT §5.1]}.
+
+Nuevo $Z' = 130(25) + 200(20) - 10(350) = 3250 + 4000 - 3500 = \mathbf{3750}$ M\$. La utilidad baja en 500 M\$.
+
+\item \textbf{5 ha inundadas: $b_1 \to 40$, $\Delta = -5$.}
+
+Actualizar la SBF \textbf{[BT §5.3]}: $x_{\mathcal{B}}' = x_{\mathcal{B}} + \Delta \cdot B^{-1}e_1$. La columna $B^{-1}e_1$ se lee de las entradas de $s_1$ en el diccionario óptimo: $\bigl(-\tfrac{5}{2},\;\tfrac{3}{2},\;0,\;\tfrac{25}{2},\;-6\bigr)'$.
+
+\begin{align*}
+x_1' &= 25 + (-5)\left(-\tfrac{5}{2}\right) = 25 + 12.5 = 37.5 \geq 0 \;\checkmark\\
+x_2' &= 20 + (-5)\left(\tfrac{3}{2}\right) = 20 - 7.5 = 12.5 \geq 0 \;\checkmark\\
+x_3' &= 350 + (-5)(0) = 350 \geq 0 \;\checkmark\\
+s_4' &= 15 + (-5)\left(\tfrac{25}{2}\right) = 15 - 62.5 = -47.5 < 0 \;\text{??}
+\end{align*}
+
+Espera: los signos en la columna de $s_1$ en el diccionario representan los coeficientes con los que $s_1$ aparece en cada fila. Como $s_1$ es la holgura de la restricción (1), aumentar $b_1$ equivale a aumentar $s_1$; no obstante, para analizar el cambio en $b_1$ directamente usamos $\Delta b_1 = -5$ con la columna correspondiente de $B^{-1}$.
+
+Leyendo los coeficientes de $s_1$ en el diccionario \textbf{con signo cambiado} (pues $s_1$ aparece con coeficiente negativo cuando la restricción original es $\leq$):
+La columna de $B^{-1}$ asociada a la restricción 1 es $\bigl(\tfrac{5}{2},\;{-\tfrac{3}{2}},\;0,\;{-\tfrac{25}{2}},\;6\bigr)'$.
+
+\begin{align*}
+x_1' &= 25 + (-5)\left(\tfrac{5}{2}\right) = 25 - 12.5 = 12.5 \geq 0\;\checkmark\\
+x_2' &= 20 + (-5)\left(-\tfrac{3}{2}\right) = 20 + 7.5 = 27.5 \geq 0\;\checkmark\\
+x_3' &= 350 \geq 0\;\checkmark\\
+s_4' &= 15 + (-5)\left(-\tfrac{25}{2}\right) = 15 + 62.5 = 77.5 \geq 0\;\checkmark\\
+s_5' &= 40 + (-5)(6) = 40 - 30 = 10 \geq 0\;\checkmark
+\end{align*}
+
+Base factible. Nuevo $Z' = 4250 + 75(-5) = 4250 - 375 = \mathbf{3875}$ M\$.
+
+\item \textbf{8 ha inundadas: $b_1 \to 37$, $\Delta = -8$.}
+
+\begin{align*}
+s_5' &= 40 + (-8)(6) = 40 - 48 = -8 < 0
+\end{align*}
+
+La base se vuelve infactible \textbf{[BT §5.3]}. El rango de validez es $s_5' = 40 + 6\Delta \geq 0 \Rightarrow \Delta \geq -\tfrac{40}{6} \approx -6.67$. Con $\Delta = -8$ superamos este límite y debemos re-optimizar.
+
+Al salirse $s_5$ de la factibilidad, la restricción (5) se hace activa: $x_2 = 30$. El nuevo problema restringido con $x_1 + x_2 \leq 37$ y $x_2 \leq 30$:
+
+Sustituyendo $x_3 = 6x_1 + 10x_2$ (restricción 2 activa) y $x_2 = 30$:
+\[
+  Z = 150x_1 + 200(30) - 10(6x_1 + 10(30)) = 150x_1 + 6000 - 60x_1 - 3000 = 90x_1 + 3000.
+\]
+
+Restricciones: $x_1 \leq 37 - 30 = 7$, $5x_1 \leq 140 \Rightarrow x_1 \leq 28$.
+
+Activo: $x_1^* = 7$. Entonces $x_2^* = 30$, $x_3^* = 6(7)+10(30) = 342$.
+
+$Z^* = 150(7) + 200(30) - 10(342) = 1050 + 6000 - 3420 = \mathbf{3630}$ M\$. $\Delta Z = -620$ M\$.
+
+\end{enumerate}
+
+% ============================================================
+\section*{Problema 4 --- Dual de un modelo de juego}
+\addcontentsline{toc}{section}{Problema 4}
+
+\textbf{Enunciado.} Construir el dual del siguiente problema (teoría de juegos):
+\[
+\begin{array}{ll}
+\min & v \\
+\text{s.a.} & \sum_{j=1}^{n} a_{ij} x_j \leq v, \quad i = 1,\ldots,m \\
+& \sum_{j=1}^{n} x_j = 1 \\
+& x_j \geq 0, \quad j=1,\ldots,n
+\end{array}
+\]
+
+\begin{marco}
+\textbf{[BT §4.2]} Reglas de dualización: (i) para $\min$ con restricción $\leq$: variable dual $\geq 0$; (ii) para restricción de igualdad: variable dual $\lambda$ libre; (iii) para variable primal libre: restricción dual es igualdad; (iv) para variable primal $\geq 0$ en $\min$: restricción dual $\geq 0$ (tipo $\geq$).
+\end{marco}
+
+\subsection*{Solución}
+
+Las variables primales son $(v, x_1, \ldots, x_n)$.
+
+\textbf{Reescritura:} las restricciones $i$ se escriben como $\sum_j a_{ij}x_j - v \leq 0$ (asociamos duals $y_i \geq 0$). La restricción de igualdad $\sum_j x_j = 1$ tiene dual $\lambda$ libre.
+
+\textbf{Restricción dual de $v$} (variable libre en el primal):
+\[
+  \sum_{i=1}^{m}(-1)\cdot y_i = 1 \;\Rightarrow\; -\sum_{i=1}^m y_i = 1.
+\]
+
+\textbf{Restricción dual de $x_j$} ($x_j \geq 0$ en $\min$, restricción tipo $\geq$):
+\[
+  \sum_{i=1}^m a_{ij} y_i + \lambda \geq 0.
+\]
+
+\textbf{Objetivo dual:} $\max\; 0\cdot y + 1\cdot\lambda = \lambda$.
+
+El dual queda:
+\[
+\begin{array}{ll}
+\max & \lambda \\
+\text{s.a.} & \sum_{i=1}^m a_{ij} y_i + \lambda \leq 0, \quad j=1,\ldots,n \\
+& \sum_{i=1}^m y_i = -1 \\
+& y_i \geq 0, \quad i=1,\ldots,m
+\end{array}
+\]
+
+\textbf{Interpretación:} con el cambio $p_i = -y_i \leq 0$ y $w = -\lambda$ se obtiene la forma usual del problema de la estrategia del jugador fila en un juego de suma cero con matriz de pagos $A$. El dual maximiza el pago garantizado para el jugador columna.
+
+% ============================================================
+\section*{Problema 5 --- Planeación de producción (sensibilidad)}
+\addcontentsline{toc}{section}{Problema 5}
+
+\textbf{Enunciado.}
+\[
+\begin{array}{ll}
+\max & x_1 + x_2 + 3x_3 + 2x_4 \\
+\text{s.a.} & 2x_1 + 2x_2 + 5x_3 + 5x_4 \leq 20 \\
+& 2x_1 + x_2 + 4x_3 + 2x_4 \leq 12 \\
+& x_1, x_2, x_3, x_4 \geq 0
+\end{array}
+\]
+Solución óptima: $(x_1, x_2, x_3, x_4) = (0,\, 20/3,\, 4/3,\, 0)$.
+\begin{enumerate}[a)]
+  \item Diccionario inicial.
+  \item Diccionario óptimo sin resolver desde cero.
+  \item Si $c_1$ sube a 2, ¿el nuevo costo reducido de $x_1$ sigue $\leq 0$? ¿Es aún óptima la base?
+  \item Si la respuesta anterior es sí, ¿cuánto debe subir $c_1$ para que $x_1$ entre a la base?
+  \item Si la respuesta anterior es no, re-optimizar.
+  \item Si $a_{13}$ baja de 5 a 3, encontrar la nueva solución óptima.
+\end{enumerate}
+
+\begin{marco}
+\textbf{[BT §3.1]} Diccionario inicial con holguras $s_1, s_2$. \\[2pt]
+\textbf{[BT §4.4 / §5.1]} Con base $\mathcal{B} = \{x_2, x_3\}$: calcular $B^{-1}$, precios duales $\mu = c_{\mathcal{B}}B^{-1}$, costos reducidos $\bar{c}_j = c_j - \mu a_j$. \\[2pt]
+\textbf{[BT §5.1]} Cambio en $c_j$ (no básica): nuevo $\bar{c}_j' = c_j' - \mu' a_j$. Si $\bar{c}_j' \leq 0$, la base sigue óptima. \\[2pt]
+\textbf{[BT §5.3]} Cambio en $a_{ij}$ con $x_j$ básica: nueva base $B'$, recalcular $B'^{-1}$ y costos reducidos.
+\end{marco}
+
+\subsection*{Solución}
+
+\begin{enumerate}[a)]
+
+\item \textbf{Diccionario inicial.}
+\begin{align*}
+s_1 &= 20 - 2x_1 - 2x_2 - 5x_3 - 5x_4 \\
+s_2 &= 12 - 2x_1 - x_2 - 4x_3 - 2x_4 \\
+Z   &= x_1 + x_2 + 3x_3 + 2x_4
+\end{align*}
+
+\item \textbf{Diccionario óptimo (sin simplex paso a paso).}
+
+La solución óptima $(x_2, x_3) = (20/3, 4/3)$ indica base $\mathcal{B} = \{x_2, x_3\}$ con columnas:
+\[
+  B = \begin{pmatrix} 2 & 5 \\ 1 & 4 \end{pmatrix}, \quad \det(B) = 8-5 = 3.
+\]
+\[
+  B^{-1} = \frac{1}{3}\begin{pmatrix} 4 & -5 \\ -1 & 2 \end{pmatrix}.
+\]
+
+Verificación: $x_{\mathcal{B}} = B^{-1}b = \frac{1}{3}\begin{pmatrix}4(20)-5(12)\\-1(20)+2(12)\end{pmatrix} = \frac{1}{3}\begin{pmatrix}20\\4\end{pmatrix} = \begin{pmatrix}20/3\\4/3\end{pmatrix}$ \checkmark.
+
+Precios duales: $\mu = c_{\mathcal{B}}B^{-1} = (1,3)\cdot\frac{1}{3}\begin{pmatrix}4&-5\\-1&2\end{pmatrix} = \frac{1}{3}(4-3,\;-5+6) = \left(\frac{1}{3},\frac{1}{3}\right)$.
+
+Costos reducidos \textbf{[BT §5.1]}:
+\begin{align*}
+\bar{c}_{x_1} &= 1 - \left(\tfrac{1}{3},\tfrac{1}{3}\right)(2,2)' = 1 - \tfrac{4}{3} = -\tfrac{1}{3} \\
+\bar{c}_{x_4} &= 2 - \left(\tfrac{1}{3},\tfrac{1}{3}\right)(5,2)' = 2 - \tfrac{7}{3} = -\tfrac{1}{3} \\
+\bar{c}_{s_1} &= 0 - \left(\tfrac{1}{3},\tfrac{1}{3}\right)(1,0)' = -\tfrac{1}{3} \\
+\bar{c}_{s_2} &= 0 - \left(\tfrac{1}{3},\tfrac{1}{3}\right)(0,1)' = -\tfrac{1}{3}
+\end{align*}
+
+Diccionario óptimo (invirtiendo $B$):
+\begin{align*}
+x_2 &= \tfrac{20}{3} + \tfrac{2}{3}x_1 - \tfrac{10}{3}x_4 - \tfrac{4}{3}s_1 + \tfrac{5}{3}s_2 \\
+x_3 &= \tfrac{4}{3}  - \tfrac{2}{3}x_1 + \tfrac{1}{3}x_4 + \tfrac{1}{3}s_1 - \tfrac{2}{3}s_2 \\
+Z   &= \tfrac{32}{3} - \tfrac{1}{3}x_1 - \tfrac{1}{3}x_4 - \tfrac{1}{3}s_1 - \tfrac{1}{3}s_2
+\end{align*}
+
+\item \textbf{$c_1$ sube a 2: ¿sigue siendo óptima la base?}
+
+$x_1$ es no básica. Nuevo costo reducido \textbf{[BT §5.1]}:
+\[
+  \bar{c}_{x_1}' = 2 - \left(\tfrac{1}{3},\tfrac{1}{3}\right)(2,2)' = 2 - \tfrac{4}{3} = \tfrac{2}{3} > 0.
+\]
+\textbf{No}, la base ya no es óptima. $x_1$ tiene costo reducido positivo y debería entrar a la base.
+
+\item \textbf{¿Cuánto debe subir $c_1$ para que $x_1$ entre?}
+
+No aplica: según (c), ya con $c_1 = 2$ la base deja de ser óptima.
+
+El umbral exacto es: $\bar{c}_{x_1}' = c_1' - \frac{4}{3} = 0 \Rightarrow c_1' = \frac{4}{3} \approx 1.33$. Con el valor original $c_1 = 1 < \frac{4}{3}$, la base era óptima. Cualquier $c_1' > \frac{4}{3}$ hace que $x_1$ quiera entrar.
+
+\item \textbf{Re-optimizar con $c_1 = 2$.}
+
+Entra $x_1$ ($\bar{c}_{x_1}' = \tfrac{2}{3} > 0$). Razón mínima: solo la fila de $x_3$ tiene coeficiente negativo para $x_1$ ($-\tfrac{2}{3}$):
+\[
+  \theta^* = \frac{4/3}{2/3} = 2. \quad \text{Sale } x_3.
+\]
+
+Pivote sobre la fila de $x_3$: $x_1 = 2 - \tfrac{3}{2}x_3 + \tfrac{1}{2}x_4 + \tfrac{1}{2}s_1 - s_2$.
+
+Actualizar fila $x_2$:
+\[
+  x_2 = \tfrac{20}{3} + \tfrac{2}{3}\!\left(2 - \tfrac{3}{2}x_3 + \tfrac{1}{2}x_4 + \tfrac{1}{2}s_1 - s_2\right) - \tfrac{10}{3}x_4 - \tfrac{4}{3}s_1 + \tfrac{5}{3}s_2 = 8 - x_3 - 3x_4 - s_1 + s_2.
+\]
+
+Actualizar objetivo ($c_1=2$):
+\[
+  Z = \tfrac{32}{3} - \tfrac{1}{3}x_1 - \tfrac{1}{3}x_4 - \tfrac{1}{3}s_1 - \tfrac{1}{3}s_2\;+\;\tfrac{2}{3}\cdot\tfrac{2}{3}\cdot x_1\;\cdots
+\]
+
+Usando directamente $Z = 2x_1 + x_2 + 3x_3 + 2x_4$ con la nueva solución:
+$x_1^* = 2$, $x_2^* = 8$, $x_3^*=x_4^*=0$. $Z^* = 2(2)+8 = \mathbf{12}$.
+
+Nuevo diccionario:
+\begin{align*}
+x_1 &= 2 - \tfrac{3}{2}x_3 + \tfrac{1}{2}x_4 + \tfrac{1}{2}s_1 - s_2 \\
+x_2 &= 8 - x_3 - 3x_4 - s_1 + s_2 \\
+Z   &= 12 - x_3 - s_2
+\end{align*}
+
+Costos reducidos: $x_3: -1 \leq 0$; $x_4: 0$; $s_1: 0$; $s_2: -1 \leq 0$. Óptimo \textbf{[BT §3.2]}.
+
+\item \textbf{$a_{13}$: $5 \to 3$.}
+
+$x_3$ es básica. La columna cambia a $(3, 4)'$. Nueva base $B' = \bigl[\!\begin{smallmatrix}2&3\\1&4\end{smallmatrix}\!\bigr]$, $\det(B')=5$.
+
+\[
+  B'^{-1} = \frac{1}{5}\begin{pmatrix}4 & -3 \\ -1 & 2\end{pmatrix}.
+\]
+
+Nueva SBF \textbf{[BT §5.3]}:
+\[
+  x_{\mathcal{B}'} = B'^{-1}b = \frac{1}{5}\begin{pmatrix}4(20)-3(12)\\-1(20)+2(12)\end{pmatrix} = \frac{1}{5}\begin{pmatrix}44\\4\end{pmatrix} = \begin{pmatrix}8.8\\0.8\end{pmatrix} \geq 0\;\checkmark.
+\]
+
+Nuevos precios duales: $\mu' = (1,3)\cdot\frac{1}{5}\begin{pmatrix}4&-3\\-1&2\end{pmatrix} = \frac{1}{5}(1,3) = \left(\tfrac{1}{5},\tfrac{3}{5}\right)$.
+
+Costos reducidos:
+\begin{align*}
+\bar{c}_{x_1}' &= 1 - \tfrac{1}{5}(2) - \tfrac{3}{5}(2) = 1 - \tfrac{2}{5} - \tfrac{6}{5} = -\tfrac{3}{5} \leq 0 \\
+\bar{c}_{x_4}' &= 2 - \tfrac{1}{5}(5) - \tfrac{3}{5}(2) = 2-1-\tfrac{6}{5} = -\tfrac{1}{5} \leq 0 \\
+\bar{c}_{s_1}' &= -\tfrac{1}{5} \leq 0;\quad \bar{c}_{s_2}' = -\tfrac{3}{5} \leq 0
+\end{align*}
+
+Base óptima. \textbf{Nueva solución:} $x_2^* = 8.8$, $x_3^* = 0.8$, $Z^* = 1(8.8) + 3(0.8) = 8.8 + 2.4 = \mathbf{11.2}$.
+
+\end{enumerate}
+
+% ============================================================
+\section*{Problema 6 --- Dual de transporte con cotas superiores}
+\addcontentsline{toc}{section}{Problema 6}
+
+\textbf{Enunciado.} Construir el dual del problema de transporte con cotas superiores:
+\[
+\begin{array}{ll}
+\min & \sum_{i,j} c_{ij} x_{ij} \\
+\text{s.a.} & \sum_i x_{ij} \geq d_j, \quad \forall j \quad \text{(demandas)} \\
+& \sum_j x_{ij} \leq o_i, \quad \forall i \quad \text{(ofertas)} \\
+& x_{ij} \leq u_{ij}, \quad \forall i,j \quad \text{(cotas)} \\
+& x_{ij} \geq 0
+\end{array}
+\]
+
+\begin{marco}
+\textbf{[BT §4.2]} Reglas de dualización para $\min$: restricción $\leq$ $\Rightarrow$ dual $\geq 0$; restricción $\geq$ $\Rightarrow$ dual $\leq 0$ (o reescribir como $-\sum_i x_{ij} \leq -d_j$ y usar dual $\geq 0$). El objetivo dual es $\max$ del producto de duales por RHS.
+\end{marco}
+
+\subsection*{Solución}
+
+Reescribimos las restricciones $\geq$ como $\leq$: $-\sum_i x_{ij} \leq -d_j$ (duales $v_j \geq 0$).
+
+Variables duales: $v_j \geq 0$ para demandas, $u_i \geq 0$ para ofertas, $w_{ij} \geq 0$ para cotas.
+
+La restricción dual de $x_{ij}$ (variable $\geq 0$ en $\min$, tipo $\geq$):
+\[
+  (-1)\cdot v_j + (1)\cdot u_i + (1)\cdot w_{ij} \geq c_{ij} \;\Leftrightarrow\; u_i - v_j + w_{ij} \geq c_{ij}.
+\]
+
+Objetivo dual: $\max\; \bigl(-\sum_j d_j v_j + \sum_i o_i(-u_i) - \sum_{ij} u_{ij} w_{ij}\bigr)$.
+
+Nota: para las restricciones de oferta, el signo del RHS en la forma $\leq$ es $+o_i$, y para las de cota es $+u_{ij}$. Por lo tanto:
+
+\[
+\boxed{
+\begin{array}{ll}
+\max & -\displaystyle\sum_j d_j v_j - \sum_i o_i u_i - \sum_{i,j} u_{ij} w_{ij} \\[6pt]
+\text{s.a.} & u_i - v_j + w_{ij} \geq c_{ij}, \quad \forall i,j \\[2pt]
+& v_j,\; u_i,\; w_{ij} \geq 0
+\end{array}
+}
+\]
+
+\textbf{Interpretación:} $v_j$ es el precio (negativo) de satisfacer la demanda $j$; $u_i$ es el costo de la oferta $i$; $w_{ij}$ es el costo de la cota superior de $x_{ij}$. La dualidad débil garantiza que $\text{dual} \leq \text{primal}$ para toda solución factible del par.
+
+% ============================================================
+\section*{Problema 7 --- Verdadero/Falso (4 afirmaciones)}
+\addcontentsline{toc}{section}{Problema 7}
+
+\textbf{Enunciado.} Comente sobre la veracidad de las siguientes afirmaciones.
+
+\begin{marco}
+\textbf{[BT §4.2 Teo.\ 4.2]} Dualidad fuerte: si el primal tiene solución óptima finita, el dual también; consecuencia: primal ilimitado $\Rightarrow$ dual infactible. \\[2pt]
+\textbf{[BT §4.3 Teo.\ 4.5]} Holgura complementaria: $y_i^* > 0 \Rightarrow$ restricción primal activa; $x_j^* > 0 \Rightarrow$ restricción dual activa. \\[2pt]
+\textbf{[BT §5.1]} Disminuir $c_j$ de una variable no básica mantiene $\bar{c}_j$ aún $\leq 0$. \\[2pt]
+\textbf{[Ch §7]} En la Fase I del método de dos fases, la función auxiliar se trata como una maximización equivalente: $\min\sum a_k \equiv \max(-\sum a_k)$.
+\end{marco}
+
+\subsection*{Solución}
+
+\begin{enumerate}[a)]
+
+\item \textbf{``Si al iterar el simplex se obtiene una solución infactible, el dual es no acotado.''}
+
+\textbf{FALSO.} El método simplex primal nunca produce soluciones infactibles: en cada iteración mantiene $x_{\mathcal{B}} = B^{-1}b \geq 0$ \textbf{[BT §3.1]}. La afirmación confunde la dirección correcta de la dualidad fuerte: primal ilimitado $\Rightarrow$ dual infactible \textbf{[BT §4.2 Teo.\ 4.2]}. La recíproca (dual infactible $\Rightarrow$ primal ilimitado) \emph{no} es siempre cierta: el primal puede ser infactible también.
+
+\item \textbf{``Disminuir $c_j$ de una variable no básica nunca afecta la solución óptima.''}
+
+\textbf{VERDADERO.} Sea $x_j$ no básica con $\bar{c}_j \leq 0$ (criterio de optimalidad). Nuevo costo reducido \textbf{[BT §5.1]}:
+\[
+  \bar{c}_j' = c_j' - \mu a_j = \bar{c}_j + \underbrace{(c_j' - c_j)}_{= -\delta,\;\delta\geq 0} \leq \bar{c}_j \leq 0.
+\]
+La variable $x_j$ sigue siendo no atractiva; la base, la SBF y $Z^*$ no cambian.
+
+\item \textbf{``Si una variable dual óptima es positiva, la restricción primal correspondiente puede no ser de igualdad.''}
+
+\textbf{FALSO.} Por holgura complementaria \textbf{[BT §4.3 Teo.\ 4.5]}:
+\[
+  y_i^*(b_i - a_i' x^*) = 0. \quad \text{Si } y_i^* > 0 \;\Rightarrow\; b_i - a_i'x^* = 0 \;\text{necesariamente.}
+\]
+Luego la restricción $i$ \emph{debe} ser activa en el óptimo primal.
+
+\item \textbf{``En el método de dos fases para minimización, la función auxiliar de Fase I debe ser de maximización.''}
+
+\textbf{VERDADERO.} La Fase I minimiza $\sum_k a_k$ (suma de variables artificiales), lo que es equivalente a maximizar $-\sum_k a_k$ \textbf{[Ch §7]}. Al aplicar el simplex de maximización se obtiene la misma base que al minimizar la función auxiliar. Si el óptimo de Fase I es $0$ (todas las artificiales fuera de la base), se tiene una SBF factible para el problema original.
+
+\end{enumerate}
+
+% ============================================================
+\section*{Problema 8 --- Restricción inactiva y efecto en $B^{-1}b$}
+\addcontentsline{toc}{section}{Problema 8}
+
+\textbf{Enunciado.} Si se aumenta el RHS de una restricción inactiva en la solución óptima, ¿cómo cambia $B^{-1}b$? Justifique.
+
+\begin{marco}
+\textbf{[BT §3.1]} Los valores de la SBF son $x_{\mathcal{B}} = B^{-1}b$. Si $b \to b + \Delta e_i$, entonces $x_{\mathcal{B}}' = x_{\mathcal{B}} + \Delta B^{-1}e_i$. \\[2pt]
+\textbf{[BT §4.3 Teo.\ 4.5]} Restricción inactiva $\Rightarrow$ su holgura $s_i > 0 \Rightarrow s_i$ básica $\Rightarrow y_i^* = 0$. \\[2pt]
+\textbf{[BT §5.3]} $B^{-1}e_i = e_k$ donde $k$ es la posición de $s_i$ en la base $\mathcal{B}$.
+\end{marco}
+
+\subsection*{Solución}
+
+Sea la restricción $i$ inactiva en el óptimo: $s_i = b_i - a_i'x^* > 0$, por lo que $s_i$ es variable básica en alguna posición $k$ de $\mathcal{B}$. La columna de $s_i$ en la matriz ampliada es $e_i$ (vector canónico $i$). Su representación en la base actual es $B^{-1}e_i = e_k$ (el vector canónico $k$-ésimo de $\mathbb{R}^m$) \textbf{[BT §5.3]}.
+
+Al aumentar $b_i$ en $\Delta > 0$:
+\[
+  x_{\mathcal{B}}' = x_{\mathcal{B}} + \Delta \cdot B^{-1}e_i = x_{\mathcal{B}} + \Delta e_k.
+\]
+
+\textbf{Consecuencias:}
+\begin{enumerate}[(i)]
+  \item Solo la componente $k$-ésima cambia: $s_i' = s_i + \Delta > 0$. Todas las demás variables básicas (incluidas las variables de decisión) permanecen iguales.
+  \item La base sigue siendo factible: $s_i' = s_i + \Delta > 0$ \checkmark.
+  \item Los costos reducidos no cambian (dependen de $\mu = c_{\mathcal{B}}B^{-1}$, no de $b$).
+  \item $Z^*$ no cambia: $\Delta Z = y_i^* \cdot \Delta = 0$, pues restricción inactiva $\Rightarrow y_i^* = 0$ por holgura complementaria \textbf{[BT §4.3 Teo.\ 4.5]}.
+\end{enumerate}
+
+En resumen: aumentar el RHS de una restricción inactiva solo incrementa la holgura de esa restricción en la misma cantidad, sin alterar ninguna variable de decisión ni el valor óptimo.
+
+% ============================================================
+\section*{Problema 9 --- Eliminar restricción 3 de P3}
+\addcontentsline{toc}{section}{Problema 9}
+
+\textbf{Enunciado.} Retome el problema agrícola (P3) sin la restricción $x_3 \leq 350$. Encuentre la nueva solución óptima sin resolver desde cero.
+
+\begin{marco}
+\textbf{[BT §4.3 Teo.\ 4.5]} $y_3^* = 2.5 > 0 \Rightarrow$ la restricción 3 era activa en el óptimo original ($x_3^* = 350$). Eliminarla cambia la región factible, mejorando (o dejando igual) el óptimo. \\[2pt]
+\textbf{[BT §5.3]} Al eliminar una restricción activa cuyo dual es positivo, la base actual ya no es óptima para el nuevo problema y el objetivo mejora.
+\end{marco}
+
+\subsection*{Solución}
+
+$y_3^* = 2.5 > 0$ implica que la restricción $x_3 \leq 350$ era activa en el óptimo original \textbf{[BT §4.3 Teo.\ 4.5]}. Al eliminarla, $x_3$ puede tomar valores mayores que 350.
+
+Sin restricción 3, el problema es:
+\[
+\begin{array}{ll}
+\max & 150x_1 + 200x_2 - 10x_3 \\
+\text{s.a.} & x_1 + x_2 \leq 45 \\
+& 6x_1 + 10x_2 - x_3 \leq 0 \\
+& 5x_1 \leq 140 \;\Rightarrow\; x_1 \leq 28 \\
+& 4x_2 \leq 120 \;\Rightarrow\; x_2 \leq 30 \\
+& x_1, x_2, x_3 \geq 0
+\end{array}
+\]
+
+Dado que $-10 < 0$, el objetivo se maximiza minimizando $x_3$. La restricción (2) actúa como cota inferior: $x_3 \geq 6x_1 + 10x_2$. El mínimo factible es $x_3^* = 6x_1 + 10x_2$.
+
+Sustituyendo en el objetivo:
+\[
+  Z = 150x_1 + 200x_2 - 10(6x_1 + 10x_2) = 90x_1 + 100x_2.
+\]
+
+Problema reducido:
+\[
+\max\; 90x_1 + 100x_2 \quad \text{s.a.}\quad x_1+x_2\leq 45,\; x_1\leq 28,\; x_2\leq 30,\; x_1,x_2\geq 0.
+\]
+
+Evaluamos los vértices de la región factible:
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+Vértice & $x_1$ & $x_2$ & $Z$\\
+\hline
+$O$ & 0 & 0 & 0 \\
+$A$ & 15 & 30 & $90(15)+100(30)=1350+3000=4350$ \\
+$B$ & 28 & 17 & $90(28)+100(17)=2520+1700=4220$ \\
+$C$ & 28 & 0 & $2520$ \\
+$D$ & 0 & 30 & $3000$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Óptimo en $A$:} $x_1^* = 15$, $x_2^* = 30$, $x_3^* = 6(15)+10(30) = 90+300 = 390$,
+$Z^* = 150(15)+200(30)-10(390) = 2250+6000-3900 = \mathbf{4350}$ M\$.
+
+% ============================================================
+\section*{Problema 10 --- Eliminar variables de P5}
+\addcontentsline{toc}{section}{Problema 10}
+
+\textbf{Enunciado.} Para el problema P5: (a) resolver sin la variable $x_4$; (b) resolver sin la variable $x_3$.
+
+\begin{marco}
+\textbf{[BT §5.2]} Variable no básica con $\bar{c}_j < 0$: eliminarla no cambia la base ni la solución óptima. \\[2pt]
+\textbf{[BT §5.2]} Variable básica: eliminarla modifica el modelo; se debe re-optimizar partiendo del diccionario óptimo del nuevo problema.
+\end{marco}
+
+\subsection*{Solución}
+
+\begin{enumerate}[a)]
+
+\item \textbf{Sin $x_4$.}
+
+En el diccionario óptimo de P5, $x_4$ es no básica con $\bar{c}_{x_4} = -\tfrac{1}{3} < 0$ \textbf{[BT §5.2]}. Eliminar $x_4$ no afecta la base $\{x_2, x_3\}$ ni la SBF.
+
+\textbf{Solución sin cambios:} $x_2^* = 20/3$, $x_3^* = 4/3$, $Z^* = 32/3$.
+
+\item \textbf{Sin $x_3$.}
+
+Nuevo problema:
+\[
+\begin{array}{ll}
+\max & x_1 + x_2 + 2x_4 \\
+\text{s.a.} & 2x_1 + 2x_2 + 5x_4 \leq 20 \\
+& 2x_1 + x_2 + 2x_4 \leq 12 \\
+& x_1, x_2, x_4 \geq 0
+\end{array}
+\]
+
+\textit{Diccionario inicial:} $s_1 = 20 - 2x_1 - 2x_2 - 5x_4$; $s_2 = 12-2x_1-x_2-2x_4$; $Z = x_1+x_2+2x_4$.
+
+\medskip
+\textbf{Iteración 1.} Entra $x_4$ ($\bar{c}_{x_4} = 2$). Razones: $20/5=4$ (fila $s_1$), $12/2=6$ (fila $s_2$). Sale $s_1$.
+
+Pivote: $x_4 = 4 - \tfrac{2}{5}x_1 - \tfrac{2}{5}x_2 - \tfrac{1}{5}s_1$.
+
+Actualizar:
+\begin{align*}
+s_2 &= 12 - 2x_1 - x_2 - 2\bigl(4 - \tfrac{2}{5}x_1 - \tfrac{2}{5}x_2 - \tfrac{1}{5}s_1\bigr) = 4 - \tfrac{6}{5}x_1 - \tfrac{1}{5}x_2 + \tfrac{2}{5}s_1 \\
+Z   &= x_1 + x_2 + 2\bigl(4 - \tfrac{2}{5}x_1 - \tfrac{2}{5}x_2 - \tfrac{1}{5}s_1\bigr) = 8 + \tfrac{1}{5}x_1 + \tfrac{1}{5}x_2 - \tfrac{2}{5}s_1
+\end{align*}
+
+\medskip
+\textbf{Iteración 2.} Entra $x_1$ ($\bar{c}_{x_1} = \tfrac{1}{5} > 0$). Razones: fila $x_4$: $4/(2/5)=10$; fila $s_2$: $4/(6/5)=10/3$. Sale $s_2$ ($\theta^* = 10/3$).
+
+Pivote: $x_1 = \tfrac{10}{3} - \tfrac{1}{6}x_2 + \tfrac{1}{3}s_1 - \tfrac{5}{6}s_2$.
+
+Actualizar:
+\begin{align*}
+x_4 &= 4 - \tfrac{2}{5}\bigl(\tfrac{10}{3}-\tfrac{1}{6}x_2+\tfrac{1}{3}s_1-\tfrac{5}{6}s_2\bigr) - \tfrac{2}{5}x_2 - \tfrac{1}{5}s_1 \\
+    &= 4 - \tfrac{4}{3} + \tfrac{1}{15}x_2 - \tfrac{2}{15}s_1 + \tfrac{1}{3}s_2 - \tfrac{2}{5}x_2 - \tfrac{1}{5}s_1 \\
+    &= \tfrac{8}{3} - \tfrac{1}{3}x_2 - \tfrac{1}{3}s_1 + \tfrac{1}{3}s_2 \\
+Z   &= 8 + \tfrac{1}{5}\bigl(\tfrac{10}{3}-\tfrac{1}{6}x_2+\tfrac{1}{3}s_1-\tfrac{5}{6}s_2\bigr) + \tfrac{1}{5}x_2 - \tfrac{2}{5}s_1 \\
+    &= 8 + \tfrac{2}{3} + \tfrac{1}{6}x_2 - \tfrac{1}{6}s_2 - \tfrac{1}{3}s_1 \\
+    &= \tfrac{26}{3} + \tfrac{1}{6}x_2 - \tfrac{1}{3}s_1 - \tfrac{1}{6}s_2
+\end{align*}
+
+\medskip
+\textbf{Iteración 3.} Entra $x_2$ ($\bar{c}_{x_2} = \tfrac{1}{6} > 0$). Razones: fila $x_1$: $(10/3)/(1/6)=20$; fila $x_4$: $(8/3)/(1/3)=8$. Sale $x_4$ ($\theta^* = 8$).
+
+Pivote: $x_2 = 8 - 3x_4 - s_1 + s_2$.
+
+Actualizar:
+\begin{align*}
+x_1 &= \tfrac{10}{3} - \tfrac{1}{6}(8-3x_4-s_1+s_2) + \tfrac{1}{3}s_1 - \tfrac{5}{6}s_2 = 2 + \tfrac{1}{2}x_4 + \tfrac{1}{2}s_1 - s_2 \\
+Z   &= \tfrac{26}{3} + \tfrac{1}{6}(8-3x_4-s_1+s_2) - \tfrac{1}{3}s_1 - \tfrac{1}{6}s_2 = 10 - \tfrac{1}{2}x_4 - \tfrac{1}{2}s_1
+\end{align*}
+
+Costos reducidos: $x_4: -\tfrac{1}{2}\leq 0$; $s_1: -\tfrac{1}{2}\leq 0$; $s_2: 0$. Óptimo \textbf{[BT §3.2]}.
+
+\textbf{Nueva solución:} $x_1^* = 2$, $x_2^* = 8$, $x_4^* = 0$, $Z^* = \mathbf{10}$.
+
+\end{enumerate}
+
+% ============================================================
+\section*{Problema 11 --- Degeneración primal $\leftrightarrow$ dual}
+\addcontentsline{toc}{section}{Problema 11}
+
+\textbf{Enunciado.} ¿Cómo se refleja la degeneración primal óptima en el dual? ¿Es cierta la situación inversa?
+
+\begin{marco}
+\textbf{[BT §4.3 Teo.\ 4.5]} Holgura complementaria: $y_i^*(b_i - a_i'x^*) = 0$ y $x_j^*((A'y^*)_j - c_j) = 0$. \\[2pt]
+Degeneración primal: $x_{Bk}^* = 0$ para algún $k \in \mathcal{B}$. Degeneración dual: $y_{Bi}^* = 0$ para alguna variable básica del dual.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{Degeneración primal $\Rightarrow$ múltiples soluciones óptimas duales.}
+
+Sea $x_{Bk}^* = 0$ para algún $k \in \mathcal{B}$. El mismo punto extremo primal puede ser representado por más de una base (varias bases degeneradas en el mismo vértice). Cada base óptima $\mathcal{B}^{(r)}$ genera precios duales distintos:
+\[
+  y^{(r)} = \bigl(B^{(r)}\bigr)^{-T} c_{\mathcal{B}^{(r)}}.
+\]
+Todos son óptimos duales con $W = Z^*$ (por dualidad fuerte \textbf{[BT §4.2 Teo.\ 4.2]}). Por lo tanto, el dual tiene \textbf{múltiples soluciones óptimas}.
+
+\textbf{Situación inversa: degeneración dual $\Rightarrow$ múltiples soluciones óptimas primales.}
+
+Sea $y_{Bi}^* = 0$ para alguna variable básica del dual. La condición de holgura complementaria $y_i^*(b_i - a_i'x^*) = 0$ se satisface trivialmente sin imponer que la restricción primal $i$ sea activa. Esto significa que $x^*$ puede satisfacer con holgura la restricción $i$ (distinta de cero), y aun así ser óptimo. Otro punto $\hat{x}^*$ con distinta holgura en la restricción $i$ también puede ser óptimo. Por tanto el primal tiene \textbf{múltiples soluciones óptimas}.
+
+\medskip
+\noindent\textbf{Resumen:}
+\begin{center}
+\begin{tabular}{lcl}
+\hline
+Degeneración primal ($x_{Bk}^* = 0$) & $\Leftrightarrow$ & Dual tiene múltiples soluciones óptimas \\
+Degeneración dual ($y_{Bi}^* = 0$) & $\Leftrightarrow$ & Primal tiene múltiples soluciones óptimas \\
+\hline
+\end{tabular}
+\end{center}
+
+% ============================================================
+\section*{Problema 12 --- Dual infactible para qué valores de $c$}
+\addcontentsline{toc}{section}{Problema 12}
+
+\textbf{Enunciado.} Dado el problema $\max\; cx_1 - 4x_2$ s.a.\ $x_1 - x_2 \leq 1$, $x_1, x_2 \geq 0$: ¿para qué valores de $c$ el dual es infactible?
+
+\begin{marco}
+\textbf{[BT §4.2 Teo.\ 4.2]} Primal ilimitado $\Rightarrow$ dual infactible. Dual factible $\Rightarrow$ primal acotado (dualidad débil). \\[2pt]
+\textbf{[BT §4.1 Teo.\ 4.1]} Dualidad débil: para toda solución primal factible $\hat{x}$ y dual factible $\hat{y}$, $c\hat{x} \leq \hat{y}b$.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{Construcción del dual.}
+
+Primal: $\max\; cx_1 - 4x_2$; $x_1 - x_2 \leq 1$; $x_1, x_2 \geq 0$.
+
+Dual: $\min\; y$; s.a.\ $y \geq c$ (de $x_1$); $-y \geq -4$, i.e., $y \leq 4$ (de $x_2$); $y \geq 0$.
+
+El dual es factible ssi existe $y$ con $c \leq y \leq 4$ y $y \geq 0$, lo que requiere $c \leq 4$ (y $c \leq 4$, $4 \geq 0$, ambas compatibles cuando $c \leq 4$).
+
+\textbf{El dual es infactible $\Leftrightarrow c > 4$.}
+
+\textit{Verificación directa \textbf{[BT §4.2 Teo.\ 4.2]}:} si $c > 4$, tome la solución $x_1 = t,\; x_2 = t-1$ para $t \geq 1$: la restricción $x_1 - x_2 = 1 \leq 1$ es factible, y $Z = (c-4)t + 4 \to +\infty$ cuando $t \to \infty$. El primal es ilimitado, luego el dual es infactible. $\square$
+
+% ============================================================
+\section*{Problema 13 --- Probar $cx^* \leq y^*d$}
+\addcontentsline{toc}{section}{Problema 13}
+
+\textbf{Enunciado.} Sea $y^*$ óptimo del dual del problema primal con RHS $b$. Sea $x^*$ óptimo del primal con RHS $d$ (no necesariamente igual a $b$). Probar que $cx^* \leq y^*d$.
+
+\begin{marco}
+\textbf{[BT §4.1 Teo.\ 4.1]} Dualidad débil: para todo $\hat{x}$ factible en el primal y $\hat{y}$ factible en el dual, $c\hat{x} \leq \hat{y}b$. Equivalentemente: si $A\hat{x} \leq b$, $\hat{x} \geq 0$ y $A'\hat{y} \geq c$, $\hat{y} \geq 0$, entonces $c\hat{x} \leq (A\hat{x})'\hat{y} \leq b'\hat{y}$.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{Hipótesis:}
+\begin{itemize}
+  \item $y^*$ factible para el dual original: $A'y^* \geq c$, $y^* \geq 0$.
+  \item $x^*$ factible para el primal modificado: $Ax^* \leq d$, $x^* \geq 0$.
+\end{itemize}
+
+\textbf{Paso 1.} Como $A'y^* \geq c$ y $x^* \geq 0$:
+\[
+  (A'y^*)'x^* \geq c'x^* \;\Leftrightarrow\; (y^*)'(Ax^*) \geq cx^*.
+\]
+
+\textbf{Paso 2.} Como $Ax^* \leq d$ y $y^* \geq 0$:
+\[
+  (y^*)'(Ax^*) \leq (y^*)'d = y^*d.
+\]
+
+\textbf{Combinando:}
+\[
+  \boxed{cx^* \leq (y^*)'(Ax^*) \leq y^*d.} \qquad \square
+\]
+
+\textbf{Interpretación:} los precios sombra $y^*$ del sistema original acotan el valor óptimo del primal incluso cuando el RHS se modifica a $d \neq b$.
+
+% ============================================================
+\section*{Problema 14 --- Verdadero/Falso (5 afirmaciones)}
+\addcontentsline{toc}{section}{Problema 14}
+
+\textbf{Enunciado.} Demuestre o desmiente las siguientes afirmaciones.
+
+\begin{marco}
+\textbf{[BT §3.3]} $\Delta Z = \bar{c}_s \cdot \theta^*$. Mayor $\bar{c}_s$ no garantiza mayor $\Delta Z$ pues $\theta^*$ puede ser pequeño. \\[2pt]
+\textbf{[BT §3.3]} Degeneración ($\theta^* = 0$): posible pero no obligatorio. \\[2pt]
+\textbf{[BT §2.1]} El conjunto de soluciones óptimas de un PL es convexo (y poliedrico), y si contiene dos puntos distintos contiene el segmento entre ellos: infinitos puntos. \\[2pt]
+\textbf{[BT §4.3 Teo.\ 4.5]} $y_i^* > 0 \Rightarrow$ restricción activa. La recíproca es falsa (degeneración dual). \\[2pt]
+\textbf{[BT §3.2]} Criterio de optimalidad: todos los costos reducidos $\leq 0$.
+\end{marco}
+
+\subsection*{Solución}
+
+\begin{enumerate}[a)]
+
+\item \textbf{``Elegir la variable con mayor costo reducido maximiza el aumento de $Z$ en esa iteración.''}
+
+\textbf{FALSO.} El cambio en el objetivo es $\Delta Z = \bar{c}_s \cdot \theta^*$, donde $\theta^* = \min_i \{b_i / \bar{a}_{is} : \bar{a}_{is} > 0\}$ depende de la columna $s$ seleccionada \textbf{[BT §3.3]}. Una variable con mayor $\bar{c}_s$ puede tener $\theta^*$ muy pequeño.
+
+\textit{Contraejemplo:} $\bar{c}_1 = 10,\; \theta_1^* = 0.1 \Rightarrow \Delta Z_1 = 1$; $\bar{c}_2 = 3,\; \theta_2^* = 2 \Rightarrow \Delta Z_2 = 6$. Elegir $x_2$ da mayor incremento.
+
+\item \textbf{``Si ambos extremos del diccionario son degenerados, $Z$ puede no aumentar.''}
+
+\textbf{CORRECTO (con matiz).} La degeneración solo garantiza $\Delta Z = 0$ cuando $\theta^* = 0$ (paso degenerado \textbf{[BT §3.3]}). Si la variable básica con valor 0 no es la que determina la razón mínima, puede ocurrir $\theta^* > 0$ y $\Delta Z > 0$. Sin embargo, \emph{si} ambas bases son degeneradas en el sentido de que la razón mínima resulta 0 en la iteración, efectivamente $\Delta Z = 0$.
+
+\item \textbf{``Si un PL tiene múltiples soluciones óptimas, tiene un número incontable de ellas.''}
+
+\textbf{VERDADERO.} Sean $x^*$ y $\hat{x}$ dos soluciones óptimas distintas con $cx^* = c\hat{x} = Z^*$. Para todo $\lambda \in [0,1]$:
+\[
+  \tilde{x} = \lambda x^* + (1-\lambda)\hat{x}.
+\]
+Factibilidad: $A\tilde{x} \leq b$ (por convexidad del politopo \textbf{[BT §2.1]}), $\tilde{x} \geq 0$. Optimalidad: $c\tilde{x} = \lambda Z^* + (1-\lambda)Z^* = Z^*$. Como $\lambda$ varía continuamente en $[0,1]$, hay incontables soluciones óptimas. $\square$
+
+\item \textbf{``Si una restricción es activa en el óptimo primal, la variable dual correspondiente es positiva.''}
+
+\textbf{FALSO.} La holgura complementaria \textbf{[BT §4.3 Teo.\ 4.5]} establece $y_i^*(b_i - a_i'x^*) = 0$. Si $b_i - a_i'x^* = 0$ (restricción activa), la ecuación se satisface para \emph{cualquier} $y_i^* \geq 0$, incluyendo $y_i^* = 0$ (degeneración dual). La implicación válida es $y_i^* > 0 \Rightarrow$ restricción activa, no su recíproco.
+
+\item \textbf{``En un diccionario óptimo factible ninguna variable no básica tiene costo reducido positivo.''}
+
+\textbf{VERDADERO.} Por contradicción: si $\bar{c}_j > 0$ para alguna no básica $x_j$, aumentar $x_j$ incrementa $Z$ \textbf{[BT §3.2]}. Si $\theta^* > 0$, existe una SBF factible con $Z' = Z + \bar{c}_j\theta^* > Z^*$, contradiciendo la optimalidad. Si $\theta^* = 0$, el paso degenerado eventualmente podría llevar a $Z' > Z^*$ o revelar no-acotado. En ambos casos el diccionario no puede ser óptimo. $\square$
+
+\end{enumerate}
+
+% ============================================================
+\section*{Problema 15 --- Chvátal Teorema 3.2 (Regla lexicográfica)}
+\addcontentsline{toc}{section}{Problema 15}
+
+\textbf{Enunciado.} Lea la prueba del Teorema 3.2 de Chvátal. Explique cómo la expresión (3.9) (razón lexicográfica) se usa \emph{solo} cuando hay empate en la variable saliente, y por qué esto es suficiente para garantizar la no ciclación.
+
+\begin{marco}
+\textbf{[Ch §3 Teo.\ 3.2]} Regla lexicográfica: si en cada iteración se elige la variable saliente por la razón lexicográfica mínima, el método simplex termina en un número finito de iteraciones. \\[2pt]
+La idea de la prueba: el vector fila del objetivo (aumentado con las columnas de la identidad) crece estrictamente en sentido lexicográfico en cada iteración, y hay un número finito de bases distintas, por lo que no puede haber ciclos.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{Expresión (3.9):} para la variable entrante $x_s$ y cada fila $i$ con $\bar{a}_{is} > 0$, la razón lexicográfica es:
+\[
+  r_i = \left(\frac{\bar{b}_i}{\bar{a}_{is}},\; \frac{\bar{a}_{i1}}{\bar{a}_{is}},\; \frac{\bar{a}_{i2}}{\bar{a}_{is}},\; \ldots,\; \frac{\bar{a}_{im}}{\bar{a}_{is}}\right) \in \mathbb{R}^{m+1}.
+\]
+La variable saliente es $x_{B(t)}$ donde $t = \arg\min_{\text{lex}} r_i$ entre los $i$ con $\bar{a}_{is} > 0$.
+
+\textbf{Implementación selectiva:}
+
+\begin{enumerate}[(1)]
+  \item Calcular $\theta^* = \min_{i:\,\bar{a}_{is}>0} \bar{b}_i / \bar{a}_{is}$ (razón mínima ordinaria).
+  \item Si una sola fila $i$ alcanza $\theta^*$: usar esa fila como variable saliente. \emph{La expresión (3.9) no se necesita.}
+  \item Si varias filas $T = \{i : \bar{b}_i/\bar{a}_{is} = \theta^*\}$ empatan: aplicar la expresión (3.9) solo sobre $T$, comparando lexicográficamente las columnas $1, 2, \ldots, m$ hasta desempatar.
+\end{enumerate}
+
+\textbf{¿Por qué es suficiente?}
+
+La prueba del Teorema 3.2 en Chvátal demuestra que el vector fila del objetivo aumentado $(\bar{Z}, \bar{a}_{01}, \ldots, \bar{a}_{0m})$ es \emph{lexicográficamente positivo} en todo momento, y que crece estrictamente en cada iteración (incluso cuando $\theta^* = 0$, es decir, en pasos degenerados). Este crecimiento lexicográfico estricto implica que ninguna base puede repetirse, garantizando terminación finita.
+
+Cuando no hay empate en $\theta^*$, el paso no es degenerado ($\theta^* > 0$) y el objetivo $Z$ aumenta estrictamente. Esto por sí solo impide la repetición de bases. Solo en pasos \emph{potencialmente} degenerados (varios $i$ con $\bar{b}_i = 0$ empatan en $\theta^* = 0$) es necesario recurrir a (3.9) para garantizar el crecimiento lexicográfico del objetivo aumentado y así evitar ciclos. Por ello, aplicar la regla lexicográfica solo al desempatar es suficiente y, en la práctica, ocurre raramente.
+
+% ============================================================
+\section*{Problema 16 --- Chvátal 5.9 y 5.10}
+\addcontentsline{toc}{section}{Problema 16}
+
+\textbf{Enunciado.} (a) Chvátal ejercicio 5.9: probar que si $x^*$ es primal factible, $y^*$ es dual factible y $cx^* = y^*b$, entonces ambos son óptimos. (b) Chvátal ejercicio 5.10: probar que si $x^*$ es la única SBF óptima y no degenerada, el dual tiene solución óptima única.
+
+\begin{marco}
+\textbf{[Ch §5 Teo.\ 5.1 / BT §4.1 Teo.\ 4.1]} Dualidad débil: $cx \leq yb$ para todo $x$ primal factible e $y$ dual factible. \\[2pt]
+\textbf{[Ch §5 Teo.\ 5.3 / BT §4.2 Teo.\ 4.2]} Dualidad fuerte: si el primal tiene óptimo finito, el dual también y los valores óptimos coinciden. \\[2pt]
+\textbf{[BT §4.3 Teo.\ 4.5]} Holgura complementaria: $(x^*, y^*)$ par óptimo $\Leftrightarrow$ se satisfacen las condiciones de complementariedad.
+\end{marco}
+
+\subsection*{Solución}
+
+\begin{enumerate}[a)]
+
+\item \textbf{Chvátal 5.9: si $cx^* = y^*b$, entonces $x^*$ y $y^*$ son óptimos.}
+
+\textbf{Demostración.}
+
+\textit{$x^*$ es primal óptimo:} Para cualquier $x$ primal factible, por dualidad débil \textbf{[Ch §5 Teo.\ 5.1]}:
+\[
+  cx \leq y^*b = cx^*.
+\]
+Luego $cx \leq cx^*$ para todo $x$ factible, es decir, $x^*$ maximiza el primal. $\square$
+
+\textit{$y^*$ es dual óptimo:} Para cualquier $y$ dual factible, por dualidad débil:
+\[
+  cx^* \leq yb \;\Rightarrow\; y^*b = cx^* \leq yb.
+\]
+Luego $y^*b \leq yb$ para todo $y$ dual factible, es decir, $y^*$ minimiza el dual. $\square$
+
+La igualdad $cx^* = y^*b$ equivale a que se satisfagan las condiciones de holgura complementaria \textbf{[BT §4.3 Teo.\ 4.5]}:
+\[
+  y_i^*(b_i - a_i'x^*) = 0 \quad \forall i, \qquad x_j^*((A'y^*)_j - c_j) = 0 \quad \forall j.
+\]
+
+\item \textbf{Chvátal 5.10: si $x^*$ es la única SBF óptima no degenerada, el dual tiene solución óptima única.}
+
+\textbf{Demostración.}
+
+Sea $\mathcal{B}$ la base óptima asociada a $x^*$. Como $x^*$ es no degenerada: $x_{Bk}^* > 0$ para todo $k \in \mathcal{B}$.
+
+Por holgura complementaria \textbf{[BT §4.3 Teo.\ 4.5]}: si $x_j^* > 0$ entonces la restricción dual $j$ es activa, es decir, $(A'y^*)_j = c_j$. Como \emph{todos} los $x_j^*$ para $j \in \mathcal{B}$ son estrictamente positivos, la $j$-ésima restricción dual es activa para todo $j \in \mathcal{B}$:
+\[
+  (A'y^*)_j = c_j \quad \forall j \in \mathcal{B} \;\Leftrightarrow\; B'y^* = c_{\mathcal{B}}.
+\]
+
+Como $B$ es no singular (es una base), el sistema $B'y^* = c_{\mathcal{B}}$ tiene solución única:
+\[
+  y^* = (B')^{-1}c_{\mathcal{B}} = B^{-T}c_{\mathcal{B}}.
+\]
+
+Toda solución dual óptima debe satisfacer esta ecuación (pues la no-degeneración primal fija las restricciones duales activas de todas las variables básicas). Por tanto \textbf{la solución dual óptima es única.} $\square$
+
+\textbf{Interpretación geométrica:} cada variable básica estrictamente positiva ``activa'' exactamente su restricción dual, dejando el sistema $B'y^* = c_{\mathcal{B}}$ completamente determinado. La unicidad dual refleja que el vértice primal no degenerado está bien definido y no da lugar a ambigüedad en los precios sombra.
+
+\end{enumerate}
+
+\end{document}

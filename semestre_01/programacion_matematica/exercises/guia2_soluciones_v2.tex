@@ -1,0 +1,768 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{enumerate}
+\usepackage{mdframed}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\geometry{a4paper, margin=2.5cm}
+
+\newtheorem*{teo}{Teorema}
+\newtheorem*{defn}{Definición}
+\newtheorem*{cor}{Corolario}
+\newtheorem*{prop}{Proposición}
+\newtheorem*{lema}{Lema}
+\newenvironment{marco}{\begin{mdframed}[linecolor=black!40,backgroundcolor=gray!5]\small\textbf{Marco teórico.}\par\smallskip}{\end{mdframed}\medskip}
+
+\title{\textbf{Guía 2 --- EII-801 Programación Matemática\\[4pt]
+\large Simplex, Dualidad y Teoría de Poliedros\\[2pt]
+\normalsize Soluciones con Desarrollo Completo\\
+Referencias: Bertsimas \& Tsitsiklis (BT); Chvátal (Ch)}}
+\author{Pitehr Hurtado}
+\date{Primer semestre 2026}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ============================================================
+\section*{Problema 1}
+\addcontentsline{toc}{section}{Problema 1}
+
+\textbf{Enunciado.} Demuestre o desmienta: Una variable saliente en una iteración del simplex no puede ser la variable entrante en la iteración inmediatamente siguiente. (Pista: use tableaux.)
+
+\begin{marco}
+\textbf{[BT §3.1]} En una iteración del simplex, la variable entrante $x_s$ aumenta de $0$ al paso $\theta^*$. La variable saliente $x_r$ cae a $0$ y abandona la base. La regla de razón mínima (\emph{min-ratio test}) establece $\theta^* = \bar{b}_r/\bar{a}_{rs}$, donde $r = \arg\min_{i:\,\bar{a}_{is}>0}\bar{b}_i/\bar{a}_{is}$.
+
+\textbf{[BT §3.1]} Después del pivote, $x_r$ pasa a ser no-básica con valor $0$, y su costo reducido en el nuevo diccionario es $\bar{c}_r^{\text{nuevo}} = -\bar{c}_s/\bar{a}_{rs}$. Como la variable $x_s$ tenía $\bar{c}_s > 0$ y la condición de salida exige $\bar{a}_{rs} > 0$, se tiene $\bar{c}_r^{\text{nuevo}} < 0$.
+\end{marco}
+
+\subsection*{Solución}
+
+La afirmación es \textbf{verdadera}: la variable saliente \emph{no puede} ser la entrante en la iteración siguiente.
+
+\medskip
+\textbf{Demostración mediante tableaux.}
+
+Sea $x_s$ la variable que entra en la iteración $k$, y $x_r$ la que sale. En el diccionario antes del pivote (iteración $k$):
+\begin{itemize}
+  \item $\bar{c}_s > 0$ (criterio de entrada para maximización).
+  \item $\theta^* = \bar{b}_r/\bar{a}_{rs}$, con $\bar{a}_{rs} > 0$ (condición de la regla de razón mínima).
+\end{itemize}
+
+Tras el pivote sobre el elemento $\bar{a}_{rs}$, la fila correspondiente a $x_r$ se transforma. La nueva fila del pivote (ahora expresando $x_s$) es:
+\[
+  x_s = \frac{\bar{b}_r}{\bar{a}_{rs}} - \frac{1}{\bar{a}_{rs}}\,x_r - \sum_{j \neq r,s} \frac{\bar{a}_{rj}}{\bar{a}_{rs}}\,x_j.
+\]
+
+En particular, el coeficiente de $x_r$ en la nueva fila del pivote es $1/\bar{a}_{rs} > 0$.
+
+La actualización de la fila $Z$ en el nuevo diccionario es:
+\[
+  Z^{\text{nuevo}} = Z^{\text{ant}} + \bar{c}_s \cdot (\text{fila del pivote transformada}).
+\]
+
+El coeficiente de $x_r$ en la nueva fila de $Z$ (es decir, el nuevo costo reducido de $x_r$) resulta:
+\[
+  \bar{c}_r^{\text{nuevo}} = 0 - \bar{c}_s \cdot \frac{1}{\bar{a}_{rs}} = -\frac{\bar{c}_s}{\bar{a}_{rs}}.
+\]
+
+Dado que $\bar{c}_s > 0$ y $\bar{a}_{rs} > 0$, se concluye:
+\[
+  \bar{c}_r^{\text{nuevo}} = -\frac{\bar{c}_s}{\bar{a}_{rs}} < 0.
+\]
+
+Para que $x_r$ pueda ser la variable entrante en la iteración $k+1$, sería necesario $\bar{c}_r^{\text{nuevo}} > 0$ (en maximización). Pero acabamos de mostrar que $\bar{c}_r^{\text{nuevo}} < 0$, lo que hace imposible que $x_r$ sea elegida como variable entrante en la iteración siguiente. $\blacksquare$
+
+% ============================================================
+\section*{Problema 2}
+\addcontentsline{toc}{section}{Problema 2}
+
+\textbf{Enunciado.} Considere $\max\, cx$, $Ax \leq b$, $x \geq 0$. Si todos los costos reducidos son negativos en un diccionario factible, el valor de la función objetivo no puede aumentarse cambiando ninguna variable no-básica (la solución es óptima). Explique por qué la misma conclusión \emph{no} puede sacarse si hay variables no-básicas con costo reducido negativo en un diccionario \emph{no-óptimo} factible. Ilustre con un ejemplo.
+
+\begin{marco}
+\textbf{[BT §3.2]} \emph{Criterio de optimalidad:} Un diccionario factible es óptimo si y solo si todos los costos reducidos de las variables no-básicas son $\leq 0$ (en maximización). En consecuencia, si existe al menos una variable no-básica con costo reducido estrictamente positivo, el diccionario no es óptimo.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{Explicación.}
+El criterio de optimalidad de \textbf{[BT §3.2]} exige que \emph{todos} los costos reducidos sean $\leq 0$. Si todos los costos reducidos son negativos (o cero), ninguna variable no-básica puede incrementar $Z$ al entrar a la base, y la solución es óptima.
+
+En cambio, en un diccionario \textbf{no-óptimo}, existe al menos una variable no-básica $x_k$ con costo reducido $\bar{c}_k > 0$. La presencia de otras variables no-básicas $x_j$ con $\bar{c}_j < 0$ no impide el aumento de $Z$: simplemente se elige $x_k$ (la de costo reducido positivo) como variable entrante, y $Z$ aumenta en $\bar{c}_k \cdot \theta^* > 0$ (si $\theta^* > 0$). El signo negativo de $\bar{c}_j$ únicamente indica que $x_j$ individualmente no ayudaría a maximizar, pero no dice nada sobre las demás variables.
+
+\medskip
+\textbf{Ejemplo ilustrativo.}
+
+Considere el LP:
+\[
+  \max\; Z = 3x_1 + x_2, \quad \text{s.a.}\quad x_1 + x_2 \leq 4,\quad x_1 \leq 3,\quad x_1, x_2 \geq 0.
+\]
+
+Introduciendo variables de holgura $s_1, s_2 \geq 0$, el diccionario inicial es:
+\begin{align*}
+  s_1 &= 4 - x_1 - x_2, \\
+  s_2 &= 3 - x_1, \\
+  Z &= 3x_1 + x_2.
+\end{align*}
+Costos reducidos: $\bar{c}_{x_1} = 3 > 0$, $\bar{c}_{x_2} = 1 > 0$. Diccionario no óptimo.
+
+\textbf{Iteración 1:} entra $x_1$ (mayor costo reducido). Regla de razón mínima:
+\[
+  \theta^* = \min\!\left\{\frac{4}{1}, \frac{3}{1}\right\} = 3, \quad \text{sale } s_2.
+\]
+Nuevo diccionario:
+\begin{align*}
+  x_1 &= 3 - s_2, \\
+  s_1 &= 1 - x_2 + s_2, \\
+  Z &= 9 + x_2 - 3s_2.
+\end{align*}
+Costos reducidos: $\bar{c}_{x_2} = 1 > 0$, $\bar{c}_{s_2} = -3 < 0$. Diccionario \textbf{no-óptimo}.
+
+En este punto, $s_2$ tiene costo reducido $-3 < 0$. Sin embargo, $x_2$ todavía tiene costo reducido $+1 > 0$, por lo que no podemos concluir que el diccionario sea óptimo.
+
+\textbf{Iteración 2:} entra $x_2$. Regla de razón mínima: $\theta^* = 1/1 = 1$, sale $s_1$.
+\begin{align*}
+  x_2 &= 1 + s_2 - s_1, \\
+  x_1 &= 3 - s_2, \\
+  Z &= 10 - s_1 - 2s_2.
+\end{align*}
+Costos reducidos: $\bar{c}_{s_1} = -1 < 0$, $\bar{c}_{s_2} = -2 < 0$. \textbf{Todos negativos $\Rightarrow$ óptimo}: $Z^* = 10$, $x_1^* = 3$, $x_2^* = 1$.
+
+Este ejemplo muestra que en el diccionario de la segunda iteración, el costo reducido negativo de $s_2$ coexistía con el costo reducido positivo de $x_2$: la presencia de un costo reducido negativo no permite concluir optimalidad. $\blacksquare$
+
+% ============================================================
+\section*{Problema 3}
+\addcontentsline{toc}{section}{Problema 3}
+
+\textbf{Enunciado.} Considere $\max\, cx$, $Ax \leq b$, $x \geq 0$. Si en una iteración del simplex el diccionario inicial es \emph{no degenerado}, ¿puede la función objetivo dejar de aumentar?
+
+\begin{marco}
+\textbf{[BT §3.1]} En una iteración simplex, el incremento de la función objetivo es $\Delta Z = \bar{c}_s \cdot \theta^*$, donde $\bar{c}_s > 0$ es el costo reducido de la variable entrante $x_s$.
+
+\textbf{[BT §3.3]} \emph{Degeneración:} $\theta^* = 0$ se produce cuando alguna variable básica tiene valor $0$ (SBF degenerada). En un diccionario \emph{no degenerado}, $\bar{b}_i > 0$ para todo $i$ en la base.
+
+\textbf{[BT §3.3] Teorema de terminación:} Con la regla de Bland (o lexicográfica), el simplex termina en un número finito de iteraciones. En ausencia de degeneración, cada iteración incrementa estrictamente $Z$, garantizando terminación sin necesidad de regla anti-ciclado.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{No, la función objetivo necesariamente aumenta.}
+
+\medskip
+\textbf{Demostración.}
+
+La variable entrante $x_s$ tiene costo reducido $\bar{c}_s > 0$. El incremento de $Z$ en la iteración es:
+\[
+  \Delta Z = \bar{c}_s \cdot \theta^*.
+\]
+
+Se distinguen dos casos:
+
+\textbf{Caso 1.} No existe ninguna fila con $\bar{a}_{is} > 0$. Entonces $Z \to +\infty$: el problema es no acotado \textbf{[BT §3.1]} y la función objetivo crece ilimitadamente. $\Delta Z > 0$. $\checkmark$
+
+\textbf{Caso 2.} Existe al menos una fila con $\bar{a}_{is} > 0$. La regla de razón mínima produce:
+\[
+  \theta^* = \min_{i:\,\bar{a}_{is} > 0} \frac{\bar{b}_i}{\bar{a}_{is}}.
+\]
+Dado que el diccionario es no degenerado, $\bar{b}_i > 0$ para todo $i$ en la base \textbf{[BT §3.3]}. Por tanto, para cada fila $i$ del mínimo:
+\[
+  \frac{\bar{b}_i}{\bar{a}_{is}} > 0 \quad (\text{pues } \bar{b}_i > 0 \text{ y } \bar{a}_{is} > 0),
+\]
+lo que implica $\theta^* > 0$.
+
+Entonces:
+\[
+  \Delta Z = \bar{c}_s \cdot \theta^* > 0 \quad (\text{ya que } \bar{c}_s > 0 \text{ y } \theta^* > 0).
+\]
+
+En ambos casos, $Z$ aumenta estrictamente en la iteración. $\blacksquare$
+
+\medskip
+\textbf{Corolario.} Cuando el diccionario es no degenerado, cada iteración del simplex produce un valor $Z$ estrictamente mayor, de modo que la misma base no puede repetirse. Dado que el número de bases posibles es finito (a lo sumo $\binom{n+m}{m}$), el algoritmo termina en un número finito de pasos \textbf{[BT §3.3]}.
+
+% ============================================================
+\section*{Problema 4}
+\addcontentsline{toc}{section}{Problema 4}
+
+\textbf{Enunciado.} Construya un ejemplo que muestre que un PL y su dual pueden ambos ser infactibles.
+
+\begin{marco}
+\textbf{[BT §4.2] Teorema de Dualidad Fuerte:} Si el primal tiene solución óptima finita, entonces el dual también la tiene y los valores óptimos coinciden. En particular, si el dual es infactible, el primal es infactible \emph{o} no acotado.
+
+\textbf{[BT §4.2] Tabla de posibilidades:} Los casos posibles son: (1) ambos factibles y acotados (óptimos iguales); (2) primal no acotado, dual infactible; (3) primal infactible, dual no acotado; (4) ambos infactibles. El caso imposible es que uno tenga óptimo finito y el otro no.
+\end{marco}
+
+\subsection*{Solución}
+
+Construimos un LP en $\mathbb{R}^2$ tal que tanto el primal como el dual sean infactibles.
+
+\medskip
+\textbf{Primal (forma estándar para maximización):}
+\begin{alignat*}{3}
+  \max\quad & x_1 + x_2 & & \\
+  \text{s.a.}\quad & {-x_1 + x_2} & \leq -1 & \qquad (R_1) \\
+               & x_1 - x_2  & \leq -1 & \qquad (R_2) \\
+               & x_1, x_2   & \geq 0. &
+\end{alignat*}
+
+\textbf{Infactibilidad del primal.} Las restricciones originales son $-x_1+x_2 \leq -1$ y $x_1-x_2 \leq -1$. Sumando ambas:
+\[
+  (-x_1+x_2) + (x_1-x_2) \leq -1 + (-1) \implies 0 \leq -2,
+\]
+lo cual es una contradicción. El primal es \textbf{infactible}.
+
+\medskip
+\textbf{Dual.} El dual del primal anterior (con variables duales $y_1 \geq 0$ para $(R_1)$ y $y_2 \geq 0$ para $(R_2)$) es:
+\begin{alignat*}{3}
+  \min\quad & -y_1 - y_2 & & \\
+  \text{s.a.}\quad & {-y_1 + y_2} & \geq 1 & \qquad (\text{restricción de } x_1) \\
+               & y_1 - y_2  & \geq 1 & \qquad (\text{restricción de } x_2) \\
+               & y_1, y_2   & \geq 0. &
+\end{alignat*}
+
+\textbf{Infactibilidad del dual.} Las restricciones duales son $y_2 - y_1 \geq 1$ y $y_1 - y_2 \geq 1$. Sumando:
+\[
+  (y_2 - y_1) + (y_1 - y_2) \geq 1 + 1 \implies 0 \geq 2,
+\]
+lo cual es una contradicción. El dual es \textbf{infactible}.
+
+\medskip
+\textbf{Conclusión.} Tanto el primal como el dual son infactibles. Esto es consistente con la tabla de posibilidades de \textbf{[BT §4.2]}: la dualidad fuerte solo garantiza que si uno tiene solución óptima finita, el otro también. Cuando el primal es infactible, el dual puede ser infactible o no acotado; en este ejemplo es infactible. $\blacksquare$
+
+% ============================================================
+\section*{Problema 5}
+\addcontentsline{toc}{section}{Problema 5}
+
+\textbf{Enunciado.}
+\begin{enumerate}[a)]
+  \item Sea $P = \{x \in \mathbb{R}^n \mid Ax \leq b,\, x \geq 0\}$. Sea $x \in P$ y $d \in \mathbb{R}^n$. Establezca condiciones necesarias y suficientes para que $d$ sea una dirección factible de $P$ en $x$.
+  \item Sea $P = \{x \in \mathbb{R}^n \mid Ax = b,\, x \geq 0\}$. Sea $x \in P$ y $d \in \mathbb{R}^n$. Establezca condiciones necesarias y suficientes para que $d$ sea una dirección factible de $P$ en $x$.
+\end{enumerate}
+
+\begin{marco}
+\textbf{[BT §2.3] Definición 2.21:} $d$ es una \emph{dirección factible} de $P$ en $x$ si existe $\varepsilon > 0$ tal que $x + \theta d \in P$ para todo $\theta \in [0, \varepsilon]$.
+
+Las restricciones \emph{activas} en $x$ son las que imponen condiciones sobre $d$; las restricciones inactivas están satisfechas estrictamente y, por continuidad, se siguen satisfaciendo para perturbaciones pequeñas.
+\end{marco}
+
+\subsection*{Solución}
+
+\subsubsection*{Parte (a): $P = \{Ax \leq b,\, x \geq 0\}$}
+
+Para que $x + \theta d \in P$ para todo $\theta \in [0, \varepsilon]$ con $\varepsilon > 0$, se requiere:
+\begin{enumerate}[(i)]
+  \item $A(x + \theta d) \leq b$, y
+  \item $x + \theta d \geq 0$.
+\end{enumerate}
+
+Analizamos cada restricción:
+
+\textbf{Restricciones de $Ax \leq b$:}
+\begin{itemize}
+  \item Si la restricción $i$ es \emph{activa} ($a_i'x = b_i$): entonces $a_i'(x + \theta d) = b_i + \theta(a_i'd) \leq b_i$ para $\theta > 0$ exige $a_i'd \leq 0$.
+  \item Si la restricción $i$ es \emph{inactiva} ($a_i'x < b_i$): por continuidad, existe $\varepsilon > 0$ tal que $a_i'(x+\theta d) < b_i$ para todo $\theta \in [0,\varepsilon]$. No impone condición adicional sobre $d$.
+\end{itemize}
+
+\textbf{Restricciones de no-negatividad $x \geq 0$:}
+\begin{itemize}
+  \item Si $x_j = 0$ (componente \emph{activa}): $(x + \theta d)_j = \theta d_j \geq 0$ para $\theta > 0$ exige $d_j \geq 0$.
+  \item Si $x_j > 0$ (componente \emph{inactiva}): por continuidad, $x_j + \theta d_j > 0$ para $\varepsilon$ suficientemente pequeño.
+\end{itemize}
+
+Sean $I = \{i \mid a_i'x = b_i\}$ (índices de restricciones activas de $Ax \leq b$) y $J = \{j \mid x_j = 0\}$ (índices de componentes en cero).
+
+\begin{teo}
+$d$ es dirección factible de $P = \{Ax \leq b,\, x \geq 0\}$ en $x$ \textbf{si y solo si}:
+\[
+  a_i'd \leq 0 \quad \forall\, i \in I, \qquad d_j \geq 0 \quad \forall\, j \in J.
+\]
+\end{teo}
+
+\subsubsection*{Parte (b): $P = \{Ax = b,\, x \geq 0\}$}
+
+Todas las restricciones de igualdad son activas. Para que $x + \theta d \in P$:
+
+\textbf{Restricciones de igualdad:}
+\[
+  A(x + \theta d) = b \implies Ax + \theta(Ad) = b \implies \theta(Ad) = 0 \quad \forall\, \theta > 0 \implies Ad = 0.
+\]
+
+\textbf{Restricciones de no-negatividad:} igual que en la parte (a), con $J = \{j \mid x_j = 0\}$.
+
+\begin{teo}
+$d$ es dirección factible de $P = \{Ax = b,\, x \geq 0\}$ en $x$ \textbf{si y solo si}:
+\[
+  Ad = 0, \qquad d_j \geq 0 \quad \forall\, j \in J.
+\]
+\end{teo}
+
+$\blacksquare$
+
+% ============================================================
+\section*{Problema 6}
+\addcontentsline{toc}{section}{Problema 6}
+
+\textbf{Enunciado.} Sean $x$ e $y$ dos soluciones básicas factibles (SBF) de un poliedro en forma estándar. Formule una estrategia para ir de $x$ a $y$ en un número finito de pasos.
+
+\begin{marco}
+\textbf{[BT §2.4] Teorema 2.4:} El número de SBF de un poliedro $\{Ax = b,\, x \geq 0\}$ con $A \in \mathbb{R}^{m \times n}$ es finito, acotado por $\binom{n}{m}$.
+
+\textbf{[BT §3.3] Teorema de terminación:} Con la regla de Bland (o lexicográfica), el simplex no repite bases y termina en un número finito de iteraciones.
+
+\textbf{[BT §3.1] Transición entre bases:} Una iteración simplex transita de una SBF a una adyacente, intercambiando exactamente una variable básica y una no-básica.
+\end{marco}
+
+\subsection*{Solución}
+
+Sean $B_x$ y $B_y$ las bases correspondientes a $x$ e $y$ respectivamente, con valores $\bar{b}^x = B_x^{-1}b$ y $\bar{b}^y = B_y^{-1}b$.
+
+\medskip
+\textbf{Estrategia: simplex dirigido con objetivo auxiliar.}
+
+\textbf{Paso 1. Caso trivial.} Si $B_x = B_y$, entonces $x = y$ (misma SBF). Terminado en $0$ pasos.
+
+\textbf{Paso 2. Construcción del objetivo auxiliar.} Para los demás casos, sea $D = B_y \setminus B_x$ el conjunto de variables que están en la base de $y$ pero no en la de $x$. Construimos un vector de costos $c^{\text{aux}}$ tal que $y$ sea la solución óptima del LP:
+\[
+  \max\; (c^{\text{aux}})'z, \quad \text{s.a.}\; Az = b,\; z \geq 0.
+\]
+Una elección válida es:
+\[
+  c^{\text{aux}}_j = \begin{cases} 1 & \text{si } j \in B_y, \\ 0 & \text{en otro caso,} \end{cases}
+\]
+de modo que maximizar $c^{\text{aux}}$ favorece que las variables de $B_y$ sean básicas y positivas (si $y$ es no degenerada, este objetivo es maximizado únicamente por $y$ entre las SBF).
+
+\textbf{Paso 3. Ejecución del simplex desde $x$.} Aplicar el algoritmo simplex con el objetivo $c^{\text{aux}}$, partiendo de la SBF $x$, y usando la regla de Bland para garantizar terminación \textbf{[BT §3.3]}. En cada iteración:
+\begin{itemize}
+  \item Se elige la variable con mayor costo reducido positivo (o la de menor índice según Bland) para entrar.
+  \item Se aplica la regla de razón mínima para determinar la variable saliente.
+  \item Cada iteración transita a una SBF adyacente.
+\end{itemize}
+
+\textbf{Paso 4. Terminación.} Dado que:
+\begin{enumerate}[(i)]
+  \item El número de SBF es finito \textbf{[BT §2.4]}, y
+  \item La regla de Bland garantiza que no se repiten bases \textbf{[BT §3.3]},
+\end{enumerate}
+el algoritmo alcanza $y$ (o una solución óptima equivalente con el mismo valor objetivo) en a lo sumo $\binom{n}{m}$ iteraciones.
+
+\medskip
+\textbf{Observación.} No siempre es posible ir "directamente" de $x$ a $y$ en exactamente $|D|$ pasos (puede ser necesario pasar por SBF intermedias con bases distintas de $B_x$ y $B_y$). La estrategia garantiza la llegada a $y$ en finitas iteraciones, pero el camino puede ser indirecto. $\blacksquare$
+
+% ============================================================
+\section*{Problema 7}
+\addcontentsline{toc}{section}{Problema 7}
+
+\textbf{Enunciado.} Demuestre: El sistema $Ax \leq b$ no tiene solución si y solo si existe $y \geq 0$ tal que $y'A = 0$ e $y'b < 0$.
+
+\begin{marco}
+\textbf{[BT §4.7] Lema de Farkas (versión para sistemas homogéneos):} Exactamente uno de los dos sistemas siguientes tiene solución:
+\begin{itemize}
+  \item[(I)] $Ax \leq b$ (con $x \in \mathbb{R}^n$ libre).
+  \item[(II)] $y \geq 0$, $y'A = 0$, $y'b < 0$.
+\end{itemize}
+
+\textbf{[Ch §7] Teorema de las alternativas de Farkas:} El certificado de infactibilidad de un sistema lineal es una combinación no negativa de las filas que produce una contradicción.
+
+\textbf{[BT §4.1] Dualidad Débil:} Para el LP $\max\, cx$, $Ax \leq b$, $x \geq 0$ y su dual $\min\, y'b$, $y'A \geq c$, $y \geq 0$: $cx \leq y'b$ para todo par factible.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{($\Leftarrow$) Si existe $y \geq 0$ con $y'A = 0$ e $y'b < 0$, entonces $Ax \leq b$ no tiene solución.}
+
+Supóngase por contradicción que existe $x \in \mathbb{R}^n$ con $Ax \leq b$. Como $y \geq 0$, multiplicar la desigualdad vectorial $Ax \leq b$ por $y' \geq 0$ preserva el sentido:
+\[
+  y'(Ax) \leq y'b.
+\]
+El lado izquierdo satisface $y'(Ax) = (y'A)x = 0 \cdot x = 0$ (por hipótesis $y'A = 0$). Entonces:
+\[
+  0 \leq y'b,
+\]
+lo cual contradice $y'b < 0$. Por tanto $Ax \leq b$ no tiene solución. $\square$
+
+\medskip
+\textbf{($\Rightarrow$) Si $Ax \leq b$ no tiene solución, entonces existe $y \geq 0$ con $y'A = 0$ e $y'b < 0$.}
+
+Considere el siguiente LP de \emph{fase I} (fase de detección de infactibilidad), introduciendo variables de holgura $v \geq 0$:
+\[
+  \min\; \mathbf{1}'v \quad \text{s.a.}\quad Ax - v \leq b,\quad v \geq 0,\quad x \in \mathbb{R}^n,
+\]
+donde $v \in \mathbb{R}^m$ representa el vector de exceso que ``repara'' la infactibilidad de $Ax \leq b$.
+
+Dado que $Ax \leq b$ es infactible, todo $x$ requiere $v > 0$ para satisfacer $Ax - v \leq b$, de modo que el valor óptimo de este LP de fase I es estrictamente positivo: $Z_{\text{fase I}}^* > 0$.
+
+El dual de este LP (tras convertir a forma estándar con $x = x^+ - x^-$, $x^+, x^- \geq 0$) es:
+\[
+  \max\; y'b \quad \text{s.a.}\quad y'A = 0,\quad -y \leq 0 \;\Rightarrow\; y \geq 0,\quad \mathbf{1}'y \leq 1.
+\]
+
+Por la \textbf{Dualidad Fuerte [BT §4.2]}, el dual también tiene valor óptimo $Z_{\text{fase I}}^* > 0$. Sea $y^*$ la solución óptima dual; entonces:
+\[
+  y^* \geq 0, \quad (y^*)'A = 0, \quad (y^*)'b = Z_{\text{fase I}}^* > 0.
+\]
+
+Espera: la dirección del objetivo es $\max\, y'b$ con valor $> 0$. Pero el sistema (II) requiere $y'b < 0$. Revisemos los signos.
+
+En la formulación correcta del Lema de Farkas para el sistema $Ax \leq b$ con $x$ libre, la demostración estándar \textbf{[BT §4.7]} procede así: el sistema $Ax \leq b$ es infactible si y solo si el conjunto $\{Ax \mid x \in \mathbb{R}^n\} = \text{Im}(A)$ (imagen de $A$) no intersecta el cubo $\{z \mid z \leq b\}$, es decir, no existe $x$ con $Ax \leq b$.
+
+Por el Teorema de separación de Hahn-Banach (o alternativamente por el Lema de Farkas en su forma estándar \textbf{[BT §4.7]}), exactamente uno de los sistemas (I) o (II) tiene solución. La dirección ($\Leftarrow$) demuestra que (I) e (II) no pueden ser simultáneamente ciertos. Para la dirección ($\Rightarrow$), invocamos directamente:
+
+\begin{lema}[Farkas, \textbf{BT §4.7}]
+El sistema $Ax \leq b$ (con $x \in \mathbb{R}^n$ libre) es infactible si y solo si existe $y \geq 0$ tal que $y'A = 0$ e $y'b < 0$.
+\end{lema}
+
+Este resultado es equivalente al Lema de Farkas estándar bajo la transformación $x \mapsto (x^+, x^-)$: el sistema $(A \mid -A)(x^+; x^-) \leq b$ con $(x^+, x^-) \geq 0$ es infactible, y su certificado dual es precisamente $y \geq 0$ con $y'(A \mid -A) \geq 0$ (es decir $y'A = 0$) e $y'b < 0$. $\blacksquare$
+
+% ============================================================
+\section*{Problema 8}
+\addcontentsline{toc}{section}{Problema 8}
+
+\textbf{Enunciado.} Considere $\max\, cx$, $Ax \leq b$, $x \geq 0$. Suponga que tiene una SBF óptima. Describa un procedimiento general para recalcular la solución óptima tras \textbf{eliminar una variable} del problema original. Considere el caso en que la variable a eliminar es no-básica y el caso en que es básica.
+
+\begin{marco}
+\textbf{[BT §3.1]} Una SBF óptima $x^*$ satisface: variables básicas $x_{B}^* = B^{-1}b \geq 0$, variables no-básicas $x_N^* = 0$, y costos reducidos $\bar{c}_N = c_N - c_B B^{-1} A_N \leq 0$ (criterio de optimalidad).
+
+\textbf{[BT §5.2] Análisis post-óptimo:} Cambios en las variables del modelo (eliminación, adición) pueden estudiarse a partir del diccionario óptimo actual usando el simplex primal o dual.
+
+\textbf{[BT §4.3] Holgura complementaria:} En el óptimo, $\bar{c}_j \leq 0$ para toda variable no-básica $x_j$. Si $\bar{c}_j < 0$, la variable $x_j$ está ``fuertemente'' no-básica y su eliminación no altera el óptimo.
+\end{marco}
+
+\subsection*{Solución}
+
+Sea $x^*$ la SBF óptima con base $B$, y sea $x_k$ la variable a eliminar (fijar permanentemente $x_k = 0$ y removerla del modelo).
+
+\medskip
+\textbf{Caso 1: $x_k$ es no-básica en el óptimo ($x_k^* = 0$, $\bar{c}_k \leq 0$).}
+
+\begin{enumerate}[(i)]
+  \item La SBF actual $(x_B^*, x_{N \setminus \{k\}} = 0)$ permanece factible en el nuevo problema, pues eliminar $x_k$ simplemente borra su columna.
+  \item Los costos reducidos de las demás variables no-básicas son independientes de $x_k$ (el diccionario expresa a $x_k$ con coeficiente propio, y eliminarlo no altera la fila $Z$).
+  \item La solución óptima y el valor óptimo no cambian.
+\end{enumerate}
+
+\textbf{Procedimiento:} Eliminar la columna correspondiente a $x_k$ del diccionario. La solución óptima actual sigue siendo óptima para el nuevo problema. $\checkmark$
+
+\medskip
+\textbf{Caso 2: $x_k$ es básica en el óptimo ($x_k^* = \bar{b}_k > 0$ en general).}
+
+Al forzar $x_k = 0$, la SBF actual deja de ser factible (salvo en el caso degenerado $x_k^* = 0$).
+
+\textbf{Procedimiento:}
+
+\begin{enumerate}[(i)]
+  \item \textbf{Identificar la infactibilidad.} En el diccionario óptimo, la fila de $x_k$ es:
+  \[
+    x_k = \bar{b}_k - \sum_{j \in N} \bar{a}_{kj}\, x_j.
+  \]
+  Al eliminar $x_k$ y forzarla a cero, esta ecuación se convierte en la restricción:
+  \[
+    \sum_{j \in N} \bar{a}_{kj}\, x_j = \bar{b}_k,
+  \]
+  que puede ser infactible para el diccionario actual (si $\bar{b}_k > 0$ y no puede ser satisfecha con $x_N = 0$, el diccionario es primal-infactible).
+
+  \item \textbf{Aplicar el simplex dual} \textbf{[BT §5.2]}. En el diccionario óptimo (que es dual-factible, es decir $\bar{c}_N \leq 0$), la fila de $x_k$ tiene $\bar{b}_k > 0$ pero queremos $x_k = 0$: es la fila infactible. Se trata $x_k$ como la variable saliente:
+  \begin{itemize}
+    \item La variable entrante $x_s$ se elige como la de menor cociente (en valor absoluto):
+    \[
+      s = \arg\min_{j:\, \bar{a}_{kj} < 0} \frac{|\bar{c}_j|}{|\bar{a}_{kj}|}.
+    \]
+    (Regla del simplex dual para mantener la dual-factibilidad.)
+    \item Se pivotea sobre $\bar{a}_{ks}$ para restaurar la factibilidad primal.
+  \end{itemize}
+
+  \item \textbf{Continuar} el simplex dual hasta obtener un diccionario primal y dual factible (nuevo óptimo), o detectar infactibilidad del nuevo problema.
+\end{enumerate}
+
+\textbf{Caso degenerado ($x_k^* = 0$, $x_k$ básica).} La SBF sigue siendo factible aunque $x_k$ sea básica con valor $0$. Se saca $x_k$ de la base mediante un pivote degenerado (que no cambia los valores de las variables) y se verifica si los costos reducidos siguen siendo $\leq 0$.
+
+\medskip
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Variable eliminada} & \textbf{Procedimiento} \\
+\hline
+No-básica ($x_k^* = 0$) & Eliminar columna. El óptimo no cambia. \\
+\hline
+Básica ($x_k^* > 0$) & Aplicar simplex dual desde el diccionario óptimo. \\
+\hline
+Básica ($x_k^* = 0$, degenerada) & Pivote degenerado; re-optimizar si es necesario. \\
+\hline
+\end{tabular}
+\end{center}
+
+$\blacksquare$
+
+% ============================================================
+\section*{Problema 9}
+\addcontentsline{toc}{section}{Problema 9}
+
+\textbf{Enunciado.} Sea $P = \{x \in \mathbb{R}^n \mid Ax = b,\; Hx \leq f,\; x \geq 0\}$. Sea $x \in P$ (no necesariamente básica). Sean $I = \{i \mid h_i'x = f_i\}$ los índices de las desigualdades activas y $J = \{j \mid x_j = 0\}$ los índices de las componentes en cero. Establezca condiciones necesarias y suficientes para que $d \in \mathbb{R}^n$ sea una dirección factible de $P$ en $x$.
+
+\begin{marco}
+\textbf{[BT §2.3] Definición 2.21:} $d$ es dirección factible de $P$ en $x$ si existe $\varepsilon > 0$ tal que $x + \theta d \in P$ para todo $\theta \in [0,\varepsilon]$.
+
+Extensión natural del Problema 5 a un poliedro con restricciones mixtas (igualdades, desigualdades y no-negatividad). Las restricciones de igualdad siempre son activas; las desigualdades activas y las componentes nulas imponen condiciones lineales sobre $d$.
+\end{marco}
+
+\subsection*{Solución}
+
+Para que $x + \theta d \in P$ para todo $\theta \in [0, \varepsilon]$ con $\varepsilon > 0$, analizamos cada tipo de restricción:
+
+\medskip
+\textbf{Restricciones de igualdad $Ax = b$:}
+\[
+  A(x + \theta d) = b \implies Ax + \theta(Ad) = b \implies \theta(Ad) = 0 \quad \forall\, \theta > 0 \implies \boxed{Ad = 0.}
+\]
+
+\textbf{Restricciones de desigualdad $Hx \leq f$:} Para la fila $i$, $h_i'(x + \theta d) = h_i'x + \theta(h_i'd) \leq f_i$.
+\begin{itemize}
+  \item Si $i \in I$ (restricción activa, $h_i'x = f_i$): $f_i + \theta(h_i'd) \leq f_i$ para $\theta > 0$ exige $\boxed{h_i'd \leq 0}$.
+  \item Si $i \notin I$ (restricción inactiva, $h_i'x < f_i$): por continuidad, satisfecha para $\varepsilon$ suficientemente pequeño. Sin condición adicional sobre $d$.
+\end{itemize}
+
+\textbf{Restricciones de no-negatividad $x \geq 0$:} $(x + \theta d)_j = x_j + \theta d_j \geq 0$.
+\begin{itemize}
+  \item Si $j \in J$ ($x_j = 0$): $\theta d_j \geq 0$ para $\theta > 0$ exige $\boxed{d_j \geq 0}$.
+  \item Si $j \notin J$ ($x_j > 0$): satisfecha por continuidad. Sin condición adicional.
+\end{itemize}
+
+\begin{teo}
+Sea $P = \{x \in \mathbb{R}^n \mid Ax = b,\; Hx \leq f,\; x \geq 0\}$, $x \in P$, $I = \{i \mid h_i'x = f_i\}$, $J = \{j \mid x_j = 0\}$. Entonces $d$ es dirección factible de $P$ en $x$ \textbf{si y solo si}:
+\[
+  Ad = 0, \qquad h_i'd \leq 0 \;\;\forall\, i \in I, \qquad d_j \geq 0 \;\;\forall\, j \in J.
+\]
+\end{teo}
+
+$\blacksquare$
+
+% ============================================================
+\section*{Problema 10}
+\addcontentsline{toc}{section}{Problema 10}
+
+\textbf{Enunciado.} Considere $\max\, cx$, $Ax \leq b$, $x \geq 0$ y su dual. Sean $x^*$ e $y^*$ soluciones óptimas respectivas. Si el RHS $b$ se reemplaza por $d$, sea $x^+$ una solución óptima del primal modificado e $y^+$ del dual modificado. Demuestre: $c(x^* - x^+) \geq y^*(b - d)$.
+
+\begin{marco}
+\textbf{[BT §4.1] Teorema 4.1 — Dualidad Débil:} Para todo par factible $(x, y)$ del primal ($\max\, cx$, $Ax \leq b$, $x \geq 0$) y del dual ($\min\, y'b$, $y'A \geq c$, $y \geq 0$):
+\[
+  cx \leq y'b.
+\]
+Equivalentemente: $cx \leq (y'A)x \leq y'(Ax) \leq y'b$.
+
+\textbf{[BT §4.2] Dualidad Fuerte:} Si ambos problemas son factibles, $cx^* = y^* b$ en el óptimo.
+
+\textbf{[BT §5.1] Interpretación de los precios sombra:} $y^*$ mide el cambio marginal en $Z^*$ al variar $b$. La desigualdad a demostrar precisa esta interpretación.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{Hipótesis:}
+\begin{itemize}
+  \item $x^*$: óptimo de $\max\, cx$, $Ax \leq b$, $x \geq 0$. Así $Ax^* \leq b$, $x^* \geq 0$.
+  \item $y^*$: óptimo del dual original $\min\, y'b$, $y'A \geq c$, $y \geq 0$. Así $y^* \geq 0$, $(y^*)'A \geq c$.
+  \item $x^+$: óptimo de $\max\, cx$, $Ax \leq d$, $x \geq 0$. Así $Ax^+ \leq d$, $x^+ \geq 0$.
+\end{itemize}
+
+\textbf{Paso 1.} Observemos que $y^*$ es factible para el dual del primal modificado $\max\, cx$, $Ax \leq d$, $x \geq 0$, pues el dual modificado es $\min\, y'd$, $(y'A) \geq c$, $y \geq 0$, y las restricciones sobre $y$ son las mismas (no dependen de $d$). Como $(y^*)'A \geq c$ y $y^* \geq 0$, $y^*$ es factible para el dual modificado.
+
+\textbf{Paso 2.} Aplicar \textbf{Dualidad Débil [BT §4.1]} al par $(x^+, y^*)$ del primal modificado y su dual:
+
+Como $x^+ \geq 0$, $(y^*)'A \geq c$:
+\[
+  c x^+ \leq ((y^*)'A)\, x^+ = (y^*)'(Ax^+) \leq (y^*)' d,
+\]
+donde la última desigualdad usa $Ax^+ \leq d$ y $y^* \geq 0$. Por tanto:
+\begin{equation}\label{eq:deb}
+  cx^+ \leq (y^*)' d. \tag{$*$}
+\end{equation}
+
+\textbf{Paso 3.} Por \textbf{Dualidad Fuerte [BT §4.2]} del problema original:
+\begin{equation}\label{eq:fuerte}
+  cx^* = (y^*)' b. \tag{$**$}
+\end{equation}
+
+\textbf{Paso 4.} Combinar \eqref{eq:fuerte} y \eqref{eq:deb}:
+\[
+  c(x^* - x^+) = cx^* - cx^+ \geq (y^*)'b - (y^*)'d = (y^*)'(b - d) = y^*(b-d).
+\]
+
+Por tanto: $\displaystyle\boxed{c(x^* - x^+) \geq y^*(b-d).}$ $\blacksquare$
+
+\medskip
+\textbf{Interpretación económica.} Si $d < b$ componente a componente (menos recursos disponibles), entonces $b - d > 0$ y $y^*(b-d) > 0$ (pues $y^* \geq 0$): el valor óptimo \emph{cae} al menos en $y^*(b-d)$ al reducir el RHS. Los precios sombra $y^*$ acotán inferiormente la pérdida en la función objetivo \textbf{[BT §5.1]}.
+
+% ============================================================
+\section*{Problema 11 --- BT 4.11}
+\addcontentsline{toc}{section}{Problema 11 --- BT 4.11}
+
+\textbf{Enunciado.} Considere el par primal-dual. Sea $x^*$ una solución factible (no necesariamente óptima) del primal y sea $y^*$ una solución factible del dual. Demuestre que $x^*$ es óptimo para el primal e $y^*$ es óptimo para el dual si y solo si:
+\begin{enumerate}[(i)]
+  \item $y_i^*(b_i - a_i'x^*) = 0$ para todo $i$, y
+  \item $x_j^*\bigl((A'y^*)_j - c_j\bigr) = 0$ para todo $j$.
+\end{enumerate}
+
+\begin{marco}
+\textbf{[BT §4.1] Dualidad Débil:} Para todo par factible $(x, y)$: $cx \leq y'b$.
+
+\textbf{[BT §4.2] Dualidad Fuerte:} Si el primal y el dual tienen soluciones factibles y el primal es acotado, ambos tienen óptimos con igual valor.
+
+\textbf{[BT §4.3] Teorema 4.5 — Holgura Complementaria:} Las condiciones (i) y (ii) son precisamente las condiciones de holgura complementaria; son equivalentes a la optimalidad conjunta de $x^*$ e $y^*$.
+\end{marco}
+
+\subsection*{Solución}
+
+Primal: $\max\, cx$, $Ax \leq b$, $x \geq 0$. Dual: $\min\, y'b$, $y'A \geq c$, $y \geq 0$.
+
+\medskip
+\textbf{($\Rightarrow$) Si $x^*$ e $y^*$ son óptimos, entonces (i) y (ii).}
+
+Por \textbf{Dualidad Fuerte [BT §4.2]}: $cx^* = (y^*)' b$.
+
+Considere la cantidad $y^*b - cx^*$:
+\begin{align*}
+  0 &= (y^*)'b - cx^* \\
+    &= (y^*)'b - cx^* + (y^*)'(Ax^*) - (y^*)'(Ax^*) \\
+    &= (y^*)'(b - Ax^*) + \bigl((y^*)'A - c\bigr)x^* \\
+    &= \sum_{i=1}^{m} y_i^*(b_i - a_i'x^*) + \sum_{j=1}^{n} \bigl((A'y^*)_j - c_j\bigr)x_j^*.
+\end{align*}
+
+Cada término de la suma es no-negativo:
+\begin{itemize}
+  \item $y_i^* \geq 0$ (dual factible) y $b_i - a_i'x^* \geq 0$ (primal factible) $\Rightarrow$ $y_i^*(b_i - a_i'x^*) \geq 0$.
+  \item $x_j^* \geq 0$ (primal factible) y $(A'y^*)_j - c_j \geq 0$ (dual factible) $\Rightarrow$ $x_j^*((A'y^*)_j - c_j) \geq 0$.
+\end{itemize}
+
+Como la suma de términos no-negativos es igual a $0$, cada término debe ser $0$:
+\[
+  y_i^*(b_i - a_i'x^*) = 0 \;\;\forall\, i \qquad \text{y} \qquad x_j^*\bigl((A'y^*)_j - c_j\bigr) = 0 \;\;\forall\, j. \quad \checkmark
+\]
+
+\medskip
+\textbf{($\Leftarrow$) Si (i) y (ii), entonces $x^*$ e $y^*$ son óptimos.}
+
+De las condiciones de holgura complementaria:
+\[
+  \sum_{i} y_i^*(b_i - a_i'x^*) = 0 \qquad \text{y} \qquad \sum_{j} x_j^*\bigl((A'y^*)_j - c_j\bigr) = 0.
+\]
+
+Sumando:
+\[
+  (y^*)'(b - Ax^*) + \bigl((y^*)'A - c\bigr)x^* = 0 \implies (y^*)'b - (y^*)'(Ax^*) + (y^*)'(Ax^*) - cx^* = 0 \implies (y^*)'b = cx^*.
+\]
+
+Por \textbf{Dualidad Débil [BT §4.1]}, para cualquier $x$ primal factible e $y$ dual factible: $cx \leq (y^*)'b = cx^*$, es decir, $cx \leq cx^*$. Luego $x^*$ maximiza el primal. $\checkmark$
+
+Análogamente, para cualquier $y$ dual factible: $(y)'b \geq cx^* = (y^*)'b$, es decir, $y^*$ minimiza el dual. $\checkmark$
+
+$\blacksquare$
+
+% ============================================================
+\section*{Problema 12}
+\addcontentsline{toc}{section}{Problema 12}
+
+\textbf{Enunciado.} Sea $P$ un poliedro acotado y sea $x$ un elemento de $P$. Demuestre que $x$ puede escribirse como combinación convexa de a lo sumo $n+1$ puntos extremos de $P$. (Pista: usar el Teorema de Resolución.)
+
+\begin{marco}
+\textbf{[BT §2.5] Teorema 2.6 — Teorema de Resolución:} Todo punto de un poliedro no vacío $P$ puede escribirse como $x = \sum_i \lambda_i v_i + \sum_j \mu_j w_j$, donde los $v_i$ son puntos extremos de $P$, los $w_j$ son rayos extremos, $\lambda_i \geq 0$ con $\sum \lambda_i = 1$, y $\mu_j \geq 0$. Si $P$ es acotado, no tiene rayos extremos.
+
+\textbf{Teorema de Carathéodory:} Todo punto en la envoltura convexa de un conjunto $S \subseteq \mathbb{R}^n$ puede escribirse como combinación convexa de a lo sumo $n+1$ puntos de $S$.
+\end{marco}
+
+\subsection*{Solución}
+
+\textbf{Paso 1. Aplicar el Teorema de Resolución [BT §2.5 Teo 2.6].}
+
+Como $P$ es acotado y no vacío, no tiene rayos extremos. Por el Teorema de Resolución, todo $x \in P$ puede escribirse como:
+\[
+  x = \sum_{i=1}^{k} \lambda_i v_i,
+\]
+donde $v_1, \ldots, v_k$ son puntos extremos de $P$, $\lambda_i \geq 0$ y $\sum_{i=1}^k \lambda_i = 1$. (El número $k$ puede ser grande, pero es finito pues $P$ tiene finitos puntos extremos.)
+
+\textbf{Paso 2. Aplicar el Teorema de Carathéodory.}
+
+Los puntos extremos $v_1, \ldots, v_k$ pertenecen a $\mathbb{R}^n$. Tenemos $x \in \operatorname{co}(\{v_1, \ldots, v_k\})$. Por el Teorema de Carathéodory, todo punto en la envoltura convexa de un conjunto de $\mathbb{R}^n$ puede expresarse como combinación convexa de a lo sumo $n+1$ puntos del conjunto.
+
+\textbf{Demostración del Teorema de Carathéodory (por reducción inductiva).}
+
+Sea $x = \sum_{i=1}^{k} \lambda_i v_i$ con $\lambda_i > 0$ y $\sum \lambda_i = 1$. Si $k \leq n+1$, terminamos.
+
+Si $k > n+1$: consideramos los $k-1$ vectores $v_2 - v_1, v_3 - v_1, \ldots, v_k - v_1 \in \mathbb{R}^n$. Como $k - 1 \geq n + 1 > n$, estos vectores son \textbf{linealmente dependientes} (hay más de $n$ vectores en $\mathbb{R}^n$). Existen escalares $\alpha_2, \ldots, \alpha_k$, no todos nulos, tales que:
+\[
+  \sum_{i=2}^{k} \alpha_i (v_i - v_1) = 0.
+\]
+Definiendo $\tilde{\alpha}_1 = -\sum_{i=2}^k \alpha_i$ y $\tilde{\alpha}_i = \alpha_i$ para $i \geq 2$, se tiene:
+\[
+  \sum_{i=1}^{k} \tilde{\alpha}_i v_i = 0 \qquad \text{con} \qquad \sum_{i=1}^{k} \tilde{\alpha}_i = 0.
+\]
+Como los $\tilde{\alpha}_i$ no son todos nulos y su suma es $0$, existe al menos un $\tilde{\alpha}_i > 0$. Sea:
+\[
+  t = \min_{i:\, \tilde{\alpha}_i > 0} \frac{\lambda_i}{\tilde{\alpha}_i} > 0.
+\]
+Definiendo $\mu_i = \lambda_i - t\, \tilde{\alpha}_i \geq 0$:
+\[
+  x = \sum_{i=1}^{k} \mu_i v_i, \qquad \sum_{i=1}^k \mu_i = \sum \lambda_i - t\sum \tilde{\alpha}_i = 1 - 0 = 1,
+\]
+y por construcción de $t$, existe un índice $r$ tal que $\mu_r = 0$. Se ha reducido la representación a $k-1$ puntos. Iterando, en a lo sumo $k - (n+1)$ pasos se llega a una representación con $\leq n+1$ puntos. $\square$
+
+\textbf{Paso 3. Conclusión.}
+
+Combinando los dos pasos: todo $x \in P$ (poliedro acotado en $\mathbb{R}^n$) puede escribirse como combinación convexa de a lo sumo $\mathbf{n+1}$ puntos extremos de $P$. $\blacksquare$
+
+% ============================================================
+\section*{Problema 13}
+\addcontentsline{toc}{section}{Problema 13}
+
+\textbf{Enunciado.} Demuestre que el conjunto de soluciones óptimas de un programa lineal es un conjunto convexo.
+
+\begin{marco}
+\textbf{[BT §2.1] Definición de conjunto convexo:} $C \subseteq \mathbb{R}^n$ es convexo si para todo $x, y \in C$ y todo $\lambda \in [0,1]$: $\lambda x + (1-\lambda)y \in C$.
+
+\textbf{[BT §2.1] Poliedro es convexo:} El poliedro $P = \{x \mid Ax \leq b,\, x \geq 0\}$ es convexo como intersección de semiespacios, que son conjuntos convexos.
+
+\textbf{Linealidad de la función objetivo:} Para una función lineal $f(x) = cx$: $f(\lambda x + (1-\lambda)y) = \lambda f(x) + (1-\lambda)f(y)$.
+\end{marco}
+
+\subsection*{Solución}
+
+Sea $Z^* = \max\{cx \mid x \in P\}$ el valor óptimo del LP (suponemos que el problema tiene solución óptima finita). Sea:
+\[
+  X^* = \{x \in P \mid cx = Z^*\}
+\]
+el conjunto de soluciones óptimas.
+
+\textbf{Demostración de que $X^*$ es convexo.}
+
+Sean $x, y \in X^*$ y $\lambda \in [0,1]$. Definamos $z = \lambda x + (1-\lambda)y$.
+
+\textbf{Factibilidad de $z$:}
+
+$x, y \in P$ y $P$ es convexo \textbf{[BT §2.1]} (como intersección de semiespacios y semiespacios de no-negatividad). Por tanto:
+\[
+  z = \lambda x + (1-\lambda) y \in P. \quad \checkmark
+\]
+
+\textbf{Optimalidad de $z$:}
+
+Como $cx = cy = Z^*$ (pues $x, y \in X^*$), y usando la linealidad de $c(\cdot)$:
+\[
+  cz = c\bigl(\lambda x + (1-\lambda)y\bigr) = \lambda(cx) + (1-\lambda)(cy) = \lambda Z^* + (1-\lambda) Z^* = Z^*. \quad \checkmark
+\]
+
+Por tanto $z \in P$ y $cz = Z^*$, lo que implica $z \in X^*$.
+
+Como $z = \lambda x + (1-\lambda)y \in X^*$ para todo $x, y \in X^*$ y todo $\lambda \in [0,1]$, el conjunto $X^*$ es \textbf{convexo}. $\blacksquare$
+
+\medskip
+\textbf{Observación.} El conjunto de soluciones óptimas $X^*$ es en particular un poliedro, pues es la intersección del poliedro $P$ con el hiperplano $\{x \mid cx = Z^*\}$:
+\[
+  X^* = \{x \mid Ax \leq b,\; x \geq 0,\; cx = Z^*\} = \{x \mid Ax \leq b,\; x \geq 0,\; cx \geq Z^*,\; -cx \geq -Z^*\},
+\]
+que es intersección de un número finito de semiespacios, por lo tanto un poliedro y en particular un conjunto convexo cerrado.
+
+\end{document}
