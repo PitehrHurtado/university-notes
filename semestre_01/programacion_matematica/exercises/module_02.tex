@@ -1,0 +1,1176 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, unicode]{hyperref}
+\usepackage{amsthm}
+\usepackage[most,breakable]{tcolorbox}
+\usepackage{xcolor}
+
+\theoremstyle{plain}
+\newtheorem*{theorem*}{Teorema}
+\newtheorem*{lemma*}{Lema}
+\newtheorem*{myprop}{Proposición}
+
+% ── Cajas de color ──────────────────────────────────────
+\tcbuselibrary{breakable,skins}
+\newtcolorbox{solucion}{
+  enhanced, breakable,
+  title={\faLightbulb\quad Solución},
+  title=Solución,
+  colback=blue!4!white,
+  colframe=blue!55!black,
+  fonttitle=\bfseries\color{white},
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=blue!55!black},
+  left=6pt, right=6pt, top=8pt, bottom=6pt
+}
+\newtcolorbox{teofund}{
+  enhanced, breakable,
+  title=Fundamento Teórico,
+  colback=amber!6!white,
+  colframe=amber!70!black,
+  fonttitle=\bfseries\color{white},
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=amber!70!black},
+  left=6pt, right=6pt, top=8pt, bottom=6pt
+}
+\definecolor{amber}{RGB}{180,110,0}
+
+\title{Preguntas de Repaso}
+\date{}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+% ===============================================================
+% 1. ÁLGEBRA LINEAL Y FUNDAMENTOS
+% ===============================================================
+\section{Álgebra Lineal y Fundamentos}
+
+\subsection{Subespacios generados}
+
+Demostrar: Sean $A$ y $B$ conjuntos finitos en $\mathbb{R}^n$. Si $A \subseteq B$, entonces el subespacio generado de $A$ es subconjunto del subespacio generado de $B$.
+
+\begin{solucion}
+
+Sea $x \in \operatorname{span}(A)$ arbitrario. Existen escalares $\{\lambda_a\}_{a \in A}$ tales que $x = \sum_{a \in A} \lambda_a a$. Definiendo $\mu_b = \lambda_b$ si $b \in A$ y $\mu_b = 0$ si $b \in B \setminus A$, se tiene $x = \sum_{b \in B} \mu_b b \in \operatorname{span}(B)$. Por tanto $\operatorname{span}(A) \subseteq \operatorname{span}(B)$. $\blacksquare$
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §1 — Fundamentos de la PL.} Todo PL con región factible compacta y no vacía tiene solución óptima (Weierstrass). El simplex resuelve PL de forma iterativa pivotando entre diccionarios.
+\end{teofund}
+
+\bigskip
+
+\subsection{Combinaciones lineales positivas}
+
+Demuestre o desmienta: El conjunto de combinaciones lineales positivas de un conjunto finito de vectores en $\mathbb{R}^n$ es un subespacio vectorial.
+
+\begin{solucion}
+
+\textbf{Falso.} Contraejemplo: sea $S = \{v\}$ con $v \in \mathbb{R}^n$, $v \neq 0$. El cono positivo $\operatorname{cone}(S) = \{\lambda v : \lambda \geq 0\}$ no contiene $-v$, pero un subespacio debe ser cerrado bajo escalares negativos. Por tanto $\operatorname{cone}(S)$ no es subespacio. De manera general, $\operatorname{cone}(S)$ es cerrado solo bajo combinaciones no-negativas, lo que viola la condición de subespacio cuando $S \neq \{0\}$.
+
+\end{solucion}
+
+\begin{teofund}\textbf{BT §2.1 — Poliedro.} Un \emph{poliedro} es un conjunto de la forma $P=\{x\in\mathbb{R}^n:Ax\geq b\}$. La intersección finita de semiespacios cerrados es convexa y cerrada.\end{teofund}
+
+\bigskip
+
+% ===============================================================
+% 2. POLIEDROS Y GEOMETRÍA
+% ===============================================================
+\section{Poliedros y Geometría}
+
+\subsection{Conjunto de soluciones óptimas}
+
+Suponga que un problema de programación lineal con función objetivo $z = c^{T}x$ tiene
+múltiples soluciones óptimas.
+
+\begin{enumerate}[label=\alph*)]
+      \item Demuestre que el conjunto de soluciones óptimas es un poliedro. Encuentre la
+            representación más pequeña de este poliedro en términos del número de variables.
+
+      \item Indique cómo podría usarse el método simplex para obtener esta representación,
+            indicando todos los pasos de su propuesta. Tenga presente que mientras mayor sea
+            el número de pasos del método propuesto, mayor será la calificación.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a)} Sea $z^* = \min\{c^\top x : Ax = b, x \geq 0\}$ el valor óptimo. El conjunto de soluciones óptimas es:
+\[
+X^* = \{x \geq 0 : Ax = b,\; c^\top x = z^*\}.
+\]
+$X^*$ es la intersección del poliedro factible $\{x \geq 0 : Ax = b\}$ con el hiperplano $\{c^\top x = z^*\}$. Toda intersección finita de semiespacios y hiperplanos es un poliedro (BT Def. 2.1). La representación mínima usa solo las variables no básicas con costo reducido nulo $\mathcal{N}^0 = \{j : \bar{c}_j = 0\}$, reduciendo el número de variables de $n$ a $|\mathcal{N}^0| \leq n - m$.
+
+\noindent\textbf{(b)} Con el método símplex: (1) Resolver hasta obtener base óptima $\mathcal{B}$; (2) Identificar $\mathcal{N}^0 = \{j \notin \mathcal{B} : \bar{c}_j = 0\}$; (3) Para cada $j \in \mathcal{N}^0$, pivotar para descubrir SBF adyacentes con mismo valor de objetivo; (4) Repetir hasta haber visitado todos los vértices de $X^*$. Los vértices y las aristas entre ellos determinan la representación minimal del poliedro $X^*$ (BT §3.3).
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2.2 — SBF en forma estándar.} $x^*$ con exactamente $m$ variables positivas cuyas columnas son l.i. es una SBF no degenerada. La degeneración ocurre cuando alguna variable básica vale~0.
+
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Representación con extremos y rayos: Carathéodory}
+
+Sea $P \subseteq \mathbb{R}^n$ un poliedro (no necesariamente estándar). Suponga que usted
+dispone del conjunto de puntos extremos y de un conjunto completo de rayos extremos de
+$P$. Sea $x \in P$.
+
+\begin{enumerate}[label=\alph*)]
+      \item Formule un modelo de PL que permita determinar los coeficientes para
+            expresar $x$ como una combinación convexa de los puntos extremos de $P$ más
+            una combinación lineal no-negativa de los rayos extremos de $P$.
+
+      \item Formule el dual del modelo de la parte a).
+
+      \item Demuestre que $x$ puede expresarse como una combinación lineal de a lo más
+            $n+1$ vectores tomados del conjunto de puntos extremos y rayos extremos de $P$.
+
+      \item Describa cómo resolvería el modelo de la parte a).
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a)} Sean $v^1,\ldots,v^K$ los puntos extremos y $r^1,\ldots,r^L$ los rayos extremos de $P$. El modelo de PL para expresar $x \in P$:
+\[
+\text{Encontrar}\;\;(\lambda,\mu) \geq 0 \;\;\text{tal que}\;\; \sum_{k=1}^K \lambda_k v^k + \sum_{l=1}^L \mu_l r^l = x, \quad \sum_{k=1}^K \lambda_k = 1.
+\]
+
+\noindent\textbf{(b)} El dual es: $\max\; x^\top y + \alpha$ s.a. $(v^k)^\top y + \alpha \leq 0$ para todo $k$, $(r^l)^\top y \leq 0$ para todo $l$, con $y \in \mathbb{R}^n$, $\alpha \in \mathbb{R}$ libres.
+
+\noindent\textbf{(c)} Por el Teorema de Carathéodory (BT Cor. 2.3): si la representación usa $p > n+1$ vectores activos, el sistema homogéneo de $n+1$ ecuaciones en $p$ incógnitas tiene solución no trivial $\delta$. Sea $\alpha^* = \min_{i:\delta_i > 0}(\text{coeficiente}_i/\delta_i)$. La actualización $\lambda' = \lambda - \alpha^*\delta$ elimina al menos un vector activo preservando $x = \sum \lambda'_k v^k + \sum \mu'_l r^l$ y $\sum \lambda'_k = 1$. Iterando se llega a $\leq n+1$ vectores activos.
+
+\noindent\textbf{(d)} Resolver como PL de fase I: introducir variables artificiales $a_i \geq 0$ para cada ecuación, minimizar $\sum a_i$; si el mínimo es cero, la descomposición existe; el símplex entrega los coeficientes.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §8.2 — Carathéodory para poliedros.} Todo $x\in P$ puede escribirse como $\sum_k\lambda_k v^k+\sum_l\mu_l r^l$ con $\sum\lambda_k=1$, $\lambda,\mu\geq 0$, usando a lo más $n+1$ vectores. El conjunto $Q$ de costos con óptimo finito es un cono poliédrico convexo.
+\end{teofund}
+
+\bigskip
+
+\subsection{Representaciones mixtas de poliedros}
+
+Sean $P$ y $Q$ dos poliedros (no necesariamente en forma estándar). Suponga que $P$ está
+representado en términos de un sistema de inecuaciones de la forma
+$P = \{x \in \mathbb{R}^n : Ax \geq b\}$
+y que $Q$ está representado en términos de sus puntos extremos y un conjunto de rayos
+extremos.
+
+\begin{solucion}
+
+Para trabajar con las dos representaciones simultáneamente: dado $z \in S = P + Q$ (la suma de Minkowski), se verifica $z \in S$ si existe $x$ tal que $Ax \geq b$ y $z - x$ puede expresarse como $z - x = \sum_k \lambda_k v^k + \sum_l \mu_l r^l$ con $\lambda \geq 0$, $\sum_k \lambda_k = 1$, $\mu \geq 0$. Esto da un sistema de inecuaciones/igualdades en $(z, x, \lambda, \mu)$, que define un poliedro. La proyección a la variable $z$ es también un poliedro por el Teorema de Fourier-Motzkin (BT §2.3). Para optimizar $c^\top z$ sobre $S$, se puede convertir $Q$ a representación $H$ (usar eliminación de Fourier-Motzkin o el Double Description Method) y resolver $\min c^\top z$ s.a. $Az_P \geq b$, $z = z_P + z_Q$, restricciones de $Q$.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §8.3 — Sumas de Minkowski y proyecciones.} $P+Q$ es un poliedro. La proyección de un poliedro es un poliedro (por eliminación de Fourier-Motzkin). Ambas operaciones preservan la estructura poliédrica.
+\end{teofund}
+
+\bigskip
+
+\subsection{Conjunto de direcciones factibles}
+
+Sea $P = \{x \in \mathbb{R}^n \mid Ax \leq b,\; x \geq 0\}$, y sea $x^* \in P$. Encuentre
+el conjunto de direcciones factibles de $P$ en $x^*$. Ilustre con un ejemplo.
+(Ayuda: identifique el conjunto de restricciones activas en $x^*$.)
+
+\begin{solucion}
+
+Sean $I(x^*) = \{i : a_i^\top x^* = b_i\}$ las restricciones activas de $Ax \leq b$ en $x^*$, y $J(x^*) = \{j : x^*_j = 0\}$ los índices de no-negatividad activos. Una dirección $d \in \mathbb{R}^n$ es \emph{factible} en $x^*$ si $x^* + \theta d \in P$ para algún $\theta > 0$ suficientemente pequeño. Esto requiere:
+\begin{itemize}
+      \item $a_i^\top d \leq 0$ para todo $i \in I(x^*)$ (no violar restricciones activas de $Ax \leq b$),
+      \item $d_j \geq 0$ para todo $j \in J(x^*)$ (no violar $x \geq 0$ en las componentes nulas).
+\end{itemize}
+El conjunto de direcciones factibles es por tanto:
+\[
+D(x^*) = \{d \in \mathbb{R}^n : a_i^\top d \leq 0 \;\forall\, i \in I(x^*),\quad d_j \geq 0 \;\forall\, j \in J(x^*)\}.
+\]
+\textit{Ejemplo:} $P = \{x \in \mathbb{R}^2 : x_1 + x_2 \leq 4, x \geq 0\}$, $x^* = (2,2)$. Aquí $I(x^*) = \{1\}$, $J(x^*) = \emptyset$, luego $D(x^*) = \{d : d_1 + d_2 \leq 0\}$.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §3.1 — Geometría: vértices y caras.} Los vértices del poliedro $P$ son exactamente las SBF. Una cara de $P$ es la intersección de $P$ con un hiperplano de soporte. El simplex recorre vértices adyacentes (que comparten $m-1$ restricciones activas).
+\end{teofund}
+
+\bigskip
+
+\subsection{Rayos extremos y acotación}
+
+Considere el siguiente PPL:
+
+\[
+      \begin{aligned}
+            \min\quad        & c_1 x_1 + c_2 x_2 \\
+            \text{s.a.}\quad & -x_1 + x_2 \leq 3 \\
+                             & x_1 - 2x_2 \leq 2  \\
+                             & x_1, x_2 \geq 0
+      \end{aligned}
+\]
+
+Encuentre condiciones necesarias y suficientes para $(c_1, c_2)$, de manera que el problema
+tenga un costo óptimo finito. (Ayuda: Encuentre los rayos extremos del conjunto de
+soluciones.)
+
+\begin{solucion}
+
+El cono de recesión del conjunto factible $P = \{x \geq 0 : -x_1+x_2 \leq 3, x_1-2x_2 \leq 2\}$ es $R = \{d \geq 0 : -d_1+d_2 \leq 0, d_1-2d_2 \leq 0\}$, es decir $d_1 \geq d_2$ y $d_1 \leq 2d_2$, con $d_1,d_2 \geq 0$. Los rayos extremos se obtienen activando una restricción y la cota de no-negatividad:
+\begin{itemize}
+      \item Restricción $-d_1+d_2=0$ y $d_2>0$: $d^{(1)} = (1,1)^\top$.
+      \item Restricción $d_1-2d_2=0$ y $d_2>0$: $d^{(2)} = (2,1)^\top$.
+\end{itemize}
+El PL tiene costo óptimo finito si y solo si $c^\top d \geq 0$ para todo rayo extremo $d$ de $R$ (BT Cor. 2.2):
+\[
+c_1 + c_2 \geq 0 \quad \text{y} \quad 2c_1 + c_2 \geq 0.
+\]
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Conjunto de costos con óptimo finito}
+
+Demuestre o desmienta: Sea $P \subseteq \mathbb{R}^n$ un poliedro cualquiera (no
+necesariamente estándar) no vacío. Defina $Q$ como el conjunto de vectores de costo para
+los cuales el PPL $\min\{c^\top x \mid x \in P\}$ tiene una solución óptima, es decir,
+$c \in Q$ si y solo si el PPL no es no-acotado. Se tiene que $Q$ es un poliedro.
+
+\begin{solucion}
+
+\textbf{Verdadero.} Por el Teorema de Representación (BT Teo. 2.15), $P$ tiene el cono de recesión $R(P) = \{d \geq 0 : Ad \geq 0\}$ finitamente generado por rayos extremos $r^1,\ldots,r^L$. El PL $\min\{c^\top x : x \in P\}$ es no-acotado si y solo si existe un rayo $r^l$ tal que $c^\top r^l < 0$ (BT Cor. 2.2). Por tanto:
+\[
+c \in Q \;\Longleftrightarrow\; c^\top r^l \geq 0 \;\;\forall\, l = 1,\ldots,L,
+\]
+que es un sistema finito de inecuaciones lineales en $c$. La intersección finita de semiespacios es un poliedro (cono poliédrico convexo). $\blacksquare$
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §8.2 — Carathéodory para poliedros.} Todo $x\in P$ puede escribirse como $\sum_k\lambda_k v^k+\sum_l\mu_l r^l$ con $\sum\lambda_k=1$, $\lambda,\mu\geq 0$, usando a lo más $n+1$ vectores. El conjunto $Q$ de costos con óptimo finito es un cono poliédrico convexo.
+\end{teofund}
+
+\bigskip
+
+\subsection{Suma de Minkowski de poliedros}
+
+Sean $P$ y $Q$ poliedros en $\mathbb{R}^n$. Sea $S = \{x + y \mid x \in P,\; y \in Q\}$.
+Demuestre que $S$ es un poliedro. (Ayuda: utilice conceptos de proyección.)
+
+\begin{solucion}
+
+Construya el poliedro en espacio ampliado:
+\[
+\tilde{S} = \{(z,x,y) \in \mathbb{R}^{3n} : z = x+y,\; Ax \leq a,\; By \leq b\},
+\]
+que es un poliedro en $\mathbb{R}^{3n}$ (intersección finita de semiespacios). Entonces $S = \pi_z(\tilde{S})$, la proyección de $\tilde{S}$ sobre las coordenadas $z$. Equivalentemente, eliminando $x$ e $y$, el sistema en $z$ se obtiene por eliminación de Fourier-Motzkin: dados $z$, se requiere que existan $x,y$ con $Ax \leq a$, $By \leq b$ y $x = z - y$. Sustituyendo: $A(z-y) \leq a$, $By \leq b$, lo que junto con la eliminación de $y$ produce un sistema finito de inecuaciones en $z$. Por el Teorema de Fourier-Motzkin (BT Prop. 2.2), la proyección de un poliedro es un poliedro. Por tanto $S$ es un poliedro. $\blacksquare$
+
+\end{solucion}
+
+\begin{teofund}\textbf{BT §2.3 — Solución Básica Factible (SBF).} $x^*$ es una SBF si es factible y existe una base $B$ ($m$ columnas de $A$ linealmente independientes) tal que $x^*_j=0$ para todo $j\notin B$. Es \emph{degenerada} si alguna variable básica vale~0.\end{teofund}
+
+\bigskip
+
+% ===============================================================
+% 3. SOLUCIONES BÁSICAS FACTIBLES
+% ===============================================================
+\section{Soluciones Básicas Factibles}
+
+\subsection{Degeneración y estructura de SBF}
+
+Considere un problema de PL de la forma $\min c^{\top}x$, sujeto a $Ax = b$, $x \geq 0$,
+donde $A$ es una matriz de $m$ filas y $n$ columnas. Demuestre o desmienta:
+
+\begin{enumerate}[label=\alph*)]
+      \item Demuestre o desmienta: Si $m > n$, entonces todas las soluciones básicas son
+            degeneradas.
+
+      \item ¿Es su conclusión la misma de a) para el problema $\min c^{\top}x$, s.a.\
+            $Ax \leq b$, $x \geq 0$? Justifique su respuesta.
+
+      \item Demuestre o desmienta: Si $m < n$ y todas las filas de $A$ son LI, entonces
+            todas las soluciones básicas son no-degeneradas.
+
+      \item Demuestre o desmienta: Dos soluciones básicas adyacentes, ambas no
+            óptimas, pueden tener el mismo valor en la función objetivo.
+
+      \item Demuestre o desmienta: Cuando se aplica el método simplex, este puede
+            moverse desde una solución básica a otra adyacente sin alterar el valor de la
+            función objetivo.
+
+      \item Si en una iteración del Método Simplex tanto la solución actual como la nueva
+            solución son degeneradas, ¿puede la FO decrecer? Explique.
+
+      \item Demuestre o desmienta: Si se aplica el método de las dos fases, el dual del
+            problema auxiliar de la fase 1 es siempre factible.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a)} Si $m > n$, entonces $A$ tiene más filas que columnas, por lo que $\text{rango}(A) \leq n < m$. Para que existan bases (conjuntos de $m$ columnas LI de $A$) se necesita $\text{rango}(A) = m$, lo cual es imposible cuando $m > n$. Si $\text{rango}(A) = r < m$, toda SBF tiene a lo más $r$ variables básicas no nulas, y las restantes $m - r > 0$ variables básicas valen cero. Luego \textbf{toda SBF es degenerada}. (BT Def. 2.11.)
+
+\noindent\textbf{(b)} Para $Ax \leq b$, $x \geq 0$, al introducir holguras $s \geq 0$ el sistema se convierte en $[A \mid I_m]\begin{pmatrix}x\\s\end{pmatrix} = b$, con $n+m$ variables. Ahora hay $n+m > m$ columnas, por lo que existen bases de tamaño $m$ (e.g., la base de holguras). \textbf{La conclusión de (a) no se transfiere}: pueden existir SBF no degeneradas.
+
+\noindent\textbf{(c)} \textbf{Falso.} Que las filas sean LI garantiza existencia de bases, pero no evita que $B^{-1}b$ tenga componentes nulas. Contraejemplo: $A = \begin{pmatrix}1&1&0\\0&1&1\end{pmatrix}$, $b = (1,0)^\top$; filas LI. Base $B=\{1,2\}$: $x_B = B^{-1}b = (1,0)^\top$, con $x_2^* = 0$ básica → SBF degenerada.
+
+\noindent\textbf{(d)} \textbf{Verdadero.} Ocurre cuando la variable entrante tiene costo reducido $\bar{c}_j = 0$; el valor de la FO no cambia aunque la base cambie.
+
+\noindent\textbf{(e)} \textbf{Verdadero.} Idéntico a (d): el simplex puede dar pasos degenerados donde $\theta^* = 0$ y la FO permanece constante.
+
+\noindent\textbf{(f)} \textbf{No puede decrecer en esa iteración.} Si ambas soluciones son degeneradas, el paso es $\theta^* = 0$, luego $\Delta z = \bar{c}_j \cdot 0 = 0$. La FO no cambia en esa iteración; puede disminuir en iteraciones posteriores si la nueva base tiene variables con costo reducido negativo.
+
+\noindent\textbf{(g)} \textbf{Verdadero.} El problema auxiliar de fase I: $\min \mathbf{1}^\top a$ s.a. $Ax + a = b$, $x,a \geq 0$, siempre es factible ($x=0$, $a=b^+$) y acotado inferiormente por~0. Por el Teorema Fuerte de Dualidad (BT Teo. 4.4), el dual es factible.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Soluciones básicas y variables positivas}
+
+\begin{enumerate}[label=\alph*)]
+      \item Demuestre o desmienta: Considere un problema de P.L. en forma estándar. Sea
+            $x^*$ una solución factible con exactamente $m$ variables positivas, entonces
+            $x^*$ es una solución básica.
+
+      \item Demuestre o desmienta: Si un problema de P.L. en forma estándar tiene
+            múltiples soluciones óptimas, entonces tiene un número no-contable de
+            soluciones óptimas.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a)} \textbf{No necesariamente.} Que $x^*$ tenga exactamente $m$ variables positivas es condición necesaria pero no suficiente para ser SBF. Se requiere además que las columnas $\{A_j : x^*_j > 0\}$ sean LI. Si son linealmente dependientes, $x^*$ no es SBF.
+
+\noindent\textbf{(b)} \textbf{Verdadero.} Sean $x^{(1)} \neq x^{(2)}$ dos soluciones óptimas con valor $z^*$. Para todo $\lambda \in [0,1]$, $x(\lambda) = \lambda x^{(1)} + (1-\lambda)x^{(2)}$ es factible (por convexidad del poliedro factible) y $c^\top x(\lambda) = z^*$. Como $x^{(1)} \neq x^{(2)}$, los puntos $x(\lambda)$ son distintos para distintos $\lambda$, y $[0,1]$ es incontable. $\blacksquare$ (BT Teo. 2.3; Ch Teo. 3.1.)
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Múltiples óptimas y SBF única}
+
+Construya un ejemplo numérico de un problema de PL en forma estándar con múltiples
+soluciones, pero una única solución básica óptima. Construya el diccionario óptimo
+correspondiente.
+
+\begin{solucion}
+
+Considere ($m=2$, $n=4$, costo $c=(-2,-1,0,0)^\top$):
+\[
+\min\; -2x_1 - x_2 \quad\text{s.a.}\quad x_1+x_2+x_3=4,\quad x_2+x_4=2,\quad x_j\geq 0.
+\]
+La región factible tiene múltiples soluciones óptimas bajo el costo simétrico $(-1,-1,0,0)^\top$, pero con $(-2,-1,0,0)^\top$ la única SBF óptima es $x^{(2)}=(4,0,0,2)^\top$ (base $B=\{1,4\}$).
+
+\noindent\textit{Diccionario óptimo} (base $\{x_1,x_4\}$, no básicas $\{x_2,x_3\}$):
+\[
+x_1 = 4 - x_2 - x_3, \quad x_4 = 2 - x_2, \quad z = -8 + x_2 + 2x_3.
+\]
+Costos reducidos: $\bar{c}_2 = +1 > 0$, $\bar{c}_3 = +2 > 0$ → óptimo confirmado. La solución $x^{(2)}=(4,0,0,2)$ es la única SBF óptima, aunque el poliedro factible tiene infinitos puntos con $z=-8$ bajo el costo $(-1,-1,0,0)^\top$. (BT Teo. 3.1; Ch §2.3.)
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Diccionarios y SBF: relación no biyectiva}
+
+Indique dos razones por las cuales la siguiente afirmación es incorrecta, y muestre un
+ejemplo numérico ilustrando cada una de ellas: ``Existe una relación 1 a 1 entre
+diccionarios y soluciones básicas factibles''.
+
+\begin{solucion}
+
+\noindent\textbf{Razón 1: Una SBF degenerada puede tener múltiples diccionarios.} Cuando una variable básica vale cero, puede intercambiarse con una no básica generando una base distinta con el mismo punto. Ejemplo: sistema $x_1+x_2=1$, $x_1+x_3=1$, $x_j\geq 0$. El punto $x^*=(1,0,0)$ es SBF y admite dos bases: $B_1=\{1,2\}$ y $B_2=\{1,3\}$, produciendo diccionarios distintos $D_1$ y $D_2$ para el mismo punto extremo. (BT Def. 2.11; Ch §5.1.)
+
+\noindent\textbf{Razón 2: Una base puede no corresponder a ninguna SBF factible.} Si $B^{-1}b$ tiene componentes negativas, la solución básica viola $x\geq 0$ y no es una SBF. Ejemplo: sistema $x_1+x_2=2$, $-x_1+x_3=1$, $x_j\geq 0$. Base $B=\{1,2\}$: $x_B = B^{-1}b = (-1,3)^\top$. Como $x_1=-1<0$, esta solución básica no es factible: el diccionario existe formalmente, pero no hay SBF asociada. (BT §2.3; Ch §2.2.)
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2.2 — SBF en forma estándar.} $x^*$ con exactamente $m$ variables positivas cuyas columnas son l.i. es una SBF no degenerada. La degeneración ocurre cuando alguna variable básica vale~0.
+
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Bases múltiples y degeneración}
+
+Demuestre o desmienta: Considere un poliedro en forma estándar según Bertsimas. Si dos
+bases están asociadas a una misma solución básica $x$, entonces $x$ es degenerada.
+
+\begin{solucion}
+
+\textbf{Verdadero.} Sean $B_1 \neq B_2$ dos bases distintas asociadas a la misma SBF $x^*$. Como $B_1 \neq B_2$, existe $j_0 \in B_1 \setminus B_2$. Dado que $j_0 \notin B_2$, por definición de solución básica $x^*_{j_0} = 0$. Pero $j_0 \in B_1$, es decir, $j_0$ es variable básica en $B_1$ con valor cero. Por la definición de degeneración (BT Def. 2.11), $x^*$ es degenerada. $\blacksquare$
+
+\textit{Observación}: el recíproco no es cierto en general. Una SBF puede ser degenerada con una sola base asociada (si los índices de degeneración no permiten pivotar degeneradamente hacia otra base).
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5.1 — Bases múltiples y degeneración.} Si dos bases $B_1\neq B_2$ generan la misma SBF $x^*$, entonces $x^*$ es degenerada. El recíproco no es necesariamente cierto: una SBF puede ser degenerada con una sola base.
+
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{SBF en formas estándar I y II}
+
+Sea $P_1$ un poliedro en forma estándar I según la convención de Chvátal, y $P_2$ el
+correspondiente poliedro en forma estándar II. Sea $x^*$ una SBF de $P_1$. Suponga que
+$x^*$ es no-degenerada. Demuestre que $(x^*, b - Ax^*)$ es una SBF no-degenerada de $P_2$.
+
+\begin{solucion}
+
+Sea $P_1$: $\min c^\top x$, s.a. $Ax \leq b$, $x \geq 0$. La forma estándar II es $P_2$: $Ax + s = b$, $x,s \geq 0$. Definamos $s^* = b - Ax^* \geq 0$.
+
+\noindent\textit{Factibilidad de $(x^*,s^*)$ en $P_2$:} $Ax^* + s^* = b$, $x^* \geq 0$, $s^* \geq 0$. \checkmark
+
+\noindent\textit{Construcción de la base en $P_2$:} Sea $B_x \subseteq \{1,\ldots,n\}$ con $|B_x|=k$ la base de $x^*$ en $P_1$, con $x^*_j > 0$ para $j \in B_x$ (no degeneración). Sean $I_0 = \{i : s^*_i = 0\}$ (restricciones activas) e $I_+ = \{i : s^*_i > 0\}$. Defina la base de $P_2$:
+\[
+\mathcal{B} = \{j \in B_x\} \cup \{n+i : i \in I_+\}.
+\]
+Como $x^*$ es no degenerada: $|I_0| = k$, luego $|\mathcal{B}| = k + |I_+| = k + (m-k) = m$.
+
+\noindent\textit{Independencia lineal:} La submatriz de $[A\mid I_m]$ en $\mathcal{B}$ es triangular por bloques con determinante $\det(A_{I_0,B_x}) \neq 0$ (por la no-degeneración de $x^*$ en $P_1$, Ch §2.2).
+
+\noindent\textit{No degeneración:} Todas las variables en $\mathcal{B}$ son estrictamente positivas: $x^*_j > 0$ para $j \in B_x$ y $s^*_i > 0$ para $i \in I_+$. $\blacksquare$
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Independencia lineal, SBF y degeneración}
+
+Considere un problema de PL de la forma $\min c^\top x$, sujeto a $Ax = b$, $x \geq 0$.
+Demuestre o desmienta las siguientes afirmaciones:
+
+\begin{enumerate}[label=\alph*)]
+      \item Si las filas de la matriz $A$ no son LI, todas las soluciones básicas factibles
+            son degeneradas.
+
+      \item Si las filas de la matriz $A$ son LI, todas las soluciones básicas factibles
+            son no-degeneradas.
+
+      \item Suponga que todas las filas de la matriz $A$ son LI. Sea $x^*$ una SBF y
+            suponga que para todas las bases asociadas a $x^*$, la correspondiente solución
+            dual complementaria es infactible. Se concluye que el costo óptimo es
+            estrictamente menor a $c^\top x^*$.
+
+      \item En una iteración del Método Simplex, la variable entrante puede abandonar la
+            base en la iteración inmediatamente siguiente.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a)} \textbf{Falso.} Si las filas de $A$ no son LI, puede reducirse el sistema a $r = \text{rango}(A) < m$ ecuaciones efectivas. Una SBF tiene $r$ variables básicas no nulas, y el sistema puede tener soluciones básicas no degeneradas si $B^{-1}b > 0$ para alguna base.
+
+\noindent\textbf{(b)} \textbf{Falso.} La independencia lineal de filas solo garantiza la existencia de bases de tamaño $m$, pero no impide que $B^{-1}b$ tenga componentes nulas. El mismo contraejemplo del problema 3.1(c) aplica.
+
+\noindent\textbf{(c)} \textbf{Verdadero.} Si para toda base $B$ de $x^*$ la solución dual $\bar{y} = c_B^\top B^{-1}$ es infactible (i.e., $\exists j: \bar{c}_j < 0$), entonces por el criterio de optimalidad del simplex (BT Teo. 3.1), $x^*$ no es óptima. Por tanto existe un punto factible con menor costo, es decir, $z^* < c^\top x^*$.
+
+\noindent\textbf{(d)} \textbf{Verdadero.} Esto ocurre en presencia de degeneración: si la variable entrante $x_s$ provoca un pivote con $\theta^* = 0$ (la variable saliente $x_r$ ya valía~0), en la siguiente iteración si el criterio de razón mínima elige la fila de $x_s$ (ahora básica con valor~0) como saliente, $x_s$ abandona la base. Este fenómeno es la base del ciclado; la regla de Bland previene ciclos (BT §3.3 Teo. 3.5; Ch §5.2).
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+% ===============================================================
+% 4. MÉTODO SIMPLEX
+% ===============================================================
+\section{Método Simplex}
+
+\subsection{Aplicación integral: laboratorio farmacéutico}
+
+Un laboratorio farmacéutico está armando un paquete de medicamentos especial para
+fortalecer cierto aspecto de salud del organismo en invierno. El modelo que permite
+optimizar la situación descrita es el siguiente:
+
+\[
+      \begin{aligned}
+            \max\quad         & x_1 + 2x_2 + 2x_3 + x_4          \\
+            \text{s.a.:}\quad & x_1 + 2x_2 + 3x_3 + 2x_4 \leq 20 \\
+                              & 2x_1 + 3x_2 + 2x_3 + x_4 \leq 25 \\
+                              & x_1, x_2, x_3, x_4 \geq 0
+      \end{aligned}
+\]
+
+Sabiendo que la solución óptima del problema es $(x_1, x_2, x_3, x_4) = (0, 7, 2, 0)$,
+se pide:
+
+\begin{enumerate}[label=\alph*)]
+      \item Construir el diccionario inicial y el diccionario óptimo.
+
+      \item Encuentre la solución óptima del dual y el diccionario correspondiente (sin
+            resolver el problema dual desde ``cero'').
+
+      \item Si el coeficiente de $x_1$ en la F.O. aumenta en 1 unidad, ¿La solución sigue
+            siendo óptima?
+
+      \item Si su respuesta en c) es afirmativa, indique en cuánto debe aumentar el
+            coeficiente de $x_1$ para que se transforme en candidata para entrar a la base.
+            En caso contrario, re-optimice utilizando el método simplex.
+
+      \item ¿Cuál debería ser el beneficio unitario de un nuevo componente con coeficientes
+            técnicos $(1,1)$, de manera que sea conveniente incluirlo en el paquete?
+
+      \item Suponga que se dispone de 5 unidades adicionales de recurso 1, ¿Cómo cambia
+            la solución óptima?
+
+      \item ¿Cuánto está dispuesta a pagar la empresa por una unidad extra de recurso 1?
+
+      \item ¿Cómo varía la solución óptima si se agrega la restricción
+            $2x_1 + 4x_2 + x_3 \leq 28$?
+\end{enumerate}
+
+\begin{solucion}
+
+Forma estándar con holguras $x_5, x_6$: $x_1+2x_2+3x_3+2x_4+x_5=20$, $2x_1+3x_2+2x_3+x_4+x_6=25$. La base óptima es $\mathcal{B}^*=\{x_2,x_3\}$.
+\[
+B = \begin{pmatrix}2&3\\3&2\end{pmatrix},\quad B^{-1}=\frac{1}{5}\begin{pmatrix}-2&3\\3&-2\end{pmatrix},\quad \bar{b}=B^{-1}b=\begin{pmatrix}7\\2\end{pmatrix}.
+\]
+Costos reducidos: $\bar{c}_1=-\tfrac{1}{5}$, $\bar{c}_4=-\tfrac{1}{5}$, $\bar{c}_5=-\tfrac{2}{5}$, $\bar{c}_6=-\tfrac{2}{5}$ (todos $\leq 0$ para maximización). Valor óptimo $z^*=18$.
+
+\noindent\textbf{(a)} \textit{Diccionario inicial} (base $\{x_5,x_6\}$): $x_5=20-x_1-2x_2-3x_3-2x_4$; $x_6=25-2x_1-3x_2-2x_3-x_4$; $z=x_1+2x_2+2x_3+x_4$.\\ \textit{Diccionario óptimo} (base $\{x_2,x_3\}$): $x_2=7-\tfrac{4}{5}x_1+\tfrac{1}{5}x_4+\tfrac{2}{5}x_5-\tfrac{3}{5}x_6$; $x_3=2+\tfrac{1}{5}x_1-\tfrac{4}{5}x_4-\tfrac{3}{5}x_5+\tfrac{2}{5}x_6$; $z=18-\tfrac{1}{5}x_1-\tfrac{1}{5}x_4-\tfrac{2}{5}x_5-\tfrac{2}{5}x_6$.
+
+\noindent\textbf{(b)} Por el Teorema de Dualidad Fuerte (BT Teo. 4.4), $y^*=(B^{-\top})c_B$. Como $y_i^* = -\bar{c}_{n+i}$: $y_1^*=-\bar{c}_5=\tfrac{2}{5}$, $y_2^*=-\bar{c}_6=\tfrac{2}{5}$. Verificación: $w^*=20\cdot\tfrac{2}{5}+25\cdot\tfrac{2}{5}=18=z^*$. $\checkmark$
+
+\noindent\textbf{(c)} Si $c_1\to 2$: $\bar{c}_1^{\text{nuevo}}=2-\tfrac{6}{5}=\tfrac{4}{5}>0$. La solución \textbf{ya no es óptima}: $x_1$ es candidata a entrar.
+
+\noindent\textbf{(d)} Con incremento $\Delta$: $\bar{c}_1(\Delta)=(1+\Delta)-\tfrac{6}{5}=\Delta-\tfrac{1}{5}$. La base pierde optimalidad cuando $\Delta\geq\tfrac{1}{5}$. Incremento mínimo: $\boxed{\Delta=\tfrac{1}{5}}$.
+
+\noindent\textbf{(e)} Para $x_7$ con columna $(1,1)^\top$: $B^{-1}a_7=\tfrac{1}{5}(1,1)^\top$; $\bar{c}_7=c_7-(2,2)\cdot\tfrac{1}{5}(1,1)^\top=c_7-\tfrac{4}{5}$. Conviene incluirlo si $\bar{c}_7>0$, es decir, $c_7>\tfrac{4}{5}$.
+
+\noindent\textbf{(f)} Con $b_1=25$: $\bar{b}^{\text{nuevo}}=B^{-1}(25,25)^\top=(5,5)^\top\geq 0$. Base permanece factible y óptima. Nuevo óptimo: $x_2=5$, $x_3=5$, $z^{\text{nuevo}}=20$.
+
+\noindent\textbf{(g)} El precio sombra es $y_1^*=\tfrac{2}{5}$: la empresa paga hasta $\tfrac{2}{5}$ por cada unidad adicional del recurso~1. Rango de validez: $b_1\in[\tfrac{50}{3},\tfrac{75}{2}]$.
+
+\noindent\textbf{(h)} En la solución actual: $2(0)+4(7)+2=30>28$. Restricción violada. Introduciendo holgura $x_7$: $x_7=-2+x_1-x_5+2x_6<0$. Se aplica símplex dual: $x_7$ sale, $x_5$ entra (razón $\tfrac{2}{5}$). Nuevo óptimo: $x_2=\tfrac{32}{5}$, $x_3=\tfrac{12}{5}$, $z^*=\tfrac{88}{5}=17.6$.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Análisis de tableau I}
+
+Considere un problema de PL. Suponga que en una iteración del método Simplex se ha
+obtenido el siguiente tableau:
+
+\begin{center}
+      \begin{tabular}{c|ccccccc|c}
+            V. Básica & $X_1$ & $X_2$ & $X_3$ & $X_4$ & $X_5$ & $X_6$ & $X_7$ & $X_B$ \\
+            \hline
+            $X_5$     & 6     & $A$   &       &       & $B$   & 1     & 2     & $C$   \\
+                      & $-2$  & $-5$  &       &       & $D$   & 0     & $-1$  & $E$   \\
+                      & $F$   & $-3$  &       & 2     &       & 0     & $-4$  & 3     \\
+            $-Z$      & $G$   & $H$   & 0     & $I$   &       &       & $-2$  & 10    \\
+      \end{tabular}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+      \item Complete los casilleros en blanco.
+
+            Proponga valores para las letras $A$ hasta $I$ de tal manera que el tableau
+            presentado haga las siguientes afirmaciones verdaderas:
+
+      \item En la siguiente iteración entra $X_2$ y sale $X_5$.
+
+      \item La solución básica actual es óptima y la solución dual complementaria es
+            degenerada.
+
+      \item La solución actual y la siguiente son ambas degeneradas, el valor de la F.O.
+            crece.
+
+      \item El problema es no acotado.
+
+      \item El problema dual es infactible.
+\end{enumerate}
+
+\noindent\textit{Nota: Por favor, en cada pregunta replique el tableau y complételo
+reemplazando las letras $A$ a $I$ con los valores propuestos.}
+
+\begin{solucion}
+
+Interpretamos la base como $\mathcal{B}=\{X_5,X_3,X_6\}$: las columnas $X_5$, $X_3$, $X_6$ deben ser vectores de la identidad en las filas 1, 2, 3 respectivamente.
+
+\noindent\textbf{(a)} Completar blancos por identidad: $A=-2$, $B=1$, $C=8$, $D=0$, $E=4$, $F=1$, $G=-1$, $H=-3$, $I=-2$.
+
+\noindent\textbf{(b)} Para que $X_2$ entre y $X_5$ salga: se necesita $\bar{c}_2=H>0$ (cost.~reduc.~positivo para maximización) y que el cociente mínimo ocurra en fila~1. Fijamos $H=3>0$ y $A=2>0$ (columna $X_2$ positiva en fila~1), con fila~2 y~3 negativas en $X_2$ ($-5<0$ y $-3<0$). Valores: $A=2, B=1, C=8, D=0, E=4, F=1, G=-1, H=3, I=-2$.
+
+\noindent\textbf{(c)} Óptima ($\bar{c}_j\leq 0$ para todas las no básicas) y dual degenerada ($\bar{b}_r=0$ para alguna fila): fijamos $C=0$ (fila~1 con $\bar{b}_1=0$) y $G=-1$, $H=-3$, $I=-2\leq 0$. Valores: $A=-2, B=1, C=0, D=0, E=4, F=1, G=-1, H=-3, I=-2$.
+
+\noindent\textbf{(d)} Degeneración con FO creciente: $C=\varepsilon>0$ (pequeño, SBF actual casi-degenerada), $E=0$ (fila~2 degenerada), $H=3$ (variable entrante $X_2$). Pivote no-degenerado en fila~1 con $\Delta z=3\cdot(\varepsilon/2)>0$. Valores: $A=2, C=\varepsilon, D=0, E=0, F=1, G=-1, H=3, I=-2$.
+
+\noindent\textbf{(e)} No acotado: columna de $X_2$ completamente negativa en las filas de restricciones. Fijamos $H=5>0$, $A=-4<0$ (fila~1), columna ya es $-5<0$ (fila~2), $F=-2<0$ (fila~3): la razón mínima no tiene finito mínimo positivo. Valores: $A=-4, B=1, C=8, D=0, E=4, F=-2, G=-1, H=5, I=-2$.
+
+\noindent\textbf{(f)} Dual infactible $\Leftrightarrow$ primal no acotado (BT Cor. 4.2): usar los mismos valores del inciso~(e).
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §2 — Diccionarios y método simplex.} Un diccionario factible es óptimo si todos los coeficientes del objetivo son $\leq 0$ (maximización). El simplex elige la variable entrante (coef. positivo) y la saliente (razón mínima) en cada iteración.
+\end{teofund}
+
+\bigskip
+
+\subsection{Diccionario óptimo dual}
+
+Considerando su propuesta en la letra b) del problema anterior (Análisis de tableau I),
+construya el diccionario óptimo del problema dual.
+
+\begin{solucion}
+
+Del tableau en 4.2(b) con $z^*=10$, la solución dual óptima se lee de los negativos de los costos reducidos de las holguras: $y_1^*=-\bar{c}_{X_5}=0$, $y_2^*=-\bar{c}_{X_6}=0$, $y_3^*=-\bar{c}_{X_7}=2$. Las holguras duales de las no-básicas primal son: $s_1^*=1$, $s_2^*=3$, $s_4^*=2$.
+
+Resolviendo el sistema dual en función de las no-básicas duales $s_3$ (holgura de la restricción correspondiente a $X_3$ básica):
+\[
+y_3=2+s_3,\quad s_1=1+2s_3,\quad s_2=3+5s_3,\quad s_4=2-2s_3,\quad w=10+5s_3.
+\]
+Como $5>0$ el mínimo se alcanza en $s_3=0$: $w^*=10=z^*$. $\checkmark$
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Análisis de tableau II}
+
+Considere un problema de PL de la forma $\min c^\top x$, sujeto a $Ax = b$, $x \geq 0$.
+Suponga que el siguiente tableau contiene una solución básica.
+
+\begin{center}
+      \begin{tabular}{c|cccccc|c}
+            V. Básica & $X_1$ & $X_2$ & $X_3$ & $X_4$ & $X_5$ & $X_6$ & $X_B$ \\
+            \hline
+                      & 4     & $A$   &       &       & $B$   &       & $C$   \\
+                      & $-1$  & $-5$  &       & 1     & $-1$  &       & $D$   \\
+            $X_6$     & $E$   & $-3$  &       &       & $-3$  &       &       \\
+                      & $F$   & $G$   & 0     &       & $H$   &       & $-10$ \\
+      \end{tabular}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+      \item Complete los casilleros en blanco.
+
+      \item Proponga un conjunto de valores para las incógnitas $A$ a $H$ de manera que el
+            tableau represente una solución básica dual factible.
+
+      \item Proponga un conjunto de valores para las incógnitas $A$ a $H$ de manera que el
+            tableau permita concluir que el problema dual es no acotado.
+\end{enumerate}
+
+\begin{solucion}
+
+La base es $\mathcal{B}=\{X_3,X_4,X_6\}$ (columnas de identidad en filas 1, 2, 3). Valores de blancos: fila~1 col.~$X_3=1$, col.~$X_4=0$; fila~2 col.~$X_3=0$, col.~$X_4=1$; fila~3 col.~$X_3=0$, col.~$X_4=0$; fila $z$: col.~$X_3=0$, col.~$X_4=0$, col.~$X_6=0$.
+
+\noindent\textbf{(a)} Valores: $A=2$, $B=3$, $C=6$, $D=2$, $E=1$, $F=-2$, $G=-1$, $H=-2$.
+
+\noindent\textbf{(b)} Dual factible $\Leftrightarrow$ todos los costos reducidos de minimización $\geq 0$ para las no-básicas. Con los valores de (a): $\bar{c}_{X_1}=F=-2<0$ (infactible dual). Para hacerlo dual factible: tomar $F=2>0$, $G=1>0$, $H=2>0$. La solución primal $(x_3=6,x_4=2,x_6=4)$ es factible. Con costos reducidos positivos, la solución es óptima (primal y dual factible). Valores: $A=2, B=3, C=6, D=2, E=1, F=2, G=1, H=2$.
+
+\noindent\textbf{(c)} Dual no acotado $\Leftrightarrow$ primal infactible. Para hacer el primal infactible, fijamos $C=-5<0$: la SBF tendría $X_3=-5<0$. Con $F=G=H>0$ (dual factible), el Lema de Farkas certifica la infactibilidad del primal y la no-acotación del dual.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Costos reducidos y unicidad del óptimo}
+
+Considere un PPL en forma estándar según Bertsimas. Sea $x$ una SBF. Demuestre que si
+todos los costos reducidos en $x$ son estrictamente positivos, entonces $x$ es la única
+solución óptima. ¿Es la afirmación inversa correcta?
+
+\begin{solucion}
+
+\noindent\textit{Demostración.} Sea $x^*$ SBF con base $\mathcal{B}$ y $\bar{c}_j < 0$ para todo $j \in \mathcal{N}$ (minimización: costos reducidos estrictamente negativos para no básicas; para maximización con $\bar{c}_j > 0$ análogo). Sea $x'$ cualquier solución óptima. Dado que $c^\top x' = c^\top x^* = z^*$, expresando en términos del diccionario:
+\[
+\sum_{j \in \mathcal{N}} \bar{c}_j\, x'_j = 0.
+\]
+Como $\bar{c}_j < 0$ (maximización) y $x'_j \geq 0$, cada término $\bar{c}_j x'_j \leq 0$. Para que la suma sea cero, $\bar{c}_j x'_j = 0$ para todo $j$, y dado $\bar{c}_j \neq 0$, $x'_j = 0$ para todo $j \in \mathcal{N}$. Entonces $B x'_\mathcal{B} = b \Rightarrow x'_\mathcal{B} = B^{-1}b = x^*_\mathcal{B}$. Luego $x' = x^*$, y $x^*$ es la \textbf{única solución óptima}. $\blacksquare$ (BT Teo. 3.3.)
+
+\noindent\textit{La afirmación inversa es \textbf{falsa}.} Si $x^*$ es la única solución óptima, no se puede concluir que todos los $\bar{c}_j \neq 0$. Contraejemplo: $\bar{c}_k = 0$ para algún $j_0 \in \mathcal{N}$, pero $B^{-1}a_{j_0} \leq 0$: pivotar $x_{j_0}$ es no factible (la variable no puede entrar), por lo que $x^*$ sigue siendo el único óptimo aunque $\bar{c}_{j_0}=0$.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Degeneración en iteraciones del simplex}
+
+Suponga que el método simplex se aplica a un PPL en forma estándar según Bertsimas. Asuma
+que las filas de la matriz $A$ son LI. Demuestre o desmienta:
+
+\begin{enumerate}[label=\alph*)]
+      \item En una iteración el método simplex puede moverse de una SBF a otra SBF
+            adyacente sin modificar el valor de la F.O.
+
+      \item La variable saliente en una iteración puede ser la variable entrante en la
+            siguiente iteración.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a) Verdadero.} Ocurre en pasos degenerados: si $\bar{b}_r = 0$ para la fila saliente, $\theta^* = \min_i \bar{b}_i/\bar{y}_{is} = 0$, y $\Delta z = \bar{c}_s \cdot 0 = 0$. El punto no cambia, solo la base. (BT §3.4; Ch §4.)
+
+\noindent\textbf{(b) Sí, pero solo con degeneración.} Sea $x_s$ la variable que entra en iteración $t$; tras el pivote su costo reducido actualizado es $\bar{c}'_s = -\bar{c}_s/\bar{y}_{rs}$. Si $\bar{c}_s > 0$ (maximización) y $\bar{y}_{rs} > 0$ (fila del pivote), entonces $\bar{c}'_s < 0 \leq 0$: $x_s$ no puede entrar en $t+1$. Sin embargo, si el pivote fue degenerado ($\theta^*=0$) y $\bar{c}'_s = 0$, bajo ciertas reglas de selección $x_s$ puede ser elegida nuevamente (generando un ciclo). La regla de Bland (elegir el índice de menor subíndice disponible) garantiza terminación en finito número de pasos. (BT §3.4 Teo. 3.6; Ch §5.2--5.3.)
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §4 — Degeneración y ciclado.} Un pivote degenerado tiene $\theta^*=0$: el punto no cambia. \textbf{Regla de Bland}: seleccionar siempre el índice disponible más pequeño garantiza terminación finita (evita ciclos).
+\end{teofund}
+
+\bigskip
+
+\subsection{Chvátal 1.5}
+
+Chvátal 1.5
+
+\begin{solucion}
+
+\noindent\textit{Enunciado} (Ch Ej. 1.5): \textit{Demuestre que todo PL en forma estándar con región factible acotada y no-vacía posee al menos una solución óptima.}
+
+\noindent\textit{Demostración.} Sea $P=\{x\geq 0: Ax=b\}$ compacto y no-vacío. (1) $P$ es cerrado (intersección de semiespacios cerrados) y acotado, luego \textbf{compacto} (Heine-Borel). (2) La función objetivo $f(x)=c^\top x$ es continua. Por el \textbf{Teorema de Weierstrass}, $f$ alcanza su mínimo en $P$: existe $x^*\in P$ con $c^\top x^*=\min_{x\in P}c^\top x$. (3) El mínimo se alcanza en una SBF: si $x^*$ no es vértice, existe dirección $d\neq 0$ con $x^*\pm\varepsilon d\in P$ y $c^\top d=0$. Moviendo en la dirección de decrecer soporte, en a lo más $n$ pasos se llega a un vértice (SBF) con el mismo valor objetivo. $\blacksquare$ (BT Teo. 2.8; Ch §1--2.)
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §1 — Fundamentos de la PL.} Todo PL con región factible compacta y no vacía tiene solución óptima (Weierstrass). El simplex resuelve PL de forma iterativa pivotando entre diccionarios.
+\end{teofund}
+
+\bigskip
+
+\subsection{Chvátal 5.9}
+
+Chvátal 5.9
+
+\begin{solucion}
+
+\noindent\textit{Enunciado} (Ch Ej. 5.9): \textit{Si un PL tiene solución óptima finita, entonces su dual también tiene solución óptima finita, y los valores óptimos coinciden.}
+
+\noindent\textit{Demostración} (Teorema Fuerte de Dualidad; BT Teo. 4.4; Ch Teo. 5.1). Par primal-dual en forma estándar: (P) $\min c^\top x$, $Ax=b$, $x\geq 0$; (D) $\max b^\top y$, $A^\top y\leq c$.
+
+(1) \textit{Acotación del dual}: por Dualidad Débil (BT Prop. 4.2), para todo $y$ factible en (D) y $x$ factible en (P): $b^\top y\leq c^\top x$. Si (P) tiene valor óptimo $z^*<\infty$, entonces $b^\top y\leq z^*$ para todo $y$ factible en (D): el dual está acotado superiormente.
+
+(2) \textit{Factibilidad del dual}: sea $x^*$ óptimo de (P) con base $\mathcal{B}^*$. Defina $y^*=(B^*)^{-\top}c_{\mathcal{B}^*}$. Entonces $A^\top y^*\leq c$ (pues $\bar{c}_j=c_j-A_j^\top y^*\geq 0$ para $j\notin\mathcal{B}^*$ por optimalidad), luego $y^*$ es factible en (D).
+
+(3) \textit{Igualdad de valores}: $b^\top y^*=(Ax^*)^\top y^*=(x^*)^\top A^\top y^*=c^\top x^*=z^*$, usando $Ax^*=b$ y holgura complementaria (BT Teo. 4.5). Por Dualidad Débil, $y^*$ es óptima en (D). $\blacksquare$
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5.1 — Bases múltiples y degeneración.} Si dos bases $B_1\neq B_2$ generan la misma SBF $x^*$, entonces $x^*$ es degenerada. El recíproco no es necesariamente cierto: una SBF puede ser degenerada con una sola base.
+
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+% ===============================================================
+% 5. ANÁLISIS DE SENSIBILIDAD Y RE-OPTIMIZACIÓN
+% ===============================================================
+\section{Análisis de Sensibilidad y Re-optimización}
+
+\subsection{Convexidad de la función de valor óptimo}
+
+Considere un PPL de la forma
+\[
+      p(\theta) = \min\; c^{\top}x \quad \text{s.a.} \quad Ax \geq b + \theta d,\; x \geq 0.
+\]
+Demuestre que $p(\theta)$ es una función convexa en $\theta$.
+
+\begin{solucion}
+
+Sean $\theta_1,\theta_2\in\mathrm{dom}(p)$ y $\lambda\in[0,1]$. Sea $\theta=\lambda\theta_1+(1-\lambda)\theta_2$. Para $\varepsilon>0$, existen $x_1\in P(\theta_1)$ y $x_2\in P(\theta_2)$ con $c^\top x_i\leq p(\theta_i)+\varepsilon$. Defina $x_\lambda=\lambda x_1+(1-\lambda)x_2\geq 0$. Entonces:
+\[
+Ax_\lambda = \lambda Ax_1+(1-\lambda)Ax_2 \geq \lambda(b+\theta_1 d)+(1-\lambda)(b+\theta_2 d) = b+\theta d,
+\]
+por lo que $x_\lambda\in P(\theta)$. Luego:
+\[
+p(\theta) \leq c^\top x_\lambda = \lambda c^\top x_1+(1-\lambda)c^\top x_2 \leq \lambda p(\theta_1)+(1-\lambda)p(\theta_2)+\varepsilon.
+\]
+Como $\varepsilon>0$ es arbitrario: $p(\lambda\theta_1+(1-\lambda)\theta_2)\leq\lambda\,p(\theta_1)+(1-\lambda)\,p(\theta_2)$. $\blacksquare$
+
+\textit{Interpretación}: $p(\theta)$ es la envolvente inferior de funciones afines (una por cada base óptima), lo que siempre produce una función convexa. En análisis de sensibilidad, la marginalidad del recurso es no decreciente: los recursos se vuelven cada vez más valiosos conforme se amplían las restricciones (BT Prop. 5.4; Ch §10).
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §1 — Fundamentos de la PL.} Todo PL con región factible compacta y no vacía tiene solución óptima (Weierstrass). El simplex resuelve PL de forma iterativa pivotando entre diccionarios.
+
+\textbf{Ch §10 — Análisis de sensibilidad.} $p(\theta)$ es convexa y lineal a trozos en $\theta$ (un segmento lineal por cada base óptima estable). El precio sombra $y_i^*$ mide $\partial p/\partial b_i$: cuánto mejora el óptimo por unidad adicional del recurso $i$.
+\end{teofund}
+
+\bigskip
+
+\subsection{Re-optimización al modificar el problema}
+
+\begin{enumerate}[label=\alph*)]
+      \item Describa un procedimiento general para recalcular la solución óptima de un
+            problema de PL luego de eliminar una variable.
+
+      \item Considere un problema de PL y suponga que dispone de una solución básica
+            óptima, y debe omitir una restricción del problema original. Describa un
+            procedimiento para encontrar la nueva solución óptima.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a) Eliminar una variable $x_k$:}
+\begin{enumerate}[label=\arabic*.]
+      \item Si $x_k\notin\mathcal{B}^*$ (no básica): el óptimo no cambia; borrar la columna $k$ del tableau.
+      \item Si $x_k\in\mathcal{B}^*$ y $x_k^*=0$ (degenerada): pivotar degeneradamente para sacar $x_k$ de la base, luego borrar columna $k$.
+      \item Si $x_k\in\mathcal{B}^*$ y $x_k^*>0$: fijar $x_k=0$. La solución se vuelve infactible. Aplicar símplex dual (si es dual factible) o Fase I para restaurar factibilidad, luego continuar hasta nuevo óptimo. (BT §5.1; Ch §11.)
+\end{enumerate}
+
+\noindent\textbf{(b) Omitir una restricción $i_0$:}
+\begin{enumerate}[label=\arabic*.]
+      \item Si la restricción $i_0$ es \textbf{inactiva} en el óptimo ($s_{i_0}^*>0$): su eliminación no modifica el óptimo; borrar la fila $i_0$ del tableau.
+      \item Si la restricción $i_0$ es \textbf{activa} ($s_{i_0}^*=0$): borrar la fila y su holgura. La variable básica de fila $i_0$ queda liberada. Si todos los costos reducidos del nuevo problema siguen siendo óptimos, terminar. De lo contrario, aplicar símplex primal desde la solución actual (que puede no ser básica) hasta el nuevo óptimo. Como el nuevo poliedro factible es mayor, el nuevo óptimo es al menos tan bueno. (BT §5.5; Ch §11.)
+\end{enumerate}
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §1 — Fundamentos de la PL.} Todo PL con región factible compacta y no vacía tiene solución óptima (Weierstrass). El simplex resuelve PL de forma iterativa pivotando entre diccionarios.
+
+\textbf{Ch §10 — Análisis de sensibilidad.} $p(\theta)$ es convexa y lineal a trozos en $\theta$ (un segmento lineal por cada base óptima estable). El precio sombra $y_i^*$ mide $\partial p/\partial b_i$: cuánto mejora el óptimo por unidad adicional del recurso $i$.
+\end{teofund}
+
+\bigskip
+
+% ===============================================================
+% 6. DUALIDAD Y TEOREMAS DE ALTERNATIVAS
+% ===============================================================
+\section{Dualidad y Teoremas de Alternativas}
+
+\subsection{Holgura Complementaria}
+
+Considere el par primal-dual de PL en forma estándar:
+\[
+      \text{(P)} \quad \min\; c^\top x \quad \text{s.a.} \quad Ax = b,\; x \geq 0
+\]
+\[
+      \text{(D)} \quad \max\; b^\top y \quad \text{s.a.} \quad A^\top y \leq c
+\]
+
+\begin{enumerate}[label=\alph*)]
+      \item Enuncie y demuestre el Teorema de Holgura Complementaria.
+
+      \item Sea $\bar{x}$ una solución básica factible no degenerada de (P) con base $B$.
+            Muestre que $\bar{x}$ es óptima si y sólo si el vector de multiplicadores duales
+            $\bar{y} = c_B^\top B^{-1}$ satisface $\bar{c}_j = c_j - \bar{y}^\top A_j \geq 0$
+            para todo $j$.
+
+      \item Suponga que tanto (P) como (D) tienen múltiples soluciones óptimas. ¿Es posible
+            que existan óptimos $x^*_1,\, x^*_2$ del primal e $y^*_1,\, y^*_2$ del dual tales
+            que las condiciones de holgura complementaria se satisfagan para el par
+            $(x^*_1, y^*_1)$ pero no para $(x^*_1, y^*_2)$? Justifique.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a) Teorema de Holgura Complementaria} (BT Teo. 4.5; Ch Teo. 5.1): \textit{Sean $\bar{x}$ factible para (P) e $\bar{y}$ factible para (D). Entonces $\bar{x}$ e $\bar{y}$ son óptimas si y solo si $\bar{x}_j(c_j-\bar{y}^\top A_j)=0$ para todo $j$.}
+
+\noindent\textit{Demostración.} ($\Rightarrow$) Si ambos son óptimos, por Dualidad Fuerte $c^\top\bar{x}=b^\top\bar{y}$. Entonces:
+\[
+0 = c^\top\bar{x} - b^\top\bar{y} = c^\top\bar{x} - (A\bar{x})^\top\bar{y} = \sum_j \bar{x}_j(c_j - \bar{y}^\top A_j).
+\]
+Como $\bar{x}\geq 0$ y $c_j-\bar{y}^\top A_j\geq 0$ (factibilidad dual), cada término es $\geq 0$. Para que la suma sea cero, cada término debe ser cero. ($\Leftarrow$) Si se cumple la holgura complementaria: $c^\top\bar{x}=\bar{x}^\top A^\top\bar{y}=(A\bar{x})^\top\bar{y}=b^\top\bar{y}$. Por Dualidad Débil ambos son óptimos. $\blacksquare$
+
+\noindent\textbf{(b)} \textit{Demostración.} Sea $\bar{x}$ SBF no-degenerada con base $B$; defina $\bar{y}=(B^{-1})^\top c_B$. Para $j\in B$: $\bar{c}_j=c_j-\bar{y}^\top A_j=0$ y $\bar{x}_j>0$ (no-degeneración), HC se cumple trivialmente. Para $j\notin B$: $\bar{x}_j=0$, HC se cumple trivialmente. Así, HC se reduce a $\bar{c}_j\geq 0$ para $j\notin B$, que es el criterio de optimalidad del simplex. (BT Prop. 3.1.)
+
+\noindent\textbf{(c) No es posible.} Si $x_1^*$ e $y_2^*$ son óptimos, por el Teorema Fuerte $c^\top x_1^*=b^\top y_2^*$. La demostración de (a) ($\Rightarrow$) solo usa igualdad de valores óptimos y factibilidad; por tanto HC se satisface para \emph{cualquier} par de óptimos primal-dual.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Infactibilidad y dualidad}
+
+Considere un problema de PL de la forma $\min c^{\top}x$, sujeto a $Ax = b$, $x \geq 0$.
+
+\begin{enumerate}[label=\alph*)]
+      \item Suponga que el problema es infactible. Suponga además que al agregar una
+            variable $x_{n+1}$ con coeficientes técnicos $A_{n+1}$, el nuevo problema tiene una
+            solución óptima. Demuestre que el dual del problema original es no acotado.
+
+      \item Formule un sistema de ecuaciones e inecuaciones que permita encontrar la
+            solución óptima del problema o mostrar que tal solución no existe.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a)} Como (P) es infactible, por el Lema de Farkas (BT Teo. 4.6) existe $y_0$ con $A^\top y_0\leq 0$ y $b^\top y_0>0$. Como el problema ampliado (P') tiene solución óptima, por Dualidad Fuerte su dual (D') es factible: existe $\bar{y}$ con $A^\top\bar{y}\leq c$, i.e., $\bar{y}\in\mathcal{F}_D$. Para todo $\lambda\geq 0$, $y(\lambda)=\bar{y}+\lambda y_0$ satisface $A^\top y(\lambda)\leq c+0=c$, luego $y(\lambda)\in\mathcal{F}_D$. Además $b^\top y(\lambda)=b^\top\bar{y}+\lambda b^\top y_0\to+\infty$ pues $b^\top y_0>0$. El dual (D) es no acotado. $\blacksquare$
+
+\noindent\textbf{(b)} Las condiciones de optimalidad de (P) son: $Ax=b$, $x\geq 0$ (factibilidad primal); $A^\top y\leq c$ (factibilidad dual); $x_j(c_j-A_j^\top y)=0$ para todo $j$ (holgura complementaria). Si no existe solución a este sistema, el problema no tiene óptimo (es infactible o no acotado).
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5.3 — HC y consecuencias.} $x^*$ única solución óptima ssi $\bar{c}_j<0$ $\forall j\notin\mathcal{B}$ (maximización). Primal acotado $+$ dual factible $\Rightarrow$ dualidad fuerte.
+
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Lema de Farkas}
+
+\begin{enumerate}[label=\alph*)]
+      \item Enuncie y demuestre el Lema de Farkas en la siguiente versión: para
+            $A \in \mathbb{R}^{m \times n}$ y $b \in \mathbb{R}^m$, exactamente uno de los
+            siguientes sistemas tiene solución:
+            \[
+                  \text{(I)}\;\; Ax = b,\; x \geq 0 \qquad \text{(II)}\;\; A^\top y \leq 0,\;
+                  b^\top y > 0.
+            \]
+
+      \item Use el Lema de Farkas para demostrar que si el problema primal es infactible
+            entonces el dual es no acotado o infactible, y si el dual es infactible entonces
+            el primal es no acotado o infactible.
+
+      \item Considere el sistema de inecuaciones $Ax \leq b$. Usando el Lema de Farkas,
+            derive una condición necesaria y suficiente para que este sistema no tenga
+            solución. Interprete geométricamente su resultado.
+\end{enumerate}
+
+\begin{solucion}
+
+\noindent\textbf{(a) Lema de Farkas} (BT Teo. 4.6; Ch Teo. 7.3): \textit{Para $A\in\mathbb{R}^{m\times n}$, $b\in\mathbb{R}^m$, exactamente uno de (I) o (II) tiene solución.}
+
+\textit{Exclusión mutua:} Si $\bar{x}$ resuelve (I) y $\bar{y}$ resuelve (II): $0<b^\top\bar{y}=(A\bar{x})^\top\bar{y}=\bar{x}^\top(A^\top\bar{y})\leq 0$, contradicción.
+
+\textit{Exhaustividad:} Si (I) no tiene solución, $b\notin C=\{Ax:x\geq 0\}$. Por el Teorema de Separación de Hiperplanos (BT Prop. 2.4), existe $\bar{y}$ con $\bar{y}^\top b>\bar{y}^\top(Ax)$ para todo $x\geq 0$. Con $x=0$: $\bar{y}^\top b>0$. Con $x=te_j$, $t\to+\infty$: $(A^\top\bar{y})_j\leq 0$ para todo $j$. Luego $\bar{y}$ resuelve (II). $\blacksquare$
+
+\noindent\textbf{(b)} \textit{(i) Primal infactible $\Rightarrow$ dual no acotado o infactible:} Por Farkas existe $y_0$ con $A^\top y_0\leq 0$, $b^\top y_0>0$. Si el dual es factible ($\bar{y}$), la familia $\bar{y}+\lambda y_0$ ($\lambda\geq 0$) está en $\mathcal{F}_D$ con valor $b^\top\bar{y}+\lambda b^\top y_0\to+\infty$: dual no acotado.
+
+\textit{(ii) Dual infactible $\Rightarrow$ primal no acotado o infactible:} Por Farkas aplicado al dual, existe $x_0\geq 0$ con $Ax_0=0$ y $c^\top x_0<0$. Si el primal tiene un punto factible $\bar{x}$, $\bar{x}+tx_0$ es factible con costo $c^\top\bar{x}+tc^\top x_0\to-\infty$: primal no acotado.
+
+\noindent\textbf{(c)} El sistema $Ax\leq b$ no tiene solución si y solo si existe $y\geq 0$ con $A^\top y=0$ y $b^\top y<0$.
+
+\textit{Demostración:} Escribir $Ax\leq b$ como $[A,-A,I](x^+,x^-,s)^\top=b$, $(x^+,x^-,s)\geq 0$. Por Farkas (a): no tiene solución ssi existe $y$ con $A^\top y\leq 0$, $-A^\top y\leq 0$, $y\leq 0$, $b^\top y>0$. De las primeras dos: $A^\top y=0$; poniendo $\bar{y}=-y\geq 0$: $A^\top\bar{y}=0$ y $b^\top\bar{y}<0$.
+
+\textit{Interpretación geométrica:} Los semiespacios $\{x: a_i^\top x\leq b_i\}$ son incompatibles si existe una combinación no-negativa $y_i\geq 0$ de las restricciones (pesos que anulan $A^\top y=0$) cuyos lados derechos ponderados son negativos ($b^\top y<0$): el sistema ``apunta en direcciones mutuamente contradictorias''.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §7 — Lema de Farkas y alternativas.} \textbf{Teo. 7.3}: exactamente uno de (I) $Ax=b,x\geq 0$ o (II) $A^\top y\leq 0,b^\top y>0$ tiene solución. \textbf{Lema 7.2}: $Ax\leq b$ infactible $\Leftrightarrow$ $\exists y\geq 0$: $A^\top y=0$, $b^\top y<0$.
+\end{teofund}
+
+\bigskip
+
+\subsection{Rango de costos y factibilidad dual}
+
+Considere el siguiente problema de PL:
+
+\[
+      \begin{aligned}
+            \max\quad        & Cx_1 - 3x_2        \\
+            \text{s.a.}\quad & 6x_1 - 2x_2 \leq 4 \\
+                             & x_1, x_2 \geq 0
+      \end{aligned}
+\]
+
+Determine, sin formular el problema dual, el rango de valores de $C$ para los cuales el
+problema dual no tiene solución.
+
+\begin{solucion}
+
+El primal es siempre factible ($x_1=x_2=0$). A lo largo del borde activo $6x_1-2x_2=4$ con $x_2\geq 0$: $x_1=(4+2x_2)/6$ y el objetivo es $f(x_2)=C\cdot\frac{4+2x_2}{6}-3x_2=\frac{2C}{3}+\frac{C-9}{3}x_2$.
+
+Si $C>9$: $f(x_2)\to+\infty$ al crecer $x_2$, el primal es no acotado.
+Si $C\leq 9$: $f$ es decreciente en $x_2$ (o constante si $C=9$); el máximo se alcanza en $x_2=0$.
+
+Por la tabla de relaciones primal-dual (BT §4.4): primal no acotado $\Leftrightarrow$ dual infactible. Luego el dual \textbf{no tiene solución} si y solo si $\boxed{C>9}$.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5.4 — Tabla de relaciones primal-dual.} Primal no acotado $\Leftrightarrow$ Dual infactible. Primal infactible $\Rightarrow$ Dual infactible o no acotado. Ambos factibles y acotados $\Rightarrow$ igual valor óptimo.
+
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Dual de un problema de flujo en redes}
+
+Formule el problema dual del siguiente problema de PL:
+
+\[
+      \begin{aligned}
+            \min\quad        & \sum_{(i,j)\in A} c_{ij}\,x_{ij}                                                   \\
+            \text{s.a.}\quad & \sum_{j:\,(i,j)\in A} x_{ij} - \sum_{k:\,(k,i)\in A} x_{ki} = b_i, \quad i \in N, \\
+                             & x_{ij} \leq u_{ij}, \quad (i,j) \in A,                                             \\
+                             & x_{ij} \geq 0, \quad (i,j) \in A,
+      \end{aligned}
+\]
+
+donde $N = \{1, \ldots, n\}$ y $A \subseteq N \times N$.
+
+\begin{solucion}
+
+Asociamos multiplicadores $\pi_i\in\mathbb{R}$ (libres) a las restricciones de conservación de flujo, y $\lambda_{ij}\geq 0$ a las restricciones de capacidad $x_{ij}\leq u_{ij}$. Aplicando las reglas de dualización (BT §4.2, Tabla 4.1):
+
+\textit{Condición de estacionariedad en $x_{ij}$:} el flujo $x_{ij}$ aparece con coeficiente $+1$ en el nodo $i$ y $-1$ en el nodo $j$, más la restricción de capacidad con multiplicador $\lambda_{ij}$:
+\[
+c_{ij} - \pi_i + \pi_j - \lambda_{ij} \geq 0,\quad (i,j)\in A.
+\]
+
+\textbf{Problema dual:}
+\[
+\begin{aligned}
+\max\quad & \sum_{i\in N}b_i\,\pi_i - \sum_{(i,j)\in A}u_{ij}\,\lambda_{ij} \\
+\text{s.a.}\quad & \pi_i - \pi_j + \lambda_{ij} \leq c_{ij},\quad (i,j)\in A, \\
+& \lambda_{ij} \geq 0,\quad (i,j)\in A, \\
+& \pi_i \text{ libre},\quad i\in N.
+\end{aligned}
+\]
+\textit{Interpretación:} $\pi_i$ son potenciales de nodo (precios sombra de conservación); $\lambda_{ij}$ es el precio sombra de la capacidad del arco. Por holgura complementaria: si $0<x_{ij}<u_{ij}$ (flujo interior), entonces $\lambda_{ij}=0$ y $c_{ij}=\pi_i-\pi_j$.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5.2 — Anti-ciclado (Bland).} Con la regla de Bland, el simplex termina en finito número de iteraciones. En cada iteración degenerada la base cambia pero el punto no.
+
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Múltiples óptimas: relación primal-dual}
+
+Suponga que un problema primal tiene múltiples soluciones óptimas. Explique cómo se refleja
+esta situación en el problema dual. ¿Es la situación inversa también cierta? Demuestre su
+respuesta.
+
+\begin{solucion}
+
+\textbf{Múltiples óptimas primales $\Rightarrow$ degeneración dual.} Sean $x_1^*\neq x_2^*$ óptimas primales y $\bar{y}^*$ óptima dual. La dirección $d=x_2^*-x_1^*\neq 0$ satisface $Ad=0$ y $c^\top d=0$. Luego:
+\[
+0 = c^\top d = \sum_j \bar{c}_j d_j = \sum_j(c_j-\bar{y}^{*\top}A_j)d_j.
+\]
+Como $\bar{c}_j\geq 0$ y la suma es cero, para todo $j$ con $d_j>0$ (que existe pues $d\neq 0$): $\bar{c}_j=0$. Si tal $j_0$ es no-básico en $x_1^*$, la restricción dual $A_{j_0}^\top y\leq c_{j_0}$ es activa en $\bar{y}^*$ siendo $j_0$ no-básico: \textbf{degeneración dual} (BT §4.5; Ch §5.5).
+
+\textbf{La situación inversa es cierta}: múltiples óptimas duales implican degeneración primal. Por simetría (el dual del dual es el primal), si $y_1^*\neq y_2^*$ son óptimas duales, la dirección $e=y_2^*-y_1^*$ satisface $b^\top e=0$. Por holgura complementaria, existe $j_0$ con $\bar{c}_{j_0}=0$ y $x_{j_0}^*=0$ (variable básica nula): degeneración primal. $\blacksquare$
+
+\textit{Principio de complementariedad}: multiplicidad en un problema $\Leftrightarrow$ degeneración en el otro.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5.5 — Multiplicidad y degeneración (complementariedad).} Múltiples óptimas en (P) $\Rightarrow$ degeneración en (D) (restricción dual activa con variable primal no básica). Múltiples óptimas en (D) $\Rightarrow$ degeneración en (P). Este principio se llama \emph{complementariedad entre multiplicidad y degeneración}.
+
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Primal acotado implica dual no acotado}
+
+Considere un PPL en forma estándar I según Chvátal, y su correspondiente dual. Suponga que
+el conjunto de soluciones factibles del primal es acotado y no-vacío. Demuestre que el
+conjunto de soluciones factibles del dual es no-acotado.
+
+\begin{solucion}
+
+Sea el primal (P) con $\mathcal{F}_P$ acotado y no-vacío. Por el Teorema Fuerte de Dualidad (BT Teo. 4.4), (D) tiene solución óptima $\bar{y}^*$ (en particular $\mathcal{F}_D\neq\emptyset$). El cono de recesión de $\mathcal{F}_D=\{y:A^\top y\leq c\}$ es $R_D=\{d:A^\top d\leq 0\}$.
+
+Suponga por contradicción que $R_D=\{0\}$: para todo $d\neq 0$ existe $j$ con $A_j^\top d>0$. Esto equivale (por el Teorema de Gordan) a que existen $\lambda_j>0$ con $\sum_j\lambda_j A_j=0$. Defina $x_0$ con $(x_0)_j=\lambda_j>0$: $Ax_0=0$, $x_0>0$.
+
+Sea $\bar{x}\in\mathcal{F}_P$. Para todo $t\geq 0$: $\bar{x}+tx_0\geq 0$ y $A(\bar{x}+tx_0)=b$. El costo es $c^\top\bar{x}+tc^\top x_0$. Si $c^\top x_0<0$: costo $\to -\infty$, $\mathcal{F}_P$ no está acotado (contradicción). Si $c^\top x_0=0$: el rayo $\bar{x}+tx_0$ permanece en $\mathcal{F}_P$ con norma $\to\infty$ (contradicción con acotación). En ambos casos hay contradicción.
+
+Luego $R_D\neq\{0\}$: existe $d^*\neq 0$ con $A^\top d^*\leq 0$. El rayo $\bar{y}^*+\lambda d^*$ ($\lambda\geq 0$) está en $\mathcal{F}_D$, que es \textbf{no-acotado}. $\blacksquare$
+
+\textit{Nota}: $\mathcal{F}_D$ es no-acotado como conjunto, pero el valor objetivo $b^\top y$ sí está acotado superiormente en $z^*$ (Dualidad Fuerte).
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §5.3 — HC y consecuencias.} $x^*$ única solución óptima ssi $\bar{c}_j<0$ $\forall j\notin\mathcal{B}$ (maximización). Primal acotado $+$ dual factible $\Rightarrow$ dualidad fuerte.
+
+\textbf{Ch §5 — Teoría de la dualidad.} \textbf{Teo. 5.1 (Holgura Complementaria)}: $x^*,y^*$ son óptimos primal-dual ssi $x^*_j(c_j-A_j^\top y^*)=0$ $\forall j$. \textbf{Teo. 5.2 (Dualidad Fuerte)}: si ambos problemas son factibles, tienen óptimo finito igual.
+\end{teofund}
+
+\bigskip
+
+\subsection{Infactibilidad implica dual no acotado}
+
+Considere un problema de PL de la forma $\min c^\top x$, sujeto a $Ax = b$, $x \geq 0$.
+Suponga que el problema es infactible. Suponga además que al agregar una variable $x_{n+1}$
+con coeficientes técnicos $A_{n+1}$, el nuevo problema tiene una solución óptima. Demuestre
+que el dual del problema original es no acotado.
+
+\begin{solucion}
+
+\textbf{Paso 1} (Certificado de infactibilidad): como (P) es infactible, por el Lema de Farkas (BT Teo. 4.6) existe $y_0\in\mathbb{R}^m$ con $A^\top y_0\leq 0$ y $b^\top y_0>0$.
+
+\textbf{Paso 2} (Factibilidad del dual): el dual de (P') es (D'): $\max b^\top y$, $A^\top y\leq c$, $A_{n+1}^\top y\leq c_{n+1}$. Como (P') tiene solución óptima, por Dualidad Fuerte (BT Teo. 4.4) el dual (D') es factible: existe $\bar{y}$ con $A^\top\bar{y}\leq c$, es decir, $\bar{y}\in\mathcal{F}_D$.
+
+\textbf{Paso 3} (Rayo ilimitado): para todo $\lambda\geq 0$, $y(\lambda)=\bar{y}+\lambda y_0$ satisface $A^\top y(\lambda)=A^\top\bar{y}+\lambda A^\top y_0\leq c+0=c$, luego $y(\lambda)\in\mathcal{F}_D$. El valor $b^\top y(\lambda)=b^\top\bar{y}+\lambda b^\top y_0\to+\infty$ pues $b^\top y_0>0$. El valor objetivo de (D) es \textbf{no acotado}. $\blacksquare$
+
+\textit{Interpretación}: $y_0$ certifica la infactibilidad del primal (separador entre $b$ y $\{Ax:x\geq 0\}$). Combinado con el punto factible dual $\bar{y}$, genera el rayo $\bar{y}+\lambda y_0$ que recorre $\mathcal{F}_D$ con objetivo creciente.
+
+\end{solucion}
+
+\begin{teofund}
+\textbf{Ch §7 — Lema de Farkas y alternativas.} \textbf{Teo. 7.3}: exactamente uno de (I) $Ax=b,x\geq 0$ o (II) $A^\top y\leq 0,b^\top y>0$ tiene solución. \textbf{Lema 7.2}: $Ax\leq b$ infactible $\Leftrightarrow$ $\exists y\geq 0$: $A^\top y=0$, $b^\top y<0$.
+\end{teofund}
+
+\end{document}

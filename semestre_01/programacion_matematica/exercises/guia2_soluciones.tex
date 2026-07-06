@@ -1,0 +1,527 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{enumerate}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\geometry{a4paper, margin=2.5cm}
+
+\newtheorem*{prop}{Proposición}
+\newtheorem*{lema}{Lema}
+
+\title{\textbf{Guía 2 --- EII-801 Programación Matemática\\[4pt]
+\large Secciones 1--2: Álgebra Lineal, Poliedros y Geometría\\
+Soluciones con Desarrollo Completo}}
+\author{Pitehr Hurtado}
+\date{Primer semestre 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%% ============================================================
+\section*{Sección 1: Álgebra Lineal y Fundamentos}
+\addcontentsline{toc}{section}{Sección 1: Álgebra Lineal y Fundamentos}
+%% ============================================================
+
+%% ============================================================
+\subsection*{Problema 1.1 — Subespacios generados}
+\addcontentsline{toc}{subsection}{Problema 1.1}
+%% ============================================================
+
+\textbf{Enunciado.} Sean $A$ y $B$ conjuntos finitos en $\mathbb{R}^n$. Si $A \subseteq B$, entonces el subespacio generado de $A$ es subconjunto del subespacio generado de $B$.
+
+\medskip
+\noindent\textbf{Solución.}
+
+Recordemos las definiciones. Dado un conjunto finito $S \subseteq \mathbb{R}^n$, su \emph{subespacio generado} (o envoltura lineal) se define como
+\[
+\operatorname{span}(S) \;=\; \left\{\sum_{v \in S} \lambda_v \, v \;\Big|\; \lambda_v \in \mathbb{R}\right\}.
+\]
+Por convención, $\operatorname{span}(\emptyset) = \{0\}$.
+
+\medskip
+\noindent\textbf{Demostración.} Sea $x \in \operatorname{span}(A)$ arbitrario. Por definición, existen escalares $\{\lambda_a\}_{a \in A} \subset \mathbb{R}$ tales que
+\[
+x = \sum_{a \in A} \lambda_a \, a.
+\]
+Como $A \subseteq B$, cada vector $a \in A$ también pertenece a $B$. Definimos los coeficientes extendidos $\{\mu_b\}_{b \in B}$ por
+\[
+\mu_b = \begin{cases} \lambda_b & \text{si } b \in A, \\ 0 & \text{si } b \in B \setminus A. \end{cases}
+\]
+Entonces
+\[
+x = \sum_{a \in A} \lambda_a \, a = \sum_{b \in B} \mu_b \, b,
+\]
+donde los $\mu_b$ son escalares reales. Por la definición de $\operatorname{span}(B)$, se concluye que $x \in \operatorname{span}(B)$.
+
+Como $x \in \operatorname{span}(A)$ fue arbitrario, se tiene $\operatorname{span}(A) \subseteq \operatorname{span}(B)$. $\blacksquare$
+
+\medskip\noindent\textit{Referencia: BT §1.1 (definición de subespacio generado y propiedades de subespacios vectoriales); Ch §1.1 (combinaciones lineales y subespacios).}
+
+\newpage
+%% ============================================================
+\subsection*{Problema 1.2 — Combinaciones lineales positivas}
+\addcontentsline{toc}{subsection}{Problema 1.2}
+%% ============================================================
+
+\textbf{Enunciado.} Demuestre o desmienta: el conjunto de combinaciones lineales positivas de un conjunto finito de vectores en $\mathbb{R}^n$ es un subespacio vectorial.
+
+\medskip
+\noindent\textbf{Solución.}
+
+\textbf{La afirmación es falsa en general.}
+
+\medskip
+\noindent\textbf{Definición.} Sea $S = \{v_1, \ldots, v_k\} \subset \mathbb{R}^n$ un conjunto finito. El conjunto de \emph{combinaciones lineales positivas} (también llamado \emph{cono cónico} o \emph{cono generado}) de $S$ es
+\[
+\operatorname{cone}(S) = \left\{\sum_{i=1}^{k} \lambda_i v_i \;\Big|\; \lambda_i \geq 0\right\}.
+\]
+
+\medskip
+\noindent\textbf{Contraejemplo.} Tome $n = 1$ y $S = \{1\}$. Entonces
+\[
+\operatorname{cone}(S) = \{\lambda \cdot 1 \mid \lambda \geq 0\} = [0, +\infty) \subset \mathbb{R}.
+\]
+El vector $-1 \notin \operatorname{cone}(S)$, por lo que $\operatorname{cone}(S)$ no es cerrado bajo multiplicación por escalares negativos. En particular, $0 \in \operatorname{cone}(S)$ pero $-1 \cdot (1) = -1 \notin \operatorname{cone}(S)$. Por tanto $\operatorname{cone}(S)$ \emph{no} es un subespacio vectorial.
+
+\medskip
+\noindent\textbf{Argumento general.} Un subespacio vectorial $V$ debe satisfacer: para todo $x \in V$ y todo $\alpha \in \mathbb{R}$, $\alpha x \in V$. En particular, si $x \in V$ con $x \neq 0$, entonces $-x \in V$. Sin embargo, si $v_1, \ldots, v_k$ no son todos el vector cero, entonces existe $x = v_1 \in \operatorname{cone}(S)$ tal que $-x = -v_1$. Para que $-v_1 \in \operatorname{cone}(S)$, necesitaríamos $-v_1 = \sum_i \lambda_i v_i$ con $\lambda_i \geq 0$, lo cual requeriría que los vectores de $S$ pudieran representar direcciones opuestas únicamente a través de combinaciones no negativas. Esto no es cierto en general (por ejemplo, si $S$ contiene vectores todos en el mismo semiplano).
+
+\medskip
+\noindent\textbf{Cuándo sí es subespacio.} $\operatorname{cone}(S)$ es un subespacio vectorial si y solo si $\operatorname{cone}(S)$ es cerrado bajo multiplicación por escalares negativos, lo que ocurre únicamente cuando $S = \{0\}$ o cuando $\operatorname{cone}(S)$ contiene pares de vectores opuestos, es decir, cuando $\operatorname{cone}(S) = \operatorname{span}(S)$. Esto sucede si y solo si para cada $v_i \in S$, también $-v_i \in \operatorname{cone}(S)$.
+
+\medskip
+\noindent\textit{Referencia: BT §2.1 (definición de cono y cono convexo); Ch §8.1 (conos poliédricos y su relación con subespacios).}
+
+\newpage
+%% ============================================================
+\section*{Sección 2: Poliedros y Geometría}
+\addcontentsline{toc}{section}{Sección 2: Poliedros y Geometría}
+%% ============================================================
+
+%% ============================================================
+\subsection*{Problema 2.1 — Conjunto de soluciones óptimas}
+\addcontentsline{toc}{subsection}{Problema 2.1}
+%% ============================================================
+
+\textbf{Enunciado.} Suponga que un problema de PL con función objetivo $z = c^\top x$ tiene múltiples soluciones óptimas.
+\begin{enumerate}[a)]
+\item Demuestre que el conjunto de soluciones óptimas es un poliedro. Encuentre la representación más pequeña en términos del número de variables.
+\item Indique cómo usar el método simplex para obtener esta representación.
+\end{enumerate}
+
+\medskip
+\noindent\textbf{Solución.}
+
+\medskip
+\noindent\textbf{Parte a).}
+
+Sea el problema primal en forma estándar:
+\[
+z^* = \min\{c^\top x \mid Ax = b,\; x \geq 0\},
+\]
+donde $A \in \mathbb{R}^{m \times n}$, $b \in \mathbb{R}^m$, y suponemos que $z^*$ es finito y alcanzado en múltiples puntos. El conjunto de soluciones óptimas es:
+\[
+X^* = \{x \in \mathbb{R}^n \mid Ax = b,\; x \geq 0,\; c^\top x = z^*\}.
+\]
+
+\textbf{$X^*$ es un poliedro.} En efecto, $X^*$ se puede escribir como:
+\[
+X^* = \{x \in \mathbb{R}^n \mid Ax = b,\; c^\top x = z^*,\; x \geq 0\},
+\]
+que es la intersección de la región factible (un poliedro) con el hiperplano $\{c^\top x = z^*\}$. La intersección de un poliedro con un hiperplano es un poliedro, ya que el hiperplano se puede representar mediante dos desigualdades lineales: $c^\top x \leq z^*$ y $-c^\top x \leq -z^*$. Por tanto $X^*$ es descrito por el sistema lineal:
+\[
+X^* = \left\{x \in \mathbb{R}^n \;\middle|\; \begin{pmatrix} A \\ -A \\ c^\top \\ -c^\top \\ -I \end{pmatrix} x \leq \begin{pmatrix} b \\ -b \\ z^* \\ -z^* \\ 0 \end{pmatrix}\right\},
+\]
+que es un poliedro en $\mathbb{R}^n$ (representación H). $\blacksquare$
+
+\textbf{Representación más pequeña.} La representación más compacta aprovecha la estructura de la base óptima. Sea $\mathcal{B}$ una base óptima con $x_\mathcal{B}^* = B^{-1}b \geq 0$ y costos reducidos $\bar{c}_j \geq 0$ para todas las variables no básicas $j \in \mathcal{N}$. El conjunto de soluciones óptimas coincide con el conjunto de todas las SBF óptimas y sus combinaciones convexas. Se puede parametrizar como:
+\[
+X^* = \left\{x \in \mathbb{R}^n \;\middle|\; x_\mathcal{B} = B^{-1}b - B^{-1}N\,x_\mathcal{N},\; x_\mathcal{N} \geq 0,\; \bar{c}_j = 0 \text{ o } x_j = 0\;\forall j \in \mathcal{N}\right\}.
+\]
+La representación más pequeña (en términos de número de variables) tiene $|\mathcal{N}^0|$ variables, donde $\mathcal{N}^0 = \{j \in \mathcal{N} \mid \bar{c}_j = 0\}$ es el conjunto de no básicas con costo reducido nulo (las que pueden entrar sin deteriorar el objetivo). Proyectando el poliedro $X^*$ sobre las variables $x_{\mathcal{N}^0}$, la representación más pequeña usa solo $|\mathcal{N}^0| \leq n - m$ variables.
+
+\medskip
+\noindent\textbf{Parte b).}
+
+Para obtener la representación mediante el simplex:
+\begin{enumerate}[1.]
+\item \textbf{Resolver el PL} con el simplex hasta obtener una base óptima $\mathcal{B}$.
+\item \textbf{Identificar $\mathcal{N}^0$}: las variables no básicas con costo reducido exactamente igual a cero ($\bar{c}_j = 0$, $j \in \mathcal{N}$). Estas generan las direcciones en las que el objetivo no cambia.
+\item \textbf{Pivotar} sucesivamente cada $j \in \mathcal{N}^0$ hacia la base (si la columna $\bar{a}_j = B^{-1}a_j$ tiene alguna componente positiva; de lo contrario, $d^j = -B^{-1}a_j e_j$ es una dirección factible de costo nulo, es decir un rayo extremo de $X^*$). Cada pivote revela un nuevo vértice óptimo.
+\item \textbf{Construir la representación}: $X^*$ queda descrito por sus vértices (SBF óptimas) y sus rayos extremos (los $d^j$ con $\bar{c}_j = 0$ y sin cota en la dirección).
+\end{enumerate}
+
+\medskip\noindent\textit{Referencia: BT §2.3 (Teorema 2.6: el conjunto óptimo de un PL es un poliedro); BT §3.3 (degeneración y soluciones múltiples); Ch §2.2 (conjunto de soluciones óptimas como cara del poliedro factible).}
+
+\newpage
+%% ============================================================
+\subsection*{Problema 2.2 — Representación con extremos y rayos: Carathéodory}
+\addcontentsline{toc}{subsection}{Problema 2.2}
+%% ============================================================
+
+\textbf{Enunciado.} Sea $P \subseteq \mathbb{R}^n$ un poliedro. Dispone de puntos extremos $\{v^1, \ldots, v^K\}$ y rayos extremos $\{r^1, \ldots, r^L\}$ de $P$. Sea $x \in P$.
+\begin{enumerate}[a)]
+\item Formule un modelo de PL para expresar $x$ como combinación convexa de puntos extremos más combinación no negativa de rayos extremos.
+\item Formule el dual del modelo de a).
+\item Demuestre que $x$ puede expresarse como combinación lineal de a lo más $n+1$ vectores del conjunto de puntos extremos y rayos extremos.
+\item Describa cómo resolver el modelo de a).
+\end{enumerate}
+
+\medskip
+\noindent\textbf{Solución.}
+
+\medskip
+\noindent\textbf{Parte a).}
+
+Por el Teorema de Representación de Minkowski-Weyl (BT, Teorema 2.15), todo $x \in P$ puede escribirse como:
+\[
+x = \sum_{k=1}^{K} \lambda_k v^k + \sum_{l=1}^{L} \mu_l r^l, \qquad \sum_{k=1}^{K} \lambda_k = 1, \quad \lambda_k \geq 0, \quad \mu_l \geq 0.
+\]
+
+El modelo de PL para encontrar $(\lambda, \mu)$ dado $x$ es:
+
+\[
+\begin{aligned}
+\min\quad & 0 \\
+\text{s.a.}\quad & \sum_{k=1}^{K} \lambda_k v^k + \sum_{l=1}^{L} \mu_l r^l = x \\
+& \sum_{k=1}^{K} \lambda_k = 1 \\
+& \lambda_k \geq 0, \quad k = 1, \ldots, K \\
+& \mu_l \geq 0, \quad l = 1, \ldots, L
+\end{aligned}
+\]
+
+Las variables de decisión son $\lambda = (\lambda_1, \ldots, \lambda_K)^\top \in \mathbb{R}^K$ y $\mu = (\mu_1, \ldots, \mu_L)^\top \in \mathbb{R}^L$. El sistema tiene $n + 1$ restricciones de igualdad (las $n$ ecuaciones vectoriales más la restricción de convexidad).
+
+\medskip
+\noindent\textbf{Parte b).}
+
+Para formular el dual, reescribimos el primal de a) en forma matricial. Sea $V = [v^1 \cdots v^K] \in \mathbb{R}^{n \times K}$ y $R = [r^1 \cdots r^L] \in \mathbb{R}^{n \times L}$. El primal es:
+\[
+\min_{(\lambda,\mu)} \; 0 \quad \text{s.a.} \quad \begin{pmatrix} V & R \\ \mathbf{1}^\top & \mathbf{0}^\top \end{pmatrix} \begin{pmatrix} \lambda \\ \mu \end{pmatrix} = \begin{pmatrix} x \\ 1 \end{pmatrix}, \quad \lambda \geq 0, \quad \mu \geq 0.
+\]
+
+Las variables duales son $(y, \alpha) \in \mathbb{R}^n \times \mathbb{R}$ (asociadas a las $n$ ecuaciones vectoriales y a la restricción de convexidad). El dual de $\min \{0^\top z \mid Az = b, z \geq 0\}$ es $\max\{b^\top \pi \mid A^\top \pi \leq 0\}$:
+\[
+\begin{aligned}
+\max\quad & x^\top y + \alpha \\
+\text{s.a.}\quad & (v^k)^\top y + \alpha \leq 0, \quad k = 1, \ldots, K \\
+& (r^l)^\top y \leq 0, \quad l = 1, \ldots, L \\
+& y \in \mathbb{R}^n \text{ libre}, \quad \alpha \in \mathbb{R} \text{ libre}
+\end{aligned}
+\]
+
+\textit{Interpretación:} el dual busca un hiperplano $\{z : y^\top z + \alpha = 0\}$ que separe $x$ del conjunto generado por los extremos y rayos. Si el primal es factible (lo es por hipótesis, ya que $x \in P$), el valor óptimo dual es cero y $y = 0$, $\alpha = 0$ es la solución dual óptima (dualidad fuerte).
+
+\medskip
+\noindent\textbf{Parte c) — Teorema de Carathéodory.}
+
+\begin{prop}[Carathéodory para poliedros]
+Sea $x \in P$, con $P$ poliedro de $\mathbb{R}^n$ con puntos extremos $\{v^k\}$ y rayos extremos $\{r^l\}$. Entonces existen índices $k_1, \ldots, k_s$ y $l_1, \ldots, l_t$ con $s + t \leq n + 1$ tales que:
+\[
+x = \sum_{i=1}^{s} \lambda_{k_i} v^{k_i} + \sum_{j=1}^{t} \mu_{l_j} r^{l_j}, \quad \sum_{i=1}^s \lambda_{k_i} = 1, \quad \lambda_{k_i} \geq 0, \quad \mu_{l_j} \geq 0.
+\]
+\end{prop}
+
+\begin{proof}
+Suponga que $x = \sum_{k} \lambda_k v^k + \sum_l \mu_l r^l$ con $\sum_k \lambda_k = 1$, y que el número de vectores con coeficiente estrictamente positivo es $p = |\{k : \lambda_k > 0\}| + |\{l : \mu_l > 0\}| > n + 1$.
+
+Ordene los vectores activos como $w^1, \ldots, w^p$ (con $p > n + 1$ puntos extremos y rayos extremos). Considere el sistema con $p$ vectores:
+\[
+\sum_{i=1}^{p} \theta_i w^i = 0, \qquad \sum_{i \in \{k\}} \theta_i = 0
+\]
+(es decir, $\theta$ satisface las mismas restricciones de igualdad que $\lambda$ y $\mu$ pero con lado derecho cero y cero en la suma). Esto es un sistema homogéneo de $n + 1$ ecuaciones en $p > n + 1$ incógnitas, que por tanto tiene solución no trivial $\theta \neq 0$.
+
+Como $\theta \neq 0$, exista algún $\theta_i \neq 0$. Defina $\alpha^* = \min_{i : \theta_i > 0} \frac{\text{coeficiente de }w^i}{\theta_i}$ (tomando el mínimo sobre los $\theta_i > 0$, usando los coeficientes originales $\lambda_{k_i}$ o $\mu_{l_j}$ según corresponda). Entonces el vector
+\[
+\lambda_k' = \lambda_k - \alpha^* \theta_k, \quad \mu_l' = \mu_l - \alpha^* \theta_l
+\]
+satisface: (i) $\sum_k \lambda_k' = 1$, (ii) $\sum_k \lambda_k' v^k + \sum_l \mu_l' r^l = x$, (iii) todos los coeficientes son $\geq 0$ (por definición de $\alpha^*$), y (iv) al menos un coeficiente que era positivo se vuelve cero (el que alcanzó el mínimo). Se ha reducido el número de vectores activos en al menos uno. Repitiendo este argumento, se llega a una representación con a lo más $n + 1$ vectores activos.
+\end{proof}
+
+\medskip
+\noindent\textbf{Parte d).}
+
+El modelo de a) es un PL de fase I: se busca una solución factible (no se minimiza nada). Para resolverlo:
+
+\begin{enumerate}[1.]
+\item \textbf{Comprobar si $x \in P$} primero, resolviendo el sistema $Ax \leq b$ (o $Ax = b$, $x \geq 0$ en forma estándar) con los datos disponibles.
+\item \textbf{Inicializar}: si existe una base inicial conocida (p.ej.\ un punto extremo $v^1$ que pueda ser candidato), usarla. De lo contrario, aplicar el método de las dos fases: introducir variables artificiales $a_k$ y $a_l$ y minimizar $\sum_k a_k + \sum_l a_l$ hasta alcanzar el valor cero.
+\item \textbf{Método simplex primal}: pivotar hasta obtener una solución factible $(\lambda^*, \mu^*)$. Al terminar, los $\lambda_k^* > 0$ y $\mu_l^* > 0$ identifican los puntos extremos y rayos extremos de la representación.
+\item \textbf{Refinar con Carathéodory}: si el número de vectores activos supera $n + 1$, aplicar el procedimiento de reducción descrito en c) para obtener la representación mínima.
+\end{enumerate}
+
+\medskip\noindent\textit{Referencia: BT §2.8 (Teorema de Carathéodory, Corolario 2.3); BT §2.5, Teorema 2.15 (Representación de poliedros mediante extremos y rayos); Ch §8.2 (descomposición de poliedros y representación finita).}
+
+\newpage
+%% ============================================================
+\subsection*{Problema 2.3 — Representaciones mixtas de poliedros}
+\addcontentsline{toc}{subsection}{Problema 2.3}
+%% ============================================================
+
+\textbf{Enunciado.} Sean $P$ y $Q$ dos poliedros en $\mathbb{R}^n$. $P = \{x \in \mathbb{R}^n : Ax \geq b\}$ está dado en forma H (por desigualdades), y $Q$ está dado en forma V (por sus puntos y rayos extremos: $\{v^1,\ldots,v^K\}$ y $\{r^1,\ldots,r^L\}$). Discuta qué operaciones son posibles con estas representaciones mixtas y cómo convertir entre ellas.
+
+\medskip
+\noindent\textbf{Solución.}
+
+\textbf{Representaciones de poliedros.} Todo poliedro $P \subseteq \mathbb{R}^n$ admite dos representaciones equivalentes (Teorema de Minkowski-Weyl):
+\begin{itemize}
+\item \textbf{Forma H (media-espacios)}: $P = \{x \in \mathbb{R}^n \mid Ax \geq b\}$, dada por un sistema finito de desigualdades lineales.
+\item \textbf{Forma V (vértices y rayos)}: $P = \operatorname{conv}(v^1,\ldots,v^K) + \operatorname{cone}(r^1,\ldots,r^L)$, donde $\operatorname{conv}$ denota la envoltura convexa y $\operatorname{cone}$ el cono generado.
+\end{itemize}
+
+\textbf{Operaciones posibles con representaciones mixtas.}
+
+\begin{enumerate}[1.]
+\item \textbf{Verificar membresía}: dado $x \in \mathbb{R}^n$, comprobar si $x \in P$ es directo en forma H (sustituir en las desigualdades). Para $Q$ en forma V, requiere resolver un PL de factibilidad (¿existe $(\lambda,\mu) \geq 0$, $\sum \lambda_k = 1$, tal que $\sum_k \lambda_k v^k + \sum_l \mu_l r^l = x$?).
+
+\item \textbf{Intersección} $P \cap Q$: si $Q$ viene en forma V, primero se convierte a forma H (ver más abajo) y luego se apila el sistema de desigualdades. Alternativamente, se puede trabajar directamente: $x \in P \cap Q$ si y solo si $Ax \geq b$ y $x = \sum_k \lambda_k v^k + \sum_l \mu_l r^l$ con $(\lambda,\mu) \geq 0$, $\sum_k \lambda_k = 1$.
+
+\item \textbf{Optimización}: minimizar $c^\top x$ sobre $P$ (forma H) se hace con simplex o método del interior. Minimizar sobre $Q$ (forma V) reduce a: $\min_k c^\top v^k$ (si el mínimo no es $-\infty$; se verifica comprobando $c^\top r^l \geq 0$ para todos los rayos).
+
+\item \textbf{Suma de Minkowski} $P + Q$: se discute en el Problema 2.7.
+\end{enumerate}
+
+\textbf{Conversión entre representaciones.}
+
+\textit{Forma V $\to$ Forma H}: dado $Q$ con puntos extremos $\{v^k\}$ y rayos $\{r^l\}$, se busca el sistema mínimo de desigualdades que describe $Q$. Esto es el problema de \emph{envoltura convexa} (convex hull). Para poliedros de alta dimensión, se usa el algoritmo de \emph{doble descripción} (Double Description Method, Motzkin et al., 1953) o el algoritmo de Fourier-Motzkin. El costo computacional es polinomial en el número de facetas, pero potencialmente exponencial en la dimensión.
+
+\textit{Forma H $\to$ Forma V}: dado $P = \{Ax \geq b\}$, encontrar los vértices extremos requiere enumerar las soluciones básicas factibles, que corresponden a bases de la matriz $A$. El número de vértices puede ser exponencial en $m$ y $n$, pero algoritmos como el de \emph{pivoteo en el espacio dual} o métodos de enumeración de vértices lo hacen sistemáticamente.
+
+\medskip
+\noindent\textit{Referencia: BT §2.2 (Teorema de representación 2.15, formas H y V); BT §2.3--2.4 (puntos y rayos extremos); Ch §8.3 (equivalencia entre descripciones de poliedros).}
+
+\newpage
+%% ============================================================
+\subsection*{Problema 2.4 — Conjunto de direcciones factibles}
+\addcontentsline{toc}{subsection}{Problema 2.4}
+%% ============================================================
+
+\textbf{Enunciado.} Sea $P = \{x \in \mathbb{R}^n \mid Ax \leq b,\; x \geq 0\}$, $x^* \in P$. Encuentre el conjunto de direcciones factibles de $P$ en $x^*$.
+
+\medskip
+\noindent\textbf{Solución.}
+
+\noindent\textbf{Definición.} Una dirección $d \in \mathbb{R}^n$ es \emph{factible} en $x^*$ con respecto a $P$ si existe $\epsilon > 0$ tal que $x^* + \theta d \in P$ para todo $\theta \in [0, \epsilon]$.
+
+Sea $I(x^*) = \{i : a_i^\top x^* = b_i\}$ el conjunto de restricciones activas de $Ax \leq b$ en $x^*$, y $J(x^*) = \{j : x^*_j = 0\}$ el conjunto de coordenadas nulas de $x^*$.
+
+Para que $x^* + \theta d \in P$ para $\theta > 0$ suficientemente pequeño, se requiere que:
+\begin{enumerate}[(i)]
+\item $A(x^* + \theta d) \leq b$ para $\theta > 0$ pequeño:
+  \begin{itemize}
+  \item Para $i \notin I(x^*)$: $a_i^\top x^* < b_i$, y por continuidad se satisface para $\theta$ suficientemente pequeño (sin restricción adicional sobre $d$).
+  \item Para $i \in I(x^*)$: $a_i^\top x^* = b_i$, luego $a_i^\top(x^* + \theta d) = b_i + \theta a_i^\top d \leq b_i$ requiere $a_i^\top d \leq 0$.
+  \end{itemize}
+\item $x^* + \theta d \geq 0$ para $\theta > 0$ pequeño:
+  \begin{itemize}
+  \item Para $j \notin J(x^*)$: $x^*_j > 0$, satisfecho por continuidad.
+  \item Para $j \in J(x^*)$: $x^*_j = 0$, luego $x^*_j + \theta d_j = \theta d_j \geq 0$ requiere $d_j \geq 0$.
+  \end{itemize}
+\end{enumerate}
+
+Por tanto, el \textbf{conjunto de direcciones factibles} de $P$ en $x^*$ es:
+\[
+\boxed{D(x^*) = \{d \in \mathbb{R}^n \mid a_i^\top d \leq 0 \;\;\forall i \in I(x^*),\quad d_j \geq 0 \;\;\forall j \in J(x^*)\}.}
+\]
+
+\textbf{Interpretación.} $D(x^*)$ es el cono tangente a $P$ en $x^*$, definido por las restricciones activas. Usando notación matricial: sea $A_{I} \in \mathbb{R}^{|I| \times n}$ la submatriz de $A$ con filas en $I(x^*)$, y $e_{J} \in \mathbb{R}^{n}$ los vectores canónicos con índices en $J(x^*)$. Entonces:
+\[
+D(x^*) = \{d \in \mathbb{R}^n \mid A_I d \leq 0, \quad d_j \geq 0 \;\forall j \in J(x^*)\}.
+\]
+
+\textbf{Caso particular.} Si $x^*$ es un punto interior de $P$ (todas las restricciones son inactivas: $I(x^*) = \emptyset$, $J(x^*) = \emptyset$), entonces $D(x^*) = \mathbb{R}^n$ (toda dirección es factible). Si $x^*$ es un vértice de $P$ (hay $n$ restricciones activas independientes), $D(x^*)$ es un cono agudo.
+
+\medskip\noindent\textit{Referencia: BT §2.3, Definición 2.5 y Lema 2.2 (direcciones factibles y el cono tangente); Ch §3.1 (cono de direcciones factibles en un vértice).}
+
+\newpage
+%% ============================================================
+\subsection*{Problema 2.5 — Rayos extremos y acotación}
+\addcontentsline{toc}{subsection}{Problema 2.5}
+%% ============================================================
+
+\textbf{Enunciado.}
+\[
+\min\; c_1 x_1 + c_2 x_2 \quad \text{s.a.}\quad -x_1 + x_2 \leq 3,\; x_1 - 2x_2 \leq 2,\; x_1, x_2 \geq 0.
+\]
+Encuentre condiciones necesarias y suficientes sobre $(c_1, c_2)$ para que el problema tenga costo óptimo finito.
+
+\medskip
+\noindent\textbf{Solución.}
+
+\textbf{Paso 1: Identificar los rayos extremos del poliedro factible.}
+
+El poliedro factible es $P = \{(x_1, x_2)^\top \mid -x_1 + x_2 \leq 3,\; x_1 - 2x_2 \leq 2,\; x_1, x_2 \geq 0\}$. Verificamos primero que $P \neq \emptyset$: el punto $x = (0,0)$ satisface $0 \leq 3$, $0 \leq 2$, $x \geq 0$. Sí. Por tanto $P$ tiene al menos un punto extremo.
+
+Los rayos extremos son las direcciones $d \geq 0$ tales que:
+\[
+-d_1 + d_2 \leq 0, \quad d_1 - 2d_2 \leq 0, \quad d_1 \geq 0, \quad d_2 \geq 0.
+\]
+De $d_1 - 2d_2 \leq 0$ se obtiene $d_1 \leq 2d_2$. De $-d_1 + d_2 \leq 0$ se obtiene $d_2 \leq d_1$. Combinando: $d_2 \leq d_1 \leq 2d_2$ con $d_1, d_2 \geq 0$.
+
+Los \textbf{rayos extremos} del cono de recesión son los extremos de este cono bidimensional. Se encuentran igualando restricciones:
+\begin{itemize}
+\item Restricción $-d_1 + d_2 = 0$ y $d_1 \geq 0$: $d_2 = d_1$. Normalizando con $d_1 = 1$: $\mathbf{r^1 = (1, 1)^\top}$.
+\item Restricción $d_1 - 2d_2 = 0$ y $d_2 \geq 0$: $d_1 = 2d_2$. Normalizando con $d_2 = 1$: $\mathbf{r^2 = (2, 1)^\top}$.
+\item Restricción $d_2 = 0$ (borde no negativo): junto con $d_1 \leq 2(0) = 0$ y $d_1 \geq 0$ se obtiene $d_1 = 0$. Solo el vector cero; no hay rayo extremo en esta dirección (la dirección $d_1$-pura no es factible porque $d_1 - 2(0) = d_1 \leq 0$ requiere $d_1 \leq 0$, contradiciendo $d_1 > 0$).
+\end{itemize}
+
+Por tanto, el cono de recesión $C(P)$ tiene dos rayos extremos: $r^1 = (1,1)^\top$ y $r^2 = (2,1)^\top$.
+
+\textbf{Paso 2: Condición de costo óptimo finito.}
+
+El PL de minimización $\min\{c^\top x \mid x \in P\}$ tiene costo óptimo finito si y solo si $c^\top d \geq 0$ para todo rayo de recesión $d$ de $P$ (Teorema de recesión, BT Corolario 2.2). Como los rayos de recesión de $P$ son precisamente los vectores en $C(P) = \{d : -d_1 + d_2 \leq 0,\; d_1 - 2d_2 \leq 0,\; d \geq 0\}$, la condición se reduce a verificar que $c^\top d \geq 0$ para los rayos extremos del cono:
+\[
+c^\top r^1 = c_1 + c_2 \geq 0, \qquad c^\top r^2 = 2c_1 + c_2 \geq 0.
+\]
+
+\textbf{Condición necesaria y suficiente:}
+\[
+\boxed{c_1 + c_2 \geq 0 \quad \text{y} \quad 2c_1 + c_2 \geq 0.}
+\]
+
+\textbf{Paso 3: Verificación.}
+
+\begin{itemize}
+\item Si $c_1 = 1$, $c_2 = 0$: $c^\top r^1 = 1 \geq 0$, $c^\top r^2 = 2 \geq 0$. Costo finito. \checkmark
+\item Si $c_1 = 0$, $c_2 = -1$: $c^\top r^1 = -1 < 0$. El problema es no acotado (moviéndose en dirección $r^1$, el costo $c^\top x$ tiende a $-\infty$). \checkmark
+\item Si $c_1 = -1$, $c_2 = 0$: $c^\top r^2 = -2 < 0$. No acotado. \checkmark
+\item Si $c_1 = -1$, $c_2 = 3$: $c^\top r^1 = 2 \geq 0$, $c^\top r^2 = 1 \geq 0$. Costo finito. \checkmark
+\end{itemize}
+
+\textbf{Región de costos con óptimo finito} en el plano $(c_1, c_2)$: es la intersección de dos semiespacios,
+\[
+Q = \{(c_1,c_2) \mid c_1 + c_2 \geq 0,\; 2c_1 + c_2 \geq 0\},
+\]
+que es un cono convexo cerrado en $\mathbb{R}^2$ con vértice en el origen.
+
+\medskip\noindent\textit{Referencia: BT §2.5, Corolario 2.2 (condición de acotación via cono de recesión); BT §2.4, Teorema 2.8 (rayos extremos del poliedro y no-acotación); Ch §2.3 (rayos extremos y acotación del PL).}
+
+\newpage
+%% ============================================================
+\subsection*{Problema 2.6 — Conjunto de costos con óptimo finito}
+\addcontentsline{toc}{subsection}{Problema 2.6}
+%% ============================================================
+
+\textbf{Enunciado.} Sea $P \subseteq \mathbb{R}^n$ un poliedro no vacío. Sea $Q = \{c \in \mathbb{R}^n : \min\{c^\top x \mid x \in P\} \text{ no es no-acotado}\}$. Demuestre o desmienta que $Q$ es un poliedro.
+
+\medskip
+\noindent\textbf{Solución.}
+
+\textbf{Afirmación: $Q$ es un poliedro convexo cerrado.}
+
+\textbf{Paso 1: Caracterización de $Q$ mediante el cono de recesión.}
+
+Sea $C(P) = \{d \in \mathbb{R}^n \mid Ad \leq 0\}$ el cono de recesión de $P$ (suponiendo $P = \{x : Ax \leq b\}$). Por el Teorema de recesión (BT, Corolario 2.2), el PL $\min\{c^\top x \mid x \in P\}$ es no acotado (por abajo) si y solo si existe $d \in C(P)$ tal que $c^\top d < 0$. Por tanto, el PL no es no-acotado (i.e.\ tiene costo óptimo finito o $P = \emptyset$, pero $P \neq \emptyset$ por hipótesis) si y solo si:
+\[
+c^\top d \geq 0 \quad \text{para todo } d \in C(P).
+\]
+
+\textbf{Paso 2: Representación de $Q$ como cono polar.}
+
+La condición $c^\top d \geq 0$ para todo $d \in C(P)$ define el \emph{cono polar} (o dual cónico) de $C(P)$:
+\[
+Q = C(P)^* = \{c \in \mathbb{R}^n \mid c^\top d \geq 0 \;\;\forall d \in C(P)\}.
+\]
+
+\textbf{Paso 3: $Q$ es un poliedro.}
+
+Como $P$ es un poliedro, $C(P) = \{d \in \mathbb{R}^n \mid Ad \leq 0\}$ es también un poliedro (cono poliédrico). Por el Teorema de Minkowski-Weyl, $C(P)$ es finitamente generado: existen rayos extremos $r^1, \ldots, r^L$ de $C(P)$ tales que $C(P) = \operatorname{cone}(r^1, \ldots, r^L)$ (cuando $C(P)$ es un cono puntudo) o tiene una descripción similar en general.
+
+La condición $c^\top d \geq 0$ para todo $d \in C(P)$ es equivalente a:
+\[
+c^\top r^l \geq 0 \quad \text{para todo rayo extremo } r^l \text{ de } C(P), \quad l = 1, \ldots, L.
+\]
+(Esto se debe a que $C(P) = \operatorname{cone}(r^1, \ldots, r^L)$, y la linealidad del funcional $c^\top d$ implica que basta verificar en los generadores extremos.) Por tanto:
+\[
+Q = \{c \in \mathbb{R}^n \mid (r^l)^\top c \geq 0, \quad l = 1, \ldots, L\},
+\]
+que es una \textbf{intersección finita de semiespacios cerrados}. Esto es exactamente la definición de un \textbf{poliedro convexo cerrado} en $\mathbb{R}^n$. En concreto, $Q$ es un cono poliédrico convexo (sin restricción de acotación).
+
+\textbf{Casos extremos:}
+\begin{itemize}
+\item Si $C(P) = \{0\}$ (P es acotado), entonces no hay rayos extremos que restrinjan $Q$, y $Q = \mathbb{R}^n$ (todo $c$ da óptimo finito). $\mathbb{R}^n$ es un poliedro trivial. \checkmark
+\item Si $P$ es un cono (por ejemplo $P = \{x \geq 0\}$), entonces $C(P) = P$ y $Q = P^* = \{c \geq 0\}$ (el ortante no negativo), que es un poliedro. \checkmark
+\end{itemize}
+
+\textbf{Conclusión:} $Q$ es un poliedro (de hecho, un cono poliédrico convexo). $\blacksquare$
+
+\medskip\noindent\textit{Referencia: BT §2.5 (cono de recesión y condición de acotación); BT §4.2 (dualidad cónica y cono polar); Ch §8.2 (cono polar y representación finita de conos poliédricos).}
+
+\newpage
+%% ============================================================
+\subsection*{Problema 2.7 — Suma de Minkowski de poliedros}
+\addcontentsline{toc}{subsection}{Problema 2.7}
+%% ============================================================
+
+\textbf{Enunciado.} Sean $P, Q$ poliedros en $\mathbb{R}^n$. Sea $S = \{x + y \mid x \in P, y \in Q\}$. Demuestre que $S$ es un poliedro (usando proyección).
+
+\medskip
+\noindent\textbf{Solución.}
+
+\textbf{Idea central.} Representaremos $S$ como la proyección de un poliedro de mayor dimensión sobre $\mathbb{R}^n$, y usaremos el hecho de que las proyecciones de poliedros son poliedros (Teorema de Fourier-Motzkin).
+
+\medskip
+\noindent\textbf{Paso 1: Representación de $S$ como proyección.}
+
+Sea $P = \{x \in \mathbb{R}^n \mid Ax \leq a\}$ y $Q = \{y \in \mathbb{R}^n \mid By \leq b\}$, donde $A \in \mathbb{R}^{m_1 \times n}$, $B \in \mathbb{R}^{m_2 \times n}$.
+
+Defina el poliedro en $\mathbb{R}^{3n}$ (con variables $(z, x, y)$):
+\[
+\tilde{P} = \{(z, x, y) \in \mathbb{R}^n \times \mathbb{R}^n \times \mathbb{R}^n \mid z = x + y,\; Ax \leq a,\; By \leq b\}.
+\]
+
+Reescribiendo la restricción de igualdad $z = x + y$ como $z - x - y = 0$ (o equivalentemente como $z - x - y \leq 0$ y $-z + x + y \leq 0$), obtenemos que $\tilde{P}$ es la intersección finita de semiespacios en $\mathbb{R}^{3n}$, por lo tanto $\tilde{P}$ es un \textbf{poliedro} en $\mathbb{R}^{3n}$.
+
+Observamos que:
+\[
+S = \{z \in \mathbb{R}^n \mid \exists\, x, y \in \mathbb{R}^n : (z, x, y) \in \tilde{P}\} = \pi_z(\tilde{P}),
+\]
+donde $\pi_z : \mathbb{R}^{3n} \to \mathbb{R}^n$ es la proyección sobre las primeras $n$ coordenadas.
+
+\medskip
+\noindent\textbf{Paso 2: Las proyecciones de poliedros son poliedros.}
+
+\begin{lema}[Proyección de poliedros]
+Si $R \subseteq \mathbb{R}^{n+m}$ es un poliedro, entonces su proyección $\pi(R) = \{x \in \mathbb{R}^n \mid \exists\, y \in \mathbb{R}^m : (x, y) \in R\}$ es un poliedro en $\mathbb{R}^n$.
+\end{lema}
+
+\begin{proof}[Demostración del Lema]
+El resultado se demuestra mediante eliminación de Fourier-Motzkin. Sea $R = \{(x,y) \mid C\begin{pmatrix}x\\y\end{pmatrix} \leq d\}$. Para cada desigualdad $c_i^\top x + e_i y \leq d_i$:
+\begin{itemize}
+\item Si $e_i > 0$: despejar $y \leq (d_i - c_i^\top x)/e_i$ (cota superior de $y$).
+\item Si $e_i < 0$: despejar $y \geq (d_i - c_i^\top x)/e_i$ (cota inferior de $y$).
+\item Si $e_i = 0$: la restricción $c_i^\top x \leq d_i$ no involucra $y$.
+\end{itemize}
+La condición de existencia de $y$ equivale a que todas las cotas inferiores sean menores o iguales a todas las cotas superiores. Esto genera un conjunto finito de desigualdades lineales en $x$ solamente:
+\[
+\frac{d_i - c_i^\top x}{|e_i|} \leq \frac{d_j - c_j^\top x}{|e_j|} \quad \text{para todo par } (i,j) \text{ con } e_i < 0, e_j > 0,
+\]
+más las restricciones con $e_i = 0$. Esto es un sistema finito de desigualdades lineales en $x$, por lo tanto $\pi(R)$ es un poliedro. $\square$
+\end{proof}
+
+\medskip
+\noindent\textbf{Paso 3: Conclusión.}
+
+Aplicando el Lema al poliedro $\tilde{P} \subseteq \mathbb{R}^{3n}$, su proyección $\pi_z(\tilde{P}) = S$ es un poliedro en $\mathbb{R}^n$.
+
+De manera más explícita, los sistemas de desigualdades que describen $S$ se obtienen eliminando $x$ e $y$ de:
+\[
+z = x + y, \qquad Ax \leq a, \qquad By \leq b,
+\]
+mediante eliminación de Fourier-Motzkin. El resultado es un sistema finito de desigualdades lineales en $z$, es decir, $S = \{z \in \mathbb{R}^n \mid Cz \leq d\}$ para alguna matriz $C$ y vector $d$ obtenidos del proceso de eliminación. $\blacksquare$
+
+\textbf{Observación alternativa (via Teorema de Representación).} Si $P$ y $Q$ tienen representaciones en forma V: $P = \operatorname{conv}(v^k) + \operatorname{cone}(\rho^l)$ y $Q = \operatorname{conv}(w^k) + \operatorname{cone}(\sigma^l)$, entonces:
+\[
+S = \operatorname{conv}(\{v^k + w^j\}_{k,j}) + \operatorname{cone}(\{\rho^l\}_l \cup \{\sigma^l\}_l),
+\]
+que es finitamente generado, luego es un poliedro por el Teorema de Minkowski-Weyl.
+
+\medskip\noindent\textit{Referencia: BT §2.3, Proposición 2.2 (proyección de poliedros y eliminación de Fourier-Motzkin); BT §2.5, Teorema 2.15 (representación V de poliedros); Ch §3.4 y §8.3 (suma de Minkowski y poliedros).}
+
+\end{document}

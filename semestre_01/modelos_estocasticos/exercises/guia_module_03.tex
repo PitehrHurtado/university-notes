@@ -1,0 +1,1174 @@
+% ─────────────────────────────────────────────────────────────────────────────
+%  Guía 2 — Cadenas de Markov (Tiempo Discreto y Continuo)
+%  Recopilación, transcripción y resolución de ejercicios · P. Hurtado · 2026
+%  Formato de "ficha por ejercicio": enunciado + resolución juntos, con índice
+%  navegable (hipervínculos) y diagramas de transición.
+% ─────────────────────────────────────────────────────────────────────────────
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper, top=2.0cm, bottom=2.2cm, left=1.8cm, right=1.8cm]{geometry}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric, fit, backgrounds, decorations.pathreplacing}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\setlength{\headheight}{22pt}
+\allowdisplaybreaks
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{2}
+
+% ─── Paleta (distinta a la guía módulo 03: petróleo + ámbar) ──────────────────
+\definecolor{primary}{HTML}{0E5A66}   % teal petróleo
+\definecolor{primdark}{HTML}{073B43}
+\definecolor{accent}{HTML}{E0913A}    % ámbar
+\definecolor{stmtbg}{HTML}{EAF3F4}    % fondo enunciado (teal muy claro)
+\definecolor{solbg}{HTML}{FBF4E9}     % fondo resultado (ámbar muy claro)
+\definecolor{inkgray}{HTML}{3A3A3A}
+
+\hypersetup{
+  colorlinks=true, linkcolor=primary, citecolor=primary, urlcolor=accent,
+  pdftitle={Guía 2 — Cadenas de Markov resueltas},
+  pdfauthor={P. Hurtado}
+}
+
+% ─── Cabeceras ───────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\sffamily\color{primary}Cadenas de Markov \textbullet\ Modelos Estocásticos}
+\fancyhead[R]{\footnotesize\sffamily\color{primary}Guía 2 \textbullet\ 2026}
+\fancyfoot[C]{\footnotesize\sffamily\color{primary}\thepage}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{accent}\leaders\hrule height \headrulewidth\hfill}}
+
+% ─── Formato de secciones ────────────────────────────────────────────────────
+\titleformat{\section}
+  {\Large\bfseries\sffamily\color{primary}}{}{0pt}{}[{\vspace{2pt}\color{accent}\titlerule[2pt]}]
+\titlespacing*{\section}{0pt}{16pt}{8pt}
+\titleformat{\subsection}
+  {\large\bfseries\sffamily\color{primdark}}{}{0pt}{}
+\titlespacing*{\subsection}{0pt}{14pt}{4pt}
+
+% ─── Macros matemáticas ──────────────────────────────────────────────────────
+\newcommand{\Prob}[1]{\mathbb{P}\!\left(#1\right)}
+\newcommand{\E}[1]{\mathbb{E}\!\left[#1\right]}
+\newcommand{\R}{\mathbb{R}}
+
+% ─── Caja de enunciado ───────────────────────────────────────────────────────
+\newtcolorbox{enun}{
+  breakable, enhanced,
+  colback=stmtbg, colframe=primary,
+  boxrule=0pt, leftrule=4pt, arc=2pt,
+  left=10pt, right=10pt, top=18pt, bottom=9pt,
+  coltitle=white, fonttitle=\bfseries\sffamily\small,
+  colbacktitle=primary, attach boxed title to top left={xshift=8pt, yshift=-9pt},
+  boxed title style={colframe=primary, arc=1pt, boxrule=0pt, left=5pt, right=5pt},
+  title={ENUNCIADO},
+}
+
+% ─── Caja de resultado ───────────────────────────────────────────────────────
+\newtcolorbox{resultado}{
+  breakable, enhanced,
+  colback=solbg, colframe=accent!85!black,
+  boxrule=0pt, leftrule=4pt, arc=2pt,
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+  fontupper=\normalsize,
+}
+
+% ─── Nota al margen / aside ──────────────────────────────────────────────────
+\newtcolorbox{nota}{
+  breakable, colback=white, colframe=primary!35,
+  boxrule=0.6pt, arc=2pt, left=8pt, right=8pt, top=4pt, bottom=4pt,
+  fontupper=\footnotesize\itshape\color{inkgray},
+}
+
+% ─── Encabezado de paso de la resolución ─────────────────────────────────────
+\newcommand{\paso}[1]{%
+  \par\addvspace{9pt}\needspace{2.4cm}\noindent
+  {\sffamily\bfseries\color{primary}$\blacktriangleright$\ \ #1}\par\nobreak
+  \vspace{2pt}\noindent{\color{primary!22}\rule{\linewidth}{0.8pt}}\par\nobreak\vspace{5pt}%
+}
+
+% ─── Marca "Resolución" ──────────────────────────────────────────────────────
+\newcommand{\resoltag}{%
+  \par\addvspace{6pt}\noindent
+  \tikz[baseline]{\node[fill=accent,text=white,font=\sffamily\bfseries\footnotesize,
+        rounded corners=2pt,inner xsep=6pt,inner ysep=2pt]{RESOLUCIÓN};}\par\vspace{2pt}%
+}
+
+% ─── Backlink al índice ──────────────────────────────────────────────────────
+\newcommand{\volver}{%
+  \par\vspace{6pt}\hfill{\footnotesize\sffamily\hyperlink{indice}{$\uparrow$\ volver al índice}}\par
+  \vspace{1pt}{\color{primary!28}\rule{\linewidth}{1.3pt}}\par\addvspace{16pt}%
+}
+
+% ─── Estilos TikZ comunes ────────────────────────────────────────────────────
+\tikzset{
+  edo/.style={circle, draw=primary, fill=primary!10, line width=0.7pt,
+              minimum size=0.95cm, font=\small\sffamily},
+  edoR/.style={circle, draw=accent!85!black, fill=accent!18, line width=0.9pt,
+              minimum size=0.95cm, font=\small\sffamily},
+  ar/.style={-{Stealth[length=2.2mm]}, line width=0.7pt, draw=primdark},
+  lbl/.style={font=\scriptsize\sffamily, inner sep=1.5pt, fill=white, fill opacity=0.85, text opacity=1},
+}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\begin{document}
+% ═════════════════════════════════════════════════════════════════════════════
+
+\begin{tcolorbox}[
+    enhanced, colback=primary, colframe=primdark, colupper=white,
+    sharp corners, boxrule=1pt, left=14pt, right=14pt, top=12pt, bottom=12pt,
+    borderline west={4pt}{0pt}{accent},
+  ]
+  {\LARGE\bfseries\sffamily Cadenas de Markov — Ejercicios resueltos}\\[5pt]
+  {\normalsize\sffamily Guía 2 \,\textbullet\, Modelos Estocásticos}\\[7pt]
+  {\small\sffamily\color{white!85!primary}
+    Tiempo discreto (CDMD): clasificación de estados, distribución estacionaria,
+    absorción y tiempos de visita. \\
+    Tiempo continuo (CDMC): generadores, procesos de nacimiento--muerte y
+    probabilidades estacionarias.}\\[7pt]
+  {\footnotesize\sffamily\color{white!85!primary}\itshape
+    Transcripción y resolución de la carpeta \texttt{guia\_2/} \,\textbullet\, P.~Hurtado \,\textbullet\, 2026}
+\end{tcolorbox}
+
+\vspace{4pt}
+
+\begin{nota}
+\textbf{Cómo leer esta guía.} Cada ficha contiene el \emph{enunciado} transcrito y, justo
+debajo, su \emph{resolución} paso a paso con el o los diagramas de transición. Los
+ejercicios se etiquetan \textbf{D\textit{n}} (tiempo \underline{d}iscreto) y \textbf{C\textit{n}}
+(tiempo \underline{c}ontinuo). El índice de la página siguiente es navegable: haz clic en
+cualquier título para saltar a la ficha; cada ficha tiene al final un enlace
+\textsf{$\uparrow$ volver al índice}.
+\end{nota}
+
+\clearpage
+\hypertarget{indice}{}
+{\color{primary}\hrule height 2pt}
+\vspace{4pt}
+{\Large\bfseries\sffamily\color{primary} Índice navegable}
+\vspace{2pt}
+{\color{accent}\hrule height 2pt}
+\vspace{8pt}
+\tableofcontents
+\clearpage
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Parte I · Cadenas en Tiempo Discreto (CDMD)}
+% ═════════════════════════════════════════════════════════════════════════════
+
+% ───────────────────────────────────────────── D1
+\subsection{D1 · Cadena de 3 estados: probabilidad conjunta}
+
+\begin{enun}
+Una cadena de Markov $\{X_n,\ n\ge 0\}$ tiene tres estados $\{0,1,2\}$ y matriz de
+transición
+\[
+  P=\begin{pmatrix} 0.3 & 0.2 & 0.5 \\ 0.6 & 0.3 & 0.1 \\ 0.7 & 0.2 & 0.1\end{pmatrix}.
+\]
+La distribución inicial es $\Prob{X_0=0}=0.2$, $\Prob{X_0=1}=0.5$, $\Prob{X_0=2}=0.3$.
+Determine $\Prob{X_0=0,\ X_1=1,\ X_2=2}$.
+\end{enun}
+
+\resoltag
+\paso{Regla de la cadena + propiedad de Markov}
+La probabilidad de una trayectoria se factoriza como el producto de la inicial por
+las transiciones sucesivas:
+\[
+  \Prob{X_0=0,X_1=1,X_2=2}=\Prob{X_0=0}\,p_{01}\,p_{12}
+  = 0.2\times 0.2\times 0.1.
+\]
+\begin{resultado}
+$\displaystyle \Prob{X_0=0,X_1=1,X_2=2}=\boxed{0.004}.$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── D2
+\subsection{D2 · Cadena de 8 estados: análisis estructural}
+
+\begin{enun}
+Considere la cadena con estados $\{1,\dots,8\}$ y matriz
+\[
+  P=\begin{pmatrix}
+  0.1&0.2&0.1&0.1&0.2&0.1&0.1&0.1\\
+  0&0.1&0.2&0.1&0&0.3&0.1&0.2\\
+  0.5&0&0&0.2&0.1&0.1&0.1&0\\
+  0&0&0.3&0.7&0&0&0&0\\
+  0&0&0.6&0.4&0&0&0&0\\
+  0&0&0&0&0&0.3&0.4&0.3\\
+  0&0&0&0&0&0.2&0.2&0.6\\
+  0&0&0&0&0&0.9&0.1&0
+  \end{pmatrix}.
+\]
+\textbf{a)} Identifique las clases, su tipo (transitoria/recurrente) y el período de
+cada estado. \quad \textbf{b)} ¿Existe distribución límite? ¿Y estacionaria?
+\end{enun}
+
+\resoltag
+\paso{a) Clases, tipo y período}
+\emph{Alcanzabilidad.} En el bloque $\{1,2,3,4,5\}$: $1\to2$, $2\to3\to1$,
+$1\leftrightarrow3$ ($p_{13},p_{31}>0$), $1\to4\to3\to1$ y $1\to5\to3\to1$. Por
+transitividad $\{1,2,3,4,5\}$ es una clase. Las filas $6,7,8$ tienen ceros en las
+columnas $1$--$5$: desde $\{6,7,8\}$ no se alcanza $\{1,\dots,5\}$, y $6\leftrightarrow7\leftrightarrow8$.
+Luego $\{6,7,8\}$ es una clase \textbf{cerrada}.
+
+\emph{Tipo.} Desde el estado $1$ se alcanza $\{6,7,8\}$ ($p_{16}=0.1>0$) sin retorno
+posible $\Rightarrow$ $\{1,\dots,5\}$ es \textbf{transitoria}. $\{6,7,8\}$ cerrada y
+finita $\Rightarrow$ \textbf{recurrente positiva}.
+
+\emph{Período.} $p_{44}=0.7>0\Rightarrow d=1$ en $\mathcal C_1$; $p_{66}=0.3>0\Rightarrow d=1$
+en $\mathcal C_2$. Ambas clases son \textbf{aperiódicas}.
+
+\begin{center}\small
+\begin{tabular}{clll}\toprule
+Clase & Estados & Tipo & Período\\\midrule
+$\mathcal C_1$ & $\{1,2,3,4,5\}$ & Transitoria & $d=1$\\
+$\mathcal C_2$ & $\{6,7,8\}$ & Recurrente positiva & $d=1$\\\bottomrule
+\end{tabular}
+\end{center}
+
+\paso{b) Distribución límite y estacionaria}
+Como $\mathcal C_1$ es transitoria, la cadena es absorbida c.s.\ en $\mathcal C_2$, que es
+irreducible, recurrente positiva y aperiódica. Por lo tanto existe \emph{una} distribución
+límite, soportada en $\mathcal C_2$:
+\[
+  \lim_{n\to\infty}P^{n}_{ij}=\pi^{(2)}_j\quad (j\in\mathcal C_2),\qquad
+  P^{n}_{ij}\to 0\ \ (j\in\mathcal C_1).
+\]
+\begin{resultado}
+La \textbf{única} distribución estacionaria está concentrada en $\mathcal C_2$ y coincide con
+la distribución límite $\boldsymbol\pi^{(2)}$ (solución de $\boldsymbol\pi^{(2)}P_{\mathcal C_2}=\boldsymbol\pi^{(2)}$).
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── D3
+\subsection{D3 · Cadena de 5 estados dada por su grafo}
+
+\begin{enun}
+Considere la CDMD con estados $\{0,1,2,3,4\}$ dada por el grafo:
+\begin{center}
+\begin{tikzpicture}
+  \node[edo](s0) at (0,2){$0$};
+  \node[edo](s1) at (2.6,2){$1$};
+  \node[edoR](s2) at (5.2,2){$2$};
+  \node[edoR](s3) at (0,0){$3$};
+  \node[edoR](s4) at (2.6,0){$4$};
+  \draw[ar] (s0) edge[loop above,looseness=6] node[lbl]{$0.5$} (s0);
+  \draw[ar] (s3) edge[loop below,looseness=6] node[lbl]{$0.7$} (s3);
+  \draw[ar] (s0) -- node[lbl]{$0.5$} (s1);
+  \draw[ar] (s1) edge[bend left=15] node[lbl]{$0.5$} (s2);
+  \draw[ar] (s1) -- node[lbl]{$0.2$} (s0);
+  \draw[ar] (s1) -- node[lbl]{$0.3$} (s4);
+  \draw[ar] (s3) -- node[lbl]{$0.3$} (s4);
+  \draw[ar] (s4) edge[bend left=20] node[lbl]{$1$} (s3);
+\end{tikzpicture}
+\end{center}
+\textbf{a)} Clases. \textbf{b)} Transitorios/recurrentes (demuestre). \textbf{c)} Periodicidad.
+\textbf{d)} $\Prob{X_5=3,X_4=4\mid X_3=1,X_2=0}$. \textbf{e)} Visitas esperadas a $1$ si parte en $1$.
+\end{enun}
+
+\resoltag
+\paso{a) Clases de comunicación}
+$\mathcal C_T=\{0,1\}$: $0\to1$ ($p_{01}=0.5$) y $1\to0$ ($p_{10}=0.2$), se comunican.
+$\{2\}$: estado \textbf{absorbente} ($p_{22}=1$), no comunica con ningún otro.
+$\mathcal C_R=\{3,4\}$: $3\to4$ ($p_{34}=0.3$) y $4\to3$ ($p_{43}=1$), clase cerrada.
+Desde $\mathcal C_T$ se alcanza $\{2\}$ (vía $1\to2$) y $\mathcal C_R$ (vía $1\to4$), pero no hay retorno.
+
+\paso{b) Recurrencia y transiencia}
+$\{2\}$ absorbente $\Rightarrow$ \textbf{recurrente positivo}. $\mathcal C_R$ cerrada y finita
+$\Rightarrow$ \textbf{recurrente positivo}. $\mathcal C_T$ no es cerrada: desde $1$ se escapa a
+$\{2\}$ con prob.\ $0.5$ y a $\{3,4\}$ con prob.\ $0.3$, luego $\mathbf{\{0,1\}\ transitorios}$.
+
+\paso{c) Periodicidad}
+$p_{00}=0.5>0\Rightarrow d(0)=1$. $\{2\}$ absorbente: $d(2)=1$.
+En $\mathcal C_R$: $p_{33}=0.7>0\Rightarrow d(3)=1$; para $4$, retornos en $2$ y $3$ pasos
+($4\to3\to4$ y $4\to3\to3\to4$), $\gcd(2,3)=1\Rightarrow d(4)=1$. Todos \textbf{aperiódicos}.
+
+\paso{d) Probabilidad condicionada}
+Por Markov, $X_2=0$ es irrelevante dado $X_3=1$:
+\[
+  \Prob{X_5=3,X_4=4\mid X_3=1,X_2=0}=p_{14}\,p_{43}=0.3\times 1.
+\]
+\begin{resultado}$\displaystyle \Prob{\cdot}=\boxed{0.3}.$\end{resultado}
+
+\paso{e) Número esperado de visitas al estado $1$ partiendo en $1$}
+Los únicos estados transitorios son $\{0,1\}$; state $2$ es absorbente y $\{3,4\}$ son
+recurrentes, ambos contribuyen $0$ a futuras visitas a $1$.
+Sea $v_i = \E{\text{\# visitas al estado }1 \mid X_0 = i}$ para $i\in\{0,1\}$.
+Por análisis de primer paso:
+\begin{alignat}{2}
+  v_1 &= 1 + p_{10}\,v_0 &&= 1 + 0.2\,v_0,\label{eq:D3v1}\\
+  v_0 &= p_{00}\,v_0 + p_{01}\,v_1 &&= 0.5\,v_0 + 0.5\,v_1.\label{eq:D3v0}
+\end{alignat}
+\emph{Resolución.}
+De \eqref{eq:D3v0}: $0.5\,v_0 = 0.5\,v_1 \;\Rightarrow\; v_0 = v_1$.
+Sustituyendo en \eqref{eq:D3v1}:
+\[
+  v_1 = 1 + 0.2\,v_1 \;\Rightarrow\; 0.8\,v_1 = 1.
+\]
+\begin{resultado}
+$\displaystyle v_1 = \boxed{\tfrac{5}{4} = 1.25\ \text{visitas esperadas al estado }1.}$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── D4
+\subsection{D4 · Cadena de 6 estados: análisis completo}
+
+\begin{enun}
+Sea $(X_n)$ una CDMD con $I=\{1,\dots,6\}$ y
+\[
+  P=\begin{pmatrix}
+  0&0.6&0.4&0&0&0\\ 0.2&0&0.8&0&0&0\\ 0.3&0&0.6&0.1&0&0\\
+  0&0&0&0&0&1\\ 0&0&0&1&0&0\\ 0&0&0&0&1&0\end{pmatrix}.
+\]
+\textbf{a)} Grafo y clases. \textbf{b)} Recurrencia/periodicidad. \textbf{c)} $\Prob{X_5=3\mid X_3=1,X_0=3}$
+y $\Prob{X_{11}=4\mid X_7\ne1,X_6=2}$. \textbf{d)} Visitas esperadas a $3$ partiendo de $3$.
+\textbf{e)} ¿Tiene distribución estacionaria?
+\end{enun}
+
+\resoltag
+\paso{a) Grafo y clases}
+\begin{center}
+\begin{tikzpicture}[node distance=1.8cm]
+  \node[edo](n1){$1$};
+  \node[edo,right=of n1](n2){$2$};
+  \node[edo,below=1.3cm of $(n1)!0.5!(n2)$](n3){$3$};
+  \node[edoR,right=2.6cm of n2](n4){$4$};
+  \node[edoR,below=1.3cm of n4](n6){$6$};
+  \node[edoR,left=1.8cm of n6](n5){$5$};
+  \draw[ar](n1) edge[bend left=12] node[lbl]{$.6$}(n2);
+  \draw[ar](n2) edge[bend left=12] node[lbl]{$.2$}(n1);
+  \draw[ar](n1) -- node[lbl]{$.4$}(n3);
+  \draw[ar](n2) -- node[lbl]{$.8$}(n3);
+  \draw[ar](n3) -- node[lbl]{$.3$}(n1);
+  \draw[ar](n3) edge[loop left,looseness=6] node[lbl]{$.6$}(n3);
+  \draw[ar](n3) -- node[lbl]{$.1$}(n4);
+  \draw[ar](n4) -- node[lbl]{$1$}(n6);
+  \draw[ar](n6) -- node[lbl]{$1$}(n5);
+  \draw[ar](n5) -- node[lbl]{$1$}(n4);
+\end{tikzpicture}
+\end{center}
+Clases: $\mathcal C_T=\{1,2,3\}$ (se comunican entre sí) y $\mathcal C_R=\{4,5,6\}$
+(ciclo $4\to6\to5\to4$). No hay paso de $\mathcal C_R$ a $\mathcal C_T$.
+
+\paso{b) Recurrencia y periodicidad}
+$\mathcal C_R$ es cerrada $\Rightarrow$ recurrente positiva. Desde $3$ se escapa a $4$
+($p_{34}=0.1$) $\Rightarrow$ $\{1,2,3\}$ \textbf{transitorios}. $p_{33}=0.6>0\Rightarrow d(\mathcal C_T)=1$.
+El ciclo $\mathcal C_R$ solo retorna en múltiplos de $3$ $\Rightarrow$ \textbf{período $d=3$}.
+
+\paso{c) Probabilidades}
+Por Markov, $\Prob{X_5=3\mid X_3=1,X_0=3}=(P^2)_{13}=p_{12}p_{23}+p_{13}p_{33}
+=0.6\cdot0.8+0.4\cdot0.6=\boxed{0.72}$.
+
+Dado $X_6=2$, el único estado con $X_7\ne1$ alcanzable es $X_7=3$ (pues $2\to1$ ó $2\to3$).
+Entonces $\Prob{X_{11}=4\mid X_7\ne1,X_6=2}=(P^4)_{34}$. Iterando $\mu^{(k)}=\mu^{(k-1)}P$ desde
+$3$:
+\[
+  \mu^{(1)}=(.3,0,.6,.1,0,0),\ \mu^{(2)}=(.18,.18,.48,.06,0,.1),\ \mu^{(3)}=(.18,.108,.504,.048,.1,.06),
+\]
+\[
+  \mu^{(4)}_4=\mu^{(3)}_3 p_{34}+\mu^{(3)}_5 p_{54}=0.504\cdot0.1+0.1\cdot1=\boxed{0.1504}.
+\]
+
+\paso{d) Visitas esperadas a 3}
+Con $Q$ sobre $\{1,2,3\}$, $N_{33}=[(I-Q)^{-1}]_{33}$. $\det(I-Q)=0.304$ y cofactor
+$M_{33}=1-0.12=0.88$:
+\begin{resultado}
+$\displaystyle N_{33}=\frac{0.88}{0.304}=\boxed{\tfrac{55}{19}\approx 2.89\ \text{visitas}.}$
+\end{resultado}
+
+\paso{e) Distribución estacionaria}
+$\mathcal C_R$ es la única clase recurrente: existe estacionaria concentrada en $\{4,5,6\}$,
+con $\boldsymbol\pi=(\tfrac13,\tfrac13,\tfrac13)$ sobre el ciclo. Como $d=3$, \emph{no} hay
+distribución límite puntual.
+\volver
+
+% ───────────────────────────────────────────── D5
+\subsection{D5 · Fiabilidad de máquinas}
+
+\begin{enun}
+Una máquina está al inicio de cada día \emph{buena} (B) o \emph{fallada} (F). De B:
+permanece B con prob.\ $0.98$ y falla con $0.02$. De F (reparación): queda B con
+$0.97$ y sigue F con $0.03$.
+\textbf{a)} Matriz $P$ de $X_n$ y distribución estacionaria. \textbf{b)} Con $3$ máquinas
+i.i.d., $Y_n=\#$ funcionando: matriz de $\{Y_n\}$ y justificación de que es CDMD homogénea.
+\end{enun}
+
+\resoltag
+\paso{a) Una máquina}
+\[
+  P=\bordermatrix{&B&F\cr B&0.98&0.02\cr F&0.97&0.03}.
+\]
+Irreducible y aperiódica $\Rightarrow$ estacionaria única. De $0.02\,\pi_B=0.97\,\pi_F$ y
+$\pi_B+\pi_F=1$:
+\begin{resultado}
+$\displaystyle \pi_B=\tfrac{97}{99}\approx0.98,\qquad \pi_F=\tfrac{2}{99}\approx0.02.$
+\end{resultado}
+
+\paso{b) Tres máquinas independientes}
+Dado $Y_n=k$, hay $k$ buenas y $3-k$ falladas que transicionan \emph{independientemente};
+el futuro depende solo de $k$ y las tasas no cambian con $n$ $\Rightarrow$ \textbf{CDMD homogénea}.
+La transición es la convolución de dos binomiales:
+\[
+  p_{kj}=\!\!\sum_{\substack{r+s=j\\0\le r\le k,\ 0\le s\le 3-k}}\!\!
+  \binom{k}{r}0.98^{r}0.02^{k-r}\binom{3-k}{s}0.97^{s}0.03^{3-k-s}.
+\]
+\begin{center}\small
+\begin{tabular}{c|cccc}\toprule
+$k$ & $p_{k0}$ & $p_{k1}$ & $p_{k2}$ & $p_{k3}$\\\midrule
+0 & $2.7\!\times\!10^{-5}$ & $0.00262$ & $0.08468$ & $0.91267$\\
+1 & $1.8\!\times\!10^{-5}$ & $0.00205$ & $0.07585$ & $0.92208$\\
+2 & $1.2\!\times\!10^{-5}$ & $0.00156$ & $0.06684$ & $0.93159$\\
+3 & $8\!\times\!10^{-6}$ & $0.00118$ & $0.05762$ & $0.94119$\\\bottomrule
+\end{tabular}
+\end{center}
+\volver
+
+% ───────────────────────────────────────────── D6
+\subsection{D6 · Inventario de notebooks con demanda Poisson}
+
+\begin{enun}
+La demanda $D_t\sim\mathrm{Poisson}(1)$ i.i.d.; $X_t$ es el stock al \emph{final} del
+período $t$. Si el stock es $0$ al final del período se ordenan $3$ notebooks (lead time
+nulo); si no, no se ordena.
+\textbf{a)} Relación $X_{t+1}$ vs $X_t,D_{t+1}$. \textbf{b)} ¿Es CDMD homogénea? \textbf{c)}
+Demuestre la matriz dada. \textbf{d)} Recurrencia/período. \textbf{e)} Estacionaria.
+\textbf{f)} \% de tiempo con quiebre.
+\end{enun}
+
+\resoltag
+\paso{a) Recurrencia y b) Markov}
+\[
+  X_{t+1}=\begin{cases}\max(3-D_{t+1},0)&X_t=0\ \text{(repone a 3)},\\
+  \max(X_t-D_{t+1},0)&X_t\ge1.\end{cases}
+\]
+Dado $X_t$, el siguiente estado depende solo de $D_{t+1}$ (independiente del pasado) y las
+probabilidades no dependen de $t$: \textbf{CDMD homogénea}.
+
+\paso{c) Matriz de transición}
+Con $\alpha=\Prob{D=0}=e^{-1}$, $\beta=\Prob{D=1}=e^{-1}$, $\gamma=\Prob{D=2}=\tfrac{e^{-1}}2$,
+$\delta=\Prob{D\ge3}$: desde $0$ y $3$ es $\max(3-D,0)$ ($p_{\cdot0}=\delta,p_{\cdot1}=\gamma,
+p_{\cdot2}=\beta,p_{\cdot3}=\alpha$); desde $1$: $p_{10}=1-\alpha,p_{11}=\alpha$; desde $2$:
+$p_{20}=1-2\alpha,p_{21}=\beta,p_{22}=\alpha$. Esto reproduce
+\[
+  P=\begin{pmatrix}0.080&0.184&0.368&0.368\\0.632&0.368&0&0\\0.264&0.368&0.368&0\\0.080&0.184&0.368&0.368\end{pmatrix}.
+\]
+
+\paso{d) Recurrencia y período}
+Irreducible (desde $0$ se alcanza todo y todo regresa a $0$) y con autolazos ($p_{00},p_{11},p_{22}>0$):
+\textbf{aperiódica}, recurrente positiva.
+
+\paso{e) Estacionaria y f) quiebre}
+Finita, irreducible y aperiódica $\Rightarrow$ estacionaria \textbf{única} ($=$ límite),
+solución de $\boldsymbol\pi P=\boldsymbol\pi$, $\sum\pi_j=1$ (filas $0$ y $3$ idénticas,
+$\pi_0+\pi_3$ actúa como variable compuesta). Hay quiebre cuando $X_t=0$:
+\begin{resultado}
+proporción de tiempo con quiebre de inventario $=\boxed{\pi_0}$.
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── D7
+\subsection{D7 · Buffer de comunicaciones}
+
+\begin{enun}
+Buffer de capacidad $4$. Llegadas Poisson tasa $\lambda$ (se pierden si está lleno). Dos
+canales: al inicio de cada período se transmiten $\min(X_n,2)$ mensajes; los que llegan
+durante el período esperan al siguiente.
+\textbf{a)} Recurrencia $X_{n+1}$. \textbf{b)} Matriz (en $p_k=e^{-\lambda}\lambda^k/k!$).
+\textbf{c)} Mensajes perdidos por unidad de tiempo en el largo plazo. \textbf{d)} ¿Sirve con
+arribos i.i.d.\ no Poisson?
+\end{enun}
+
+\resoltag
+\paso{a) Recurrencia}
+Con $A_n\sim\mathrm{Poisson}(\lambda)$ i.i.d.\ y $R=\max(X_n-2,0)$ mensajes residuales:
+\[
+  \boxed{\,X_{n+1}=\min\!\big(\max(X_n-2,0)+A_n,\ 4\big).}
+\]
+
+\paso{b) Matriz de transición}
+Sea $P_{\ge m}=\sum_{k\ge m}p_k$. Según el residuo $R$:
+\begin{center}\small
+\begin{tabular}{ccc}\toprule
+$X_n$ & $R$ & transición\\\midrule
+$0,1,2$ & $0$ & $p_{kj}=p_j\ (j\le3),\ p_{k4}=P_{\ge4}$\\
+$3$ & $1$ & $p_{3j}=p_{j-1}\ (j=1,2,3),\ p_{34}=P_{\ge3}$\\
+$4$ & $2$ & $p_{4j}=p_{j-2}\ (j=2,3),\ p_{44}=P_{\ge2}$\\\bottomrule
+\end{tabular}
+\end{center}
+
+\paso{c) Mensajes perdidos}
+En estado $k$ se pierden $\max(A_n-c_k,0)$ con $c_0=c_1=c_2=4,\ c_3=3,\ c_4=2$:
+\[
+  \bar L=\sum_{k=0}^{4}\pi_k\,L_k,\qquad L_k=\E{\max(A-c_k,0)}=\sum_{m>c_k}(m-c_k)p_m.
+\]
+
+\paso{d) Arribos generales}
+Sí: la propiedad de Markov se mantiene mientras $\{A_n\}$ sea i.i.d., pues dado $X_n$ la ley
+de $X_{n+1}$ no depende del pasado.
+\volver
+
+% ───────────────────────────────────────────── D8
+\subsection{D8 · Ayudantes entre dos salas (Solemne)}
+
+\begin{enun}
+Dos ayudantes en salas $A$/$B$. Cada $10$ min se lanza un dado: $1$ó$2$ $\Rightarrow$ ambos
+cambian; $3$ó$4$ $\Rightarrow$ ayudante 1 cambia; $5$ó$6$ $\Rightarrow$ ayudante 2 cambia.
+$X_n=\#$ ayudantes en $A$, estados $\{0,1,2\}$.
+\textbf{a)} Matriz y grafo. \textbf{b)} $\Prob{X_2=2\mid X_0=1}$. \textbf{c)} Proporción del
+tiempo en la misma sala. \textbf{d)} Variante (otra regla en estados $0,2$): clases, tipos,
+períodos.
+\end{enun}
+
+\resoltag
+\paso{a) Matriz y grafo}
+Analizando cada estado (probabilidad $\tfrac13$ por par de caras):
+\[
+  P=\begin{pmatrix}0&\tfrac23&\tfrac13\\[2pt]\tfrac13&\tfrac13&\tfrac13\\[2pt]\tfrac13&\tfrac23&0\end{pmatrix}.
+\]
+\begin{center}
+\begin{tikzpicture}[node distance=2.4cm]
+  \node[edo](a0){$0$};\node[edo,right=of a0](a1){$1$};\node[edo,right=of a1](a2){$2$};
+  \draw[ar](a0)edge[bend left=18]node[lbl]{$\tfrac23$}(a1);
+  \draw[ar](a1)edge[bend left=18]node[lbl]{$\tfrac13$}(a0);
+  \draw[ar](a1)edge[bend left=18]node[lbl]{$\tfrac13$}(a2);
+  \draw[ar](a2)edge[bend left=18]node[lbl]{$\tfrac23$}(a1);
+  \draw[ar](a0)edge[bend left=40]node[lbl]{$\tfrac13$}(a2);
+  \draw[ar](a2)edge[bend left=40]node[lbl]{$\tfrac13$}(a0);
+  \draw[ar](a1)edge[loop above,looseness=6]node[lbl]{$\tfrac13$}(a1);
+\end{tikzpicture}
+\end{center}
+
+\paso{b) $\Prob{X_2=2\mid X_0=1}$}
+$(P^2)_{12}=\sum_k p_{1k}p_{k2}=\tfrac13\cdot\tfrac13+\tfrac13\cdot\tfrac13+\tfrac13\cdot0=\boxed{\tfrac29}.$
+
+\paso{c) Misma sala en el largo plazo}
+Irreducible y aperiódica. Por simetría $\pi_0=\pi_2$; con $\boldsymbol\pi P=\boldsymbol\pi$ y
+$2\pi_0+\pi_1=1$ se obtiene $\boldsymbol\pi=(\tfrac14,\tfrac12,\tfrac14)$.
+\begin{resultado}
+proporción con ambos en la misma sala $=\pi_0+\pi_2=\boxed{\tfrac12}.$
+\end{resultado}
+
+\paso{d) Variante}
+La nueva matriz es
+$P'=\big(\begin{smallmatrix}\tfrac12&0&\tfrac12\\\tfrac13&\tfrac13&\tfrac13\\\tfrac12&0&\tfrac12\end{smallmatrix}\big)$.
+Como $p'_{01}=p'_{21}=0$ pero $p'_{10}>0$, el estado $1$ \textbf{escapa} y no regresa:
+$1$ \textbf{transitorio} ($d=1$ por autolazo). $\{0,2\}$ es clase \textbf{recurrente} cerrada,
+aperiódica ($p'_{00}>0$).
+\volver
+
+% ───────────────────────────────────────────── D9
+\subsection{D9 · Deportista y zapatillas en dos puertas}
+
+\begin{enun}
+$5$ pares de zapatillas; sale y entra por puerta delantera (D) o de servicio (S), cada una
+con prob.\ $\tfrac12$, independientes. Deja las zapatillas en la puerta por la que entra; si
+al salir no hay par en su puerta, corre descalzo.
+\textbf{a)} Modelo (estado, espacio, $P$). \textbf{b)} Proporción de tiempo descalzo.
+\end{enun}
+
+\resoltag
+\paso{a) Modelo}
+$X_n=\#$ pares en la puerta D al inicio del día (en S hay $5-X_n$), estados $\{0,\dots,5\}$.
+Para $k\in\{1,\dots,4\}$ las cuatro combinaciones salida/entrada dan
+$p_{k,k-1}=\tfrac14,\ p_{kk}=\tfrac12,\ p_{k,k+1}=\tfrac14$; en las fronteras
+$p_{00}=p_{55}=\tfrac34$, $p_{01}=p_{54}=\tfrac14$:
+\[
+  P=\bordermatrix{&0&1&2&3&4&5\cr
+  0&\tfrac34&\tfrac14&&&&\cr
+  1&\tfrac14&\tfrac12&\tfrac14&&&\cr
+  2&&\tfrac14&\tfrac12&\tfrac14&&\cr
+  3&&&\tfrac14&\tfrac12&\tfrac14&\cr
+  4&&&&\tfrac14&\tfrac12&\tfrac14\cr
+  5&&&&&\tfrac14&\tfrac34}.
+\]
+\begin{center}
+\begin{tikzpicture}[node distance=1.55cm]
+  \foreach \i in {0,...,5}{\node[edo](z\i) at (\i*1.7,0){$\i$};}
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,4}{
+     \draw[ar](z\i)edge[bend left=22]node[lbl]{$\tfrac14$}(z\j);
+     \draw[ar](z\j)edge[bend left=22]node[lbl]{$\tfrac14$}(z\i);}
+  \foreach \i in {1,...,4}{\draw[ar](z\i)edge[loop above,looseness=6]node[lbl]{$\tfrac12$}(z\i);}
+  \draw[ar](z0)edge[loop above,looseness=6]node[lbl]{$\tfrac34$}(z0);
+  \draw[ar](z5)edge[loop above,looseness=6]node[lbl]{$\tfrac34$}(z5);
+\end{tikzpicture}
+\end{center}
+
+\paso{b) Proporción descalzo}
+Por balance detallado $\pi_k=\pi_{k+1}$ para todo $k$, luego $\boldsymbol\pi$ es \textbf{uniforme},
+$\pi_k=\tfrac16$. Sale descalzo si $X_n=0$ y sale por D ($\tfrac12$) o $X_n=5$ y sale por S
+($\tfrac12$):
+\begin{resultado}
+$\displaystyle \Prob{\text{descalzo}}=\pi_0\tfrac12+\pi_5\tfrac12=\boxed{\tfrac16\approx16.7\%.}$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── D10
+\subsection{D10 · Instalación de equipos en un centro hospitalario}
+
+\begin{enun}
+Hay $M$ pacientes; para instalar equipos el centro debe estar vacío y \emph{no} ingresan
+pacientes hasta lograrlo. Cada mañana cada paciente, indep., sale rehabilitado con prob.\ $p$
+y sigue internado con $1-p$.
+\textbf{a)} Modele como CDMD, grafo, clases, clasificación. \textbf{b)} Partiendo de $M$:
+prob.\ de que algún día haya $M-1$; prob.\ de poder instalar. \textbf{c)} Ya instalados,
+llegan $k$ pacientes con prob.\ $q_k\ (k=0,\dots,3)$; sólo $3$ camas; cada cliente paga $C$.
+Modifique el modelo, clasifique, plantee estacionaria y dé la ganancia diaria esperada.
+\end{enun}
+
+\resoltag
+\paso{a) Modelo (sin ingresos)}
+$X_n=\#$ pacientes en la semana $n$, estados $\{0,1,\dots,M\}$. Sin llegadas, el número que
+\emph{permanece} desde $k$ es $\mathrm{Bin}(k,1-p)$:
+\[
+  p_{kr}=\binom{k}{r}(1-p)^{r}p^{\,k-r},\qquad 0\le r\le k.
+\]
+Como sólo se puede bajar ($r\le k$) y hay autolazo ($p_{kk}=(1-p)^k>0$), cada estado
+$k\ge1$ es su propia clase \textbf{transitoria}; $\{0\}$ es \textbf{absorbente} (recurrente).
+Todos aperiódicos.
+\begin{center}
+\begin{tikzpicture}[node distance=1.5cm]
+  \node[edoR](h0){$0$};\node[edo,right=of h0](h1){$1$};
+  \node[edo,right=of h1](h2){$2$};\node[right=1cm of h2](hd){$\cdots$};
+  \node[edo,right=1cm of hd](hM){$M$};
+  \draw[ar](h1)--node[lbl]{}(h0);
+  \draw[ar](h2)edge[bend right=20]node[lbl]{}(h0);
+  \draw[ar](h2)--(h1);
+  \draw[ar](hd)--(h2);\draw[ar](hM)--(hd);
+  \draw[ar](hM)edge[bend left=30]node[lbl]{}(h0);
+  \draw[ar](h0)edge[loop above,looseness=6]node[lbl]{$1$}(h0);
+  \foreach \n in {h1,h2,hM}{\draw[ar](\n)edge[loop above,looseness=6]node[lbl]{}( \n);}
+\end{tikzpicture}
+\end{center}
+
+\paso{b) Probabilidades partiendo de $M$}
+\emph{Llegar a $M-1$:} sólo es posible en el primer salto que abandona $M$ (después se baja
+de $M-1$ sin retorno). Condicionando a salir de $M$:
+\[
+  \Prob{\text{visitar }M-1}=\frac{p_{M,M-1}}{1-p_{MM}}
+  =\frac{M\,p(1-p)^{M-1}}{1-(1-p)^{M}}.
+\]
+\emph{Poder instalar:} $0$ es absorbente y alcanzable desde todo estado ($p_{k0}=p^{k}>0$);
+todos los demás son transitorios $\Rightarrow$ absorción segura:
+\begin{resultado}
+$\displaystyle \Prob{\text{algún día se instalan los equipos}}=\boxed{1}.$
+\end{resultado}
+
+\paso{c) Con ingresos (3 camas)}
+Orden diario: parten algunos (cada uno con prob.\ $p$) y luego llegan pacientes hasta llenar
+camas. Con $X_n=i$, $S\sim\mathrm{Bin}(i,1-p)$ los que quedan y $A$ los que llegan
+($\Prob{A=k}=q_k$), admitidos $=\min(A,3-S)$:
+\[
+  X_{n+1}=S+\min(A,3-S)=\min(S+A,3),\qquad \text{estados }\{0,1,2,3\}.
+\]
+\[
+  p_{ij}=\sum_{s=0}^{\min(i,j)}\binom{i}{s}(1-p)^{s}p^{\,i-s}\,q_{j-s}\ (j<3),\quad
+  p_{i3}=\sum_{s}\binom{i}{s}(1-p)^{s}p^{\,i-s}\Prob{A\ge3-s}.
+\]
+La cadena es \textbf{irreducible} (sube con llegadas, baja con altas) y \textbf{aperiódica}
+(autolazos): finita $\Rightarrow$ estacionaria \textbf{única} $\boldsymbol\pi$, solución de
+$\boldsymbol\pi P=\boldsymbol\pi,\ \sum\pi_i=1$. La ganancia diaria es $C$ por admitido:
+\begin{resultado}
+$\displaystyle \E{\text{ganancia diaria}}=C\sum_{i=0}^{3}\pi_i\,
+\E{\min(A,\,3-S)\mid X=i},\quad S\sim\mathrm{Bin}(i,1-p).$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── D11
+\subsection{D11 · Empresa de radiotaxis (Santiago–Concepción)}
+
+\begin{enun}
+$3$ automóviles que viajan entre Santiago y Concepción (un viaje diario por auto). Demanda
+diaria en Santiago: $0{:}0.25,\,1{:}0.25,\,2{:}0.2,\,3{:}0.1,\,4{:}0.1,\,5{:}0.1$. En
+Concepción: $0{:}0.4,\,1{:}0.3,\,2{:}0.3$.
+\textbf{(i)} Modele como CDMD: conjunto de estados y probabilidades de transición.
+\end{enun}
+
+\resoltag
+\paso{(i) Estados y dinámica}
+$X_n=\#$ autos en Santiago al inicio del día ($3-X_n$ en Concepción), estados $\{0,1,2,3\}$.
+Con demandas independientes $D_S,D_C$, los que parten de Santiago son $\min(X_n,D_S)$ y los
+que llegan desde Concepción $\min(3-X_n,D_C)$:
+\[
+  X_{n+1}=X_n-\min(X_n,D_S)+\min(3-X_n,D_C).
+\]
+Depende sólo de $X_n$ y de demandas i.i.d.\ $\Rightarrow$ \textbf{CDMD homogénea}. Calculando
+cada fila (p.\,ej.\ estado $2$: $\min(2,D_S)\in\{0{:}.25,1{:}.25,2{:}.5\}$,
+$\min(1,D_C)\in\{0{:}.4,1{:}.6\}$):
+\[
+  P=\bordermatrix{&0&1&2&3\cr
+  0&0.4&0.3&0.3&0\cr
+  1&0.3&0.325&0.3&0.075\cr
+  2&0.2&0.4&0.25&0.15\cr
+  3&0.3&0.2&0.25&0.25}.
+\]
+\begin{nota}
+La cadena es irreducible y aperiódica (autolazos positivos) $\Rightarrow$ recurrente positiva,
+con una única distribución estacionaria $\boldsymbol\pi$ obtenible de $\boldsymbol\pi P=\boldsymbol\pi$.
+\end{nota}
+\volver
+
+% ───────────────────────────────────────────── D12
+\subsection{D12 · El problema de los paraguas}
+
+\begin{enun}
+Una persona reparte $r$ paraguas entre su casa y su oficina, caminando entre ambas dos veces
+al día. En cada trayecto llueve con probabilidad $p$ (independiente). Si llueve y hay un
+paraguas en el lugar de origen, toma uno y lo lleva al destino. Sea $X_n$ el número de
+paraguas en el lugar desde donde \emph{parte} en el trayecto $n$.
+\textbf{a)} Cadena/transiciones. \textbf{b)} Estacionaria. \textbf{c)} Fracción de trayectos
+en que se moja.
+\end{enun}
+
+\resoltag
+\paso{a) Cadena y matriz}
+Estados $\{0,1,\dots,r\}$. Si hay $i>0$ paraguas en el origen: con lluvia ($p$) lleva uno y en
+el destino habrá $j=r-i+1$; sin lluvia ($1-p$), $j=r-i$. Si $i=0$, en el destino están los $r$:
+\[
+  \Prob{i\to j}=\begin{cases}p & j=r-i+1\\ 1-p & j=r-i\end{cases}\ (i>0),\qquad
+  \Prob{0\to j}=\begin{cases}1 & j=r\\0&\sim\end{cases}.
+\]
+\begin{center}
+\begin{tikzpicture}[node distance=1.5cm]
+  \node[edo](u0){$0$};\node[edo,right=of u0](u1){$1$};\node[edo,right=of u1](u2){$2$};
+  \node[right=1cm of u2](ud){$\cdots$};\node[edo,right=1cm of ud](ur){$r$};
+  \draw[ar](u0)edge[bend left=30]node[lbl]{$1$}(ur);
+  \draw[ar](u1)edge[bend right=20]node[lbl]{$1-p$}(u2.south west);
+  \draw[ar](u2)edge[bend right=12]node[lbl]{$1-p$}(ud);
+  \draw[ar](ur)edge[bend left=18]node[lbl]{$1-p$}(u0);
+  \draw[ar](ur)edge[bend left=10]node[lbl]{$p$}(u1);
+\end{tikzpicture}\\[-2pt]
+{\scriptsize (la cadena es irreducible y aperiódica: ergódica)}
+\end{center}
+
+\paso{b) Distribución estacionaria}
+De las ecuaciones de balance se obtiene $\pi_1=\pi_2=\cdots=\pi_r=\dfrac{\pi_0}{1-p}$. Con
+$\pi\,(r+1-p)=1$:
+\begin{resultado}
+$\displaystyle \pi_0=\frac{1-p}{\,r+1-p\,},\qquad \pi_1=\cdots=\pi_r=\frac{1}{\,r+1-p\,}.$
+\end{resultado}
+
+\paso{c) Fracción que se moja}
+Se moja sólo si está donde no hay paraguas (fracción $\pi_0$) \emph{y} llueve (prob.\ $p$):
+\begin{resultado}
+$\displaystyle \text{fracción que se moja}=p\,\pi_0=\boxed{\dfrac{p(1-p)}{r+1-p}.}$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── D13
+\subsection{D13 · Clima y seguro de lluvia}
+
+\begin{enun}
+El clima diario se modela con estados Despejado (S), Nublado (C) y Lluvioso (R):
+\[
+  P=\bordermatrix{&S&C&R\cr S&0.5&0.3&0.2\cr C&0.5&0.2&0.3\cr R&0.4&0.5&0.1}.
+\]
+Hoy está despejado. Un seguro cuesta \$200 y paga \$2500 si los días $7$ y $8$ (contados desde
+hoy) son ambos lluviosos. ¿Conviene contratarlo?
+\end{enun}
+
+\resoltag
+\paso{Distribución a 6 pasos}
+Con $f^{(1)}=(1,0,0)^{\!\top}$ (hoy despejado) y $f^{(k)}=(P^{\top})\,f^{(k-1)}$, se evalúa
+$f^{(7)}=(P^{\top})^{6}f^{(1)}$:
+\[
+  f^{(7)}\approx(0.47899,\ 0.31092,\ 0.21009)^{\!\top}
+  \ \Rightarrow\ \Prob{X_7=R}\approx0.21009.
+\]
+
+\paso{Probabilidad de lluvia en 7 y 8}
+\[
+  \Prob{X_7=R,X_8=R}=\Prob{X_7=R}\,p_{RR}=0.21009\times0.1=0.021009.
+\]
+
+\paso{Decisión por valor esperado}
+\[
+  \E{\text{pago}}=2500\times0.021009\approx 52.5\ \$ \ <\ 200\ \$.
+\]
+\begin{resultado}
+El pago esperado (\$52.5) es menor que el costo (\$200): \textbf{no conviene contratar el
+seguro}.
+\end{resultado}
+\volver
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Parte II · Cadenas en Tiempo Continuo (CDMC)}
+% ═════════════════════════════════════════════════════════════════════════════
+
+% ───────────────────────────────────────────── C1
+\subsection{C1 · Banco de sangre}
+
+\begin{enun}
+A un banco de sangre llegan donantes según un Poisson de tasa $\lambda$ (1 litro c/u). Una
+ambulancia llega según un Poisson de tasa $\mu$ y retira \emph{toda} la sangre almacenada.
+Modele como CDMC y determine las probabilidades estacionarias.
+\end{enun}
+
+\resoltag
+\paso{Generador}
+Estado $=$ litros almacenados $\in\{0,1,2,\dots\}$. Desde $n$: un donante ($\lambda$) lleva a
+$n+1$; la ambulancia ($\mu$) lleva a $0$ (desde $0$ no hace nada).
+\begin{center}
+\begin{tikzpicture}[node distance=1.6cm]
+  \node[edo](b0){$0$};\node[edo,right=of b0](b1){$1$};\node[edo,right=of b1](b2){$2$};
+  \node[edo,right=of b2](b3){$3$};\node[right=0.9cm of b3](bd){$\cdots$};
+  \draw[ar](b0)edge[bend left=18]node[lbl]{$\lambda$}(b1);
+  \draw[ar](b1)edge[bend left=18]node[lbl]{$\lambda$}(b2);
+  \draw[ar](b2)edge[bend left=18]node[lbl]{$\lambda$}(b3);
+  \draw[ar](b3)edge[bend left=18]node[lbl]{$\lambda$}(bd);
+  \draw[ar](b1)edge[bend left=30]node[lbl]{$\mu$}(b0);
+  \draw[ar](b2)edge[bend left=42]node[lbl]{$\mu$}(b0);
+  \draw[ar](b3)edge[bend left=52]node[lbl]{$\mu$}(b0);
+\end{tikzpicture}
+\end{center}
+
+\paso{Balance y solución}
+Para $n\ge1$: $(\lambda+\mu)\pi_n=\lambda\pi_{n-1}\Rightarrow \pi_n=\rho\,\pi_{n-1}$ con
+$\rho=\dfrac{\lambda}{\lambda+\mu}$. Luego $\pi_n=\rho^{\,n}\pi_0$ y, normalizando,
+$\pi_0=1-\rho=\dfrac{\mu}{\lambda+\mu}$:
+\begin{resultado}
+$\displaystyle \pi_n=\Big(\frac{\mu}{\lambda+\mu}\Big)\Big(\frac{\lambda}{\lambda+\mu}\Big)^{\!n},
+\quad n=0,1,2,\dots\quad(\text{geométrica}).$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── C2
+\subsection{C2 · Lustrabotas de dos sillas}
+
+\begin{enun}
+Local con $2$ sillas: en la silla 1 se limpia y embetuna (tasa $\mu_1$) y en la 2 se saca
+brillo (tasa $\mu_2$). Clientes potenciales llegan a tasa $\lambda$.
+\textbf{a)} Modele cuando el cliente entra \emph{sólo si ambas sillas están vacías}.
+Con un ayudante (uno por silla), un cliente entra si la silla 1 está vacía; al terminar la
+silla 1 pasa a la 2 si está libre, o espera en la 1.
+\textbf{b)} Modele el nuevo problema. \textbf{c)} \% de clientes que entran. \textbf{d)} Tasa
+de entrada. \textbf{e)} Número promedio en el local. \textbf{f)} Tiempo promedio dentro.
+\end{enun}
+
+\resoltag
+\paso{a) Modelo básico (entra sólo si está vacío)}
+A lo más un cliente en el sistema. Estados $\{0,\,1,\,2\}$ (vacío / en silla 1 / en silla 2):
+\begin{center}
+\begin{tikzpicture}[node distance=2.4cm]
+  \node[edo](c0){$0$};\node[edo,right=of c0](c1){$1$};\node[edo,right=of c1](c2){$2$};
+  \draw[ar](c0)edge node[lbl]{$\lambda$}(c1);
+  \draw[ar](c1)edge node[lbl]{$\mu_1$}(c2);
+  \draw[ar](c2)edge[bend left=40]node[lbl]{$\mu_2$}(c0);
+\end{tikzpicture}
+\end{center}
+
+\paso{b) Modelo con ayudante}
+Ahora caben hasta $2$ clientes. Estados según ocupación (silla 1, silla 2):
+$s_0=(0,0)$, $s_1=(1,0)$, $s_2=(0,1)$, $s_3=(1,1)$ y $s_4=(b,1)$ (silla 1 con cliente
+\emph{terminado y bloqueado} esperando, silla 2 ocupada). Es CDMC porque todos los tiempos
+(llegadas y servicios) son exponenciales e independientes (sin memoria).
+\begin{center}
+\begin{tikzpicture}[node distance=2.0cm]
+  \node[edo](t0){$s_0$};
+  \node[edo,right=of t0](t1){$s_1$};
+  \node[edo,below=1.4cm of t1](t2){$s_2$};
+  \node[edo,right=2.4cm of t1](t3){$s_3$};
+  \node[edo,below=1.4cm of t3](t4){$s_4$};
+  \draw[ar](t0)edge node[lbl]{$\lambda$}(t1);
+  \draw[ar](t1)edge node[lbl]{$\mu_1$}(t2);
+  \draw[ar](t2)edge[bend left=12] node[lbl]{$\mu_2$}(t0);
+  \draw[ar](t2)edge node[lbl]{$\lambda$}(t3);
+  \draw[ar](t3)edge node[lbl]{$\mu_1$}(t4);
+  \draw[ar](t3)edge node[lbl]{$\mu_2$}(t1);
+  \draw[ar](t4)edge node[lbl]{$\mu_2$}(t2);
+\end{tikzpicture}
+\end{center}
+Ecuaciones de balance:
+\[
+\begin{aligned}
+\lambda\pi_0&=\mu_2\pi_2, & \mu_1\pi_1&=\lambda\pi_0+\mu_2\pi_3, &
+(\mu_2{+}\lambda)\pi_2&=\mu_1\pi_1+\mu_2\pi_4,\\
+(\mu_1{+}\mu_2)\pi_3&=\lambda\pi_2, & \mu_2\pi_4&=\mu_1\pi_3, & \textstyle\sum_i\pi_i&=1.
+\end{aligned}
+\]
+Resolviendo en función de $\pi_2$:
+\[
+  \pi_0=\frac{\mu_2}{\lambda}\pi_2,\quad
+  \pi_1=\frac{\mu_2}{\mu_1}\cdot\frac{\mu_1+\mu_2+\lambda}{\mu_1+\mu_2}\,\pi_2,\quad
+  \pi_3=\frac{\lambda}{\mu_1+\mu_2}\,\pi_2,\quad
+  \pi_4=\frac{\mu_1\lambda}{\mu_2(\mu_1+\mu_2)}\,\pi_2,
+\]
+y $\pi_2$ se fija con $\sum_i\pi_i=1$.
+
+\paso{c)–f) Medidas de desempeño}
+Un cliente entra si la silla 1 está libre (estados $s_0,s_2$). Por PASTA:
+\begin{resultado}
+\textbf{(c)} $\Prob{\text{entrar}}=\pi_0+\pi_2$.\qquad
+\textbf{(d)} tasa de entrada $=\lambda(\pi_0+\pi_2)$.\\[2pt]
+\textbf{(e)} $L=\pi_1+\pi_2+2\pi_3+2\pi_4$.\qquad
+\textbf{(f)} $W=\dfrac{L}{\lambda(\pi_0+\pi_2)}$ \ (Little).
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── C3
+\subsection{C3 · Pedro, el estudiante sociable}
+
+\begin{enun}
+Pedro visita a diario a Martita ($50\%$, estadía exp.\ media $20$ min), Juanita ($35\%$, media
+$30$ min) o Pepita ($15\%$, media $60$ min). Tras visitar, va a casa y toma siesta (exp.\ media
+$2$ h). Al despertar, con prob.\ $0.3$ juega PlayStation (exp.\ media $45$ min) antes de visitar,
+y con $0.7$ va directo. Unidad de tiempo: $1$ día.
+\textbf{a)} CDMC: estados y tasas. \textbf{b)} Durmiendo: prob.\ de hacer $3$ visitas sin jugar.
+\textbf{c)} Si juega: prob.\ de jugar $>1$ h. \textbf{d)} Lleva $15$ min jugando: prob.\ de jugar
+$1$ h más y que la siguiente visita sea Martita.
+\end{enun}
+
+\resoltag
+\paso{a) Estados y tasas instantáneas}
+Estados $\{M,J,P,S,G\}$ (visita a cada amiga, siesta, gaming). Tasas de permanencia (en
+días$^{-1}$, $1$ día $=1440$ min): $r_M=72,\ r_J=48,\ r_P=24,\ r_S=12,\ r_G=32$. Las tasas
+instantáneas $q_{ij}=r_i\times(\text{prob.\ de ruta})$:
+\[
+\begin{aligned}
+&q_{M,S}=72,\quad q_{J,S}=48,\quad q_{P,S}=24,\\
+&q_{S,G}=12(0.3)=3.6,\ \ q_{S,M}=12(0.7)(0.5)=4.2,\ \ q_{S,J}=2.94,\ \ q_{S,P}=1.26,\\
+&q_{G,M}=32(0.5)=16,\quad q_{G,J}=32(0.35)=11.2,\quad q_{G,P}=32(0.15)=4.8.
+\end{aligned}
+\]
+\begin{center}
+\begin{tikzpicture}[node distance=1.7cm]
+  \node[edo](S){$S$};
+  \node[edo,above left=1.2cm and 2.2cm of S](M){$M$};
+  \node[edo,left=2.6cm of S](J){$J$};
+  \node[edo,below left=1.2cm and 2.2cm of S](P){$P$};
+  \node[edo,right=2.4cm of S](G){$G$};
+  \draw[ar](M)edge node[lbl]{$72$}(S);
+  \draw[ar](J)edge node[lbl]{$48$}(S);
+  \draw[ar](P)edge node[lbl]{$24$}(S);
+  \draw[ar](S)edge node[lbl]{$3.6$}(G);
+  \draw[ar](S)edge[bend left=10] node[lbl]{$4.2$}(M);
+  \draw[ar](G)edge[bend left=20] node[lbl]{$16$}(M);
+  \draw[ar](G)edge[bend right=20] node[lbl]{$4.8$}(P);
+\end{tikzpicture}
+\end{center}
+
+\paso{b) Tres visitas sin jugar}
+Cada vez que despierta elige ``directo'' con prob.\ $0.7$, independiente:
+\[
+  \Prob{3\text{ visitas sin jugar}}=0.7^{3}=\boxed{0.343}.
+\]
+
+\paso{c) Jugar más de 1 hora}
+$T_G\sim\exp(\text{media }45)$: $\Prob{T_G>60}=e^{-60/45}=e^{-4/3}\approx\boxed{0.264}.$
+
+\paso{d) Memoria nula + ruta}
+Por falta de memoria, $\Prob{\text{jugar }60\text{ min más}}=e^{-60/45}\approx0.264$, indep.\ de
+la siguiente visita ($\Prob{M}=0.5$):
+\begin{resultado}
+$\displaystyle \Prob{\cdot}=0.5\times e^{-4/3}\approx\boxed{0.132}.$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── C4
+\subsection{C4 · Armijo, el ejecutivo, y su novia}
+
+\begin{enun}
+Armijo recibe e-mails según Poisson tasa $\lambda$; su buzón guarda a lo más $3$ (el resto
+rebota) y responde uno a uno en tiempo exp.\ media $1/\mu$. Su novia llama con tiempos exp.\
+media $1/\delta$: si la llamada ocurre con $<3$ consultas pendientes, acude de inmediato (exp.\
+media $1/\gamma$); si el buzón está lleno, acude apenas termine el mensaje actual. Si la novia
+llama \emph{2 veces sin respuesta}, entra en shock y va a retarlo (exp.\ media $1/\beta$),
+borrando todos los e-mails. Sin mails pendientes en la oficina, Armijo hace su declaración de
+impuestos.
+\textbf{a)} Modele la ocupación de Armijo como CDMC. \textbf{b)} Justifique la existencia de
+estacionarias y escriba las ecuaciones. \textbf{c)} N.º promedio de ``escenas de celos'' por
+hora. \textbf{d)} Fracción del tiempo dedicada a impuestos.
+\end{enun}
+
+\resoltag
+\begin{nota}
+Por la complejidad del enunciado (marcado $(\ast)$) se adopta un espacio de estados que
+captura la actividad de Armijo; se indica explícitamente cada supuesto de modelación.
+\end{nota}
+
+\paso{a) Estados y transiciones}
+\textbf{Estados:} $T$ (en oficina, $0$ mails $\Rightarrow$ declara impuestos); $E_n$ (en oficina
+respondiendo, $n=1,2,3$ mails pendientes, sin llamada pendiente); $F$ (buzón lleno con una
+llamada \emph{pendiente}: irá donde la novia al terminar el mail actual); $N$ (con la novia,
+encuentro normal); $K$ (escena de celos / reto). Supuesto: al volver de $N$ o $K$ el buzón
+queda vacío (en $K$ la novia borra los mails).
+\[
+\begin{array}{ll}
+T:\ \xrightarrow{\lambda}E_1,\ \xrightarrow{\delta}N. &
+E_1:\ \xrightarrow{\lambda}E_2,\ \xrightarrow{\mu}T,\ \xrightarrow{\delta}N.\\[2pt]
+E_2:\ \xrightarrow{\lambda}E_3,\ \xrightarrow{\mu}E_1,\ \xrightarrow{\delta}N. &
+E_3:\ \xrightarrow{\mu}E_2,\ \xrightarrow{\delta}F.\\[2pt]
+F:\ \xrightarrow{\mu}N,\ \xrightarrow{\delta}K. &
+N:\ \xrightarrow{\gamma}T,\qquad K:\ \xrightarrow{\beta}T.
+\end{array}
+\]
+\begin{center}
+\begin{tikzpicture}[node distance=1.7cm]
+  \node[edo](T){$T$};
+  \node[edo,right=of T](E1){$E_1$};
+  \node[edo,right=of E1](E2){$E_2$};
+  \node[edo,right=of E2](E3){$E_3$};
+  \node[edoR,right=of E3](F){$F$};
+  \node[edoR,below=1.3cm of E1](N){$N$};
+  \node[edoR,below=1.3cm of F](K){$K$};
+  \draw[ar](T)edge[bend left=12]node[lbl]{$\lambda$}(E1);
+  \draw[ar](E1)edge[bend left=12]node[lbl]{$\mu$}(T);
+  \draw[ar](E1)edge[bend left=12]node[lbl]{$\lambda$}(E2);
+  \draw[ar](E2)edge[bend left=12]node[lbl]{$\mu$}(E1);
+  \draw[ar](E2)edge[bend left=12]node[lbl]{$\lambda$}(E3);
+  \draw[ar](E3)edge[bend left=12]node[lbl]{$\mu$}(E2);
+  \draw[ar](E3)edge node[lbl]{$\delta$}(F);
+  \draw[ar](T)edge node[lbl]{$\delta$}(N);
+  \draw[ar](E1)edge node[lbl]{$\delta$}(N);
+  \draw[ar](E2)edge node[lbl]{$\delta$}(N);
+  \draw[ar](F)edge node[lbl]{$\mu$}(N);
+  \draw[ar](F)edge node[lbl]{$\delta$}(K);
+  \draw[ar](N)edge[bend left=10]node[lbl]{$\gamma$}(T);
+  \draw[ar](K)edge[bend right=20]node[lbl]{$\beta$}(T);
+\end{tikzpicture}
+\end{center}
+
+\paso{b) Existencia y ecuaciones}
+La cadena es finita e irreducible (todo estado comunica con $T$ y viceversa) $\Rightarrow$
+\textbf{ergódica}: existe estacionaria única $\boldsymbol\pi$. Balance (tasa de salida $=$ tasa de
+entrada):
+\[
+\begin{aligned}
+(\lambda+\delta)\pi_T&=\mu\pi_{E_1}+\gamma\pi_N+\beta\pi_K, &
+(\lambda+\mu+\delta)\pi_{E_1}&=\lambda\pi_T+\mu\pi_{E_2},\\
+(\lambda+\mu+\delta)\pi_{E_2}&=\lambda\pi_{E_1}+\mu\pi_{E_3}, &
+(\mu+\delta)\pi_{E_3}&=\lambda\pi_{E_2},\\
+(\mu+\delta)\pi_F&=\delta\pi_{E_3}, &
+\gamma\pi_N&=\delta(\pi_T+\pi_{E_1}+\pi_{E_2})+\mu\pi_F,\\
+\beta\pi_K&=\delta\pi_F, & \textstyle\sum\pi&=1.
+\end{aligned}
+\]
+
+\paso{c) Escenas de celos por hora}
+Una escena ocurre al entrar a $K$, a tasa $\delta$ desde $F$:
+\begin{resultado}
+$\displaystyle \text{escenas/hora}=\delta\,\pi_F.$
+\end{resultado}
+
+\paso{d) Fracción en impuestos}
+Armijo declara impuestos sólo en el estado $T$:
+\begin{resultado}
+$\displaystyle \text{fracción en impuestos}=\pi_T.$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── C5
+\subsection{C5 · Sucursal bancaria: cajas y depósitos}
+
+\begin{enun}
+Llegan personas Poisson tasa $\lambda$. Con prob.\ $0.8$ van a \emph{cajas} ($5$ cajas en
+paralelo, cola ilimitada, servicio exp.\ tasa $\mu$) y con $0.2$ a \emph{depósitos} (módulo
+único, $5$ sillones de espera; si están ocupados, se va; servicio exp.\ tasa $\beta$).
+\textbf{a)} Tasas de nacimiento y muerte del sistema de cajas. \textbf{b)} Con $3$ en la cola de
+cajas y $2$ en la de depósitos, prob.\ de que el próximo en terminar servicio sea de cajas.
+\end{enun}
+
+\resoltag
+\paso{a) Cajas como nacimiento–muerte (M/M/5)}
+Las llegadas a cajas son un Poisson adelgazado de tasa $0.8\lambda$. Con $n$ clientes en cajas:
+\begin{resultado}
+$\displaystyle \lambda_n=0.8\,\lambda\ \ (n\ge0);\qquad
+\mu_n=\begin{cases}n\,\mu & 1\le n\le5,\\[2pt] 5\,\mu & n\ge5.\end{cases}$
+\end{resultado}
+\begin{center}
+\begin{tikzpicture}[node distance=1.45cm]
+  \foreach \i in {0,...,5}{\node[edo](k\i) at (\i*1.7,0){$\i$};}
+  \node[right=0.7cm of k5](kd){$\cdots$};
+  \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,4}{
+     \draw[ar](k\i)edge[bend left=22]node[lbl]{$.8\lambda$}(k\j);}
+  \draw[ar](k5)edge[bend left=22]node[lbl]{$.8\lambda$}(kd);
+  \foreach \i [evaluate=\i as \j using int(\i+1), evaluate=\j as \m using int(\j)] in {0,...,4}{
+     \draw[ar](k\j)edge[bend left=22]node[lbl]{$\m\mu$}(k\i);}
+  \draw[ar](kd)edge[bend left=22]node[lbl]{$5\mu$}(k5);
+\end{tikzpicture}
+\end{center}
+
+\paso{b) ¿Quién termina primero?}
+Con $3$ en cola de cajas las $5$ cajas están ocupadas (tasa total $5\mu$); con $2$ en la cola de
+depósitos el módulo está ocupado (tasa $\beta$). Los $6$ servicios compiten como exponenciales
+independientes; el primero en terminar es de cajas con probabilidad
+\begin{resultado}
+$\displaystyle \Prob{\text{próximo en terminar}=\text{cajas}}=\frac{5\mu}{5\mu+\beta}.$
+\end{resultado}
+\volver
+
+% ───────────────────────────────────────────── C6
+\subsection{C6 · Creatividad de un artista plástico}
+
+\begin{enun}
+Estados: Desborde creativo (D, produce $10$ obras/mes), Meditación (M, $4$ obras/mes) y
+Negación (N, $0$). De D sale a N con prob.\ $1/3$ (si no, a M). De N pasa con certeza a M. De M
+va equiprobable a N o D. Permanencias exp.\ de media $1,2,1$ meses para D, M, N.
+\textbf{a)} CDMC: estados y tasas. \textbf{b)} ¿Es nacimiento–muerte? Calcule las estacionarias.
+\textbf{c)} \% de tiempo productivo. \textbf{d)} Tasa de producción en el largo plazo.
+\end{enun}
+
+\resoltag
+\paso{a) Tasas instantáneas}
+Tasas de salida (mes$^{-1}$): $r_D=1,\ r_M=\tfrac12,\ r_N=1$. Con las probabilidades de ruta:
+\[
+  q_{D,N}=\tfrac13,\ q_{D,M}=\tfrac23,\qquad q_{N,M}=1,\qquad q_{M,D}=\tfrac14,\ q_{M,N}=\tfrac14.
+\]
+\begin{center}
+\begin{tikzpicture}[node distance=2.6cm]
+  \node[edo](D){$D$};\node[edo,right=of D](M){$M$};\node[edo,right=of M](N){$N$};
+  \draw[ar](D)edge[bend left=14]node[lbl]{$\tfrac23$}(M);
+  \draw[ar](M)edge[bend left=14]node[lbl]{$\tfrac14$}(D);
+  \draw[ar](M)edge[bend left=14]node[lbl]{$\tfrac14$}(N);
+  \draw[ar](N)edge[bend left=14]node[lbl]{$1$}(M);
+  \draw[ar](D)edge[bend left=34]node[lbl]{$\tfrac13$}(N);
+\end{tikzpicture}
+\end{center}
+
+\paso{b) ¿Nacimiento–muerte? Estacionarias}
+\textbf{No} es de nacimiento–muerte: desde $D$ se salta tanto a $M$ como a $N$ (no hay un orden
+lineal con sólo vecinos). Resolviendo $\boldsymbol\pi Q=0$:
+\[
+  \pi_D=\tfrac14\pi_M,\qquad \pi_N=\tfrac13\pi_D+\tfrac14\pi_M=\tfrac13\pi_M,\qquad
+  \tfrac12\pi_M=\tfrac23\pi_D+\pi_N\ (\text{consistente}).
+\]
+Con $\pi_D+\pi_M+\pi_N=1$ ($\tfrac{19}{12}\pi_M=1$):
+\begin{resultado}
+$\displaystyle \boldsymbol\pi=(\pi_D,\pi_M,\pi_N)=\Big(\tfrac{3}{19},\ \tfrac{12}{19},\ \tfrac{4}{19}\Big).$
+\end{resultado}
+
+\paso{c) Tiempo productivo}
+Produce en $D$ y $M$:
+$\ \pi_D+\pi_M=\tfrac{15}{19}\approx\boxed{78.9\%}.$
+
+\paso{d) Tasa de producción a largo plazo}
+\[
+  10\,\pi_D+4\,\pi_M+0\,\pi_N=\frac{10\cdot3+4\cdot12}{19}=\frac{78}{19}\approx\boxed{4.11\ \text{obras/mes}.}
+\]
+\volver
+
+\vspace{6pt}
+{\color{primary}\hrule height 2pt}
+\vspace{3pt}
+{\footnotesize\sffamily\color{primary}Fin de la guía \textbullet\ Cadenas de Markov \textbullet\ Modelos Estocásticos 2026}
+
+\end{document}
